@@ -1,5 +1,4 @@
 import { Header } from "@/components/layout/Header";
-import { ChatBot } from "@/components/chatbot/ChatBot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -213,8 +212,6 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </main>
-
-      <ChatBot />
     </div>
   );
 };
