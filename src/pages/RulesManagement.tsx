@@ -376,12 +376,10 @@ const RulesManagement = () => {
                     className="hidden"
                     id="file-upload"
                   />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <Button type="button" onClick={() => document.getElementById('file-upload')?.click()}>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Choose Files
-                    </Button>
-                  </label>
+                  <Button type="button" onClick={() => document.getElementById('file-upload')?.click()}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Choose Files
+                  </Button>
                   {selectedFile && (
                     <div className="mt-4 space-y-3">
                       <Input
