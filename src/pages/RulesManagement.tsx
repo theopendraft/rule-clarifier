@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
-import { ChatBot } from "@/components/chatbot/ChatBot";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,8 @@ import {
   Save, 
   FileText,
   Search,
-  Filter
+  Filter,
+  ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,10 +51,21 @@ const sampleRules = [
 ];
 
 const RulesManagement = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedRule, setSelectedRule] = useState(sampleRules[0]);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(selectedRule.content);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("rules");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const handleSaveRule = () => {
     toast.success("Rule updated successfully!");
@@ -63,6 +75,25 @@ const RulesManagement = () => {
 
   const handleAddReference = (ruleId: string) => {
     toast.success(`Reference to Rule ${ruleId} added!`);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setSelectedFile(file);
+      toast.success(`File ${file.name} selected for upload!`);
+    } else {
+      toast.error('Please select a PDF file.');
+    }
+  };
+
+  const handleUploadSubmit = () => {
+    if (selectedFile) {
+      toast.success(`${selectedFile.name} uploaded successfully!`);
+      setSelectedFile(null);
+    } else {
+      toast.error('Please select a file first.');
+    }
   };
 
   const filteredRules = sampleRules.filter(rule => 
@@ -77,13 +108,22 @@ const RulesManagement = () => {
       
       <main className="container mx-auto py-6 px-6">
         <div className="mb-8">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate(-1)}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
           <h1 className="text-3xl font-bold text-foreground mb-2">Rules Management</h1>
           <p className="text-muted-foreground text-lg">
             Create, edit, and manage railway operational rules and cross-references
           </p>
         </div>
 
-        <Tabs defaultValue="rules" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="rules">Manage Rules</TabsTrigger>
             <TabsTrigger value="upload">Upload Documents</TabsTrigger>
@@ -233,12 +273,26 @@ const RulesManagement = () => {
                   <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Upload Rule Documents</h3>
                   <p className="text-muted-foreground mb-4">
-                    Drag and drop your PDF files here, or click to browse
+                    {selectedFile ? `Selected: ${selectedFile.name}` : 'Drag and drop your PDF files here, or click to browse'}
                   </p>
-                  <Button>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose Files
-                  </Button>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <Button type="button" onClick={() => document.getElementById('file-upload')?.click()}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Choose Files
+                    </Button>
+                  </label>
+                  {selectedFile && (
+                    <Button onClick={handleUploadSubmit} className="ml-4">
+                      Upload File
+                    </Button>
+                  )}
                 </div>
                 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -314,8 +368,6 @@ const RulesManagement = () => {
           </TabsContent>
         </Tabs>
       </main>
-
-      <ChatBot />
     </div>
   );
 };

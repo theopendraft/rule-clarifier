@@ -12,9 +12,10 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  Plus
+  Plus,
+  ArrowLeft
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const recentChanges = [
   { id: 1, rule: "4.01", change: "Updated standard time synchronization procedure", user: "Admin", date: "2024-01-21", type: "update" },
@@ -30,72 +31,57 @@ const pendingNotifications = [
 ];
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main className="container mx-auto py-6 px-6">
         <div className="mb-8">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate(-1)}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
           <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground text-lg">
             Manage railway rules, monitor changes, and oversee system operations
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Rules</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,247</div>
-              <p className="text-xs text-muted-foreground">
-                +12 from last week
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">23</div>
-              <p className="text-xs text-muted-foreground">
-                -5 from yesterday
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">89</div>
-              <p className="text-xs text-muted-foreground">
-                +7 from last hour
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">System Health</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">99.9%</div>
-              <p className="text-xs text-muted-foreground">
-                Uptime this month
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Quick Actions */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Link to="/admin/rules">
+                <Button variant="outline" className="w-full h-20 flex flex-col">
+                  <FileText className="h-6 w-6 mb-2" />
+                  Manage Rules
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                className="w-full h-20 flex flex-col"
+                onClick={() => navigate('/admin/rules?tab=upload')}
+              >
+                <Upload className="h-6 w-6 mb-2" />
+                Upload PDF
+              </Button>
+              <Button variant="outline" className="w-full h-20 flex flex-col">
+                <TrendingUp className="h-6 w-6 mb-2" />
+                Analytics
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Recent Changes */}
@@ -187,30 +173,7 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        {/* Quick Actions */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Link to="/admin/rules">
-                <Button variant="outline" className="w-full h-20 flex flex-col">
-                  <FileText className="h-6 w-6 mb-2" />
-                  Manage Rules
-                </Button>
-              </Link>
-              <Button variant="outline" className="w-full h-20 flex flex-col">
-                <Upload className="h-6 w-6 mb-2" />
-                Upload PDF
-              </Button>
-              <Button variant="outline" className="w-full h-20 flex flex-col">
-                <TrendingUp className="h-6 w-6 mb-2" />
-                Analytics
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
       </main>
     </div>
   );

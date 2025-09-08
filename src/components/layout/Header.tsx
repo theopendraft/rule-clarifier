@@ -22,14 +22,6 @@ export function Header() {
           </Link>
           
           <nav className="flex items-center space-x-1">
-            <Link to="/">
-              <Button
-                variant={location.pathname === "/" ? "default" : "ghost"}
-                size="sm"
-              >
-                Home
-              </Button>
-            </Link>
             <Link to="/admin">
               <Button
                 variant={location.pathname === "/admin" ? "default" : "ghost"}
