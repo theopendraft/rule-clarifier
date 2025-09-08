@@ -13,9 +13,11 @@ import {
   CheckCircle,
   Clock,
   Plus,
-  ArrowLeft
+  ArrowLeft,
+  BarChart3
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const recentChanges = [
   { id: 1, rule: "4.01", change: "Updated standard time synchronization procedure", user: "Admin", date: "2024-01-21", type: "update" },
@@ -32,6 +34,22 @@ const pendingNotifications = [
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+
+  const handleAddChange = () => {
+    toast.success("Add change functionality would open here");
+  };
+
+  const handleViewAllChanges = () => {
+    toast.info("Navigating to full changes history");
+  };
+
+  const handleViewAllNotifications = () => {
+    toast.info("Navigating to notifications center");
+  };
+
+  const handleAnalytics = () => {
+    toast.info("Analytics dashboard would open here");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,10 +93,33 @@ const AdminDashboard = () => {
                 <Upload className="h-6 w-6 mb-2" />
                 Upload PDF
               </Button>
-              <Button variant="outline" className="w-full h-20 flex flex-col">
-                <TrendingUp className="h-6 w-6 mb-2" />
+              <Button 
+                variant="outline" 
+                className="w-full h-20 flex flex-col"
+                onClick={handleAnalytics}
+              >
+                <BarChart3 className="h-6 w-6 mb-2" />
                 Analytics
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Chapters */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Chapters</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((chapter) => (
+                <Link key={chapter} to={`/admin/chapter/${chapter}`}>
+                  <Button variant="outline" className="w-full h-16 flex flex-col">
+                    <FileText className="h-5 w-5 mb-1" />
+                    Chapter {chapter}
+                  </Button>
+                </Link>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -89,7 +130,7 @@ const AdminDashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Recent Changes
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={handleAddChange}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Change
                 </Button>
@@ -121,7 +162,7 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
-              <Button variant="outline" className="w-full mt-4">
+              <Button variant="outline" className="w-full mt-4" onClick={handleViewAllChanges}>
                 View All Changes
               </Button>
             </CardContent>
@@ -166,7 +207,7 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
-              <Button variant="outline" className="w-full mt-4">
+              <Button variant="outline" className="w-full mt-4" onClick={handleViewAllNotifications}>
                 View All Notifications
               </Button>
             </CardContent>

@@ -59,6 +59,16 @@ const RulesManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("rules");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [sourceRuleId, setSourceRuleId] = useState("");
+  const [targetRuleId, setTargetRuleId] = useState("");
+  const [crossReferences, setCrossReferences] = useState([
+    { id: 1, source: "4.01", target: "4.02" },
+    { id: 2, source: "4.01", target: "4.03" }
+  ]);
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{id: number, name: string, status: string, date: string}>>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [textImport, setTextImport] = useState("");
+  const [fileName, setFileName] = useState("");
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -89,11 +99,95 @@ const RulesManagement = () => {
 
   const handleUploadSubmit = () => {
     if (selectedFile) {
-      toast.success(`${selectedFile.name} uploaded successfully!`);
+      const displayName = fileName.trim() || selectedFile.name;
+      const newFile = {
+        id: Date.now(),
+        name: displayName,
+        status: 'uploaded',
+        date: new Date().toLocaleDateString()
+      };
+      setUploadedFiles(prev => [...prev, newFile]);
+      toast.success(`${displayName} uploaded successfully!`);
       setSelectedFile(null);
+      setFileName("");
     } else {
       toast.error('Please select a file first.');
     }
+  };
+
+  const handleNewRule = () => {
+    toast.info("New rule creation form would open here");
+  };
+
+  const handleProcessPDFs = async () => {
+    if (uploadedFiles.length === 0) {
+      toast.error("No files to process. Please upload PDF files first.");
+      return;
+    }
+    
+    setIsProcessing(true);
+    toast.info("Processing PDFs with AI...");
+    
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    setUploadedFiles(prev => prev.map(file => ({ ...file, status: 'processed' })));
+    setIsProcessing(false);
+    toast.success(`Successfully processed ${uploadedFiles.length} PDF files!`);
+  };
+
+  const handleImportText = () => {
+    if (!textImport.trim()) {
+      toast.error("Please enter text to import");
+      return;
+    }
+    
+    const newFile = {
+      id: Date.now(),
+      name: `Text Import - ${new Date().toLocaleTimeString()}`,
+      status: 'imported',
+      date: new Date().toLocaleDateString()
+    };
+    
+    setUploadedFiles(prev => [...prev, newFile]);
+    setTextImport("");
+    toast.success("Text imported successfully!");
+  };
+
+  const handleRemoveFile = (id: number) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== id));
+    toast.success("File removed successfully!");
+  };
+
+  const handleAddLink = () => {
+    toast.success("Cross-reference link added successfully!");
+  };
+
+  const handleRemoveLink = (id: number) => {
+    setCrossReferences(prev => prev.filter(ref => ref.id !== id));
+    toast.success("Cross-reference removed successfully!");
+  };
+
+  const handleAddCrossReference = () => {
+    if (!sourceRuleId.trim() || !targetRuleId.trim()) {
+      toast.error("Please enter both source and target rule IDs");
+      return;
+    }
+    
+    if (sourceRuleId === targetRuleId) {
+      toast.error("Source and target rules cannot be the same");
+      return;
+    }
+
+    const newRef = {
+      id: Date.now(),
+      source: sourceRuleId.trim(),
+      target: targetRuleId.trim()
+    };
+
+    setCrossReferences(prev => [...prev, newRef]);
+    setSourceRuleId("");
+    setTargetRuleId("");
+    toast.success("Cross-reference added successfully!");
   };
 
   const filteredRules = sampleRules.filter(rule => 
@@ -137,7 +231,7 @@ const RulesManagement = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     Rules List
-                    <Button size="sm">
+                    <Button size="sm" onClick={handleNewRule}>
                       <Plus className="h-4 w-4 mr-2" />
                       New Rule
                     </Button>
@@ -289,9 +383,17 @@ const RulesManagement = () => {
                     </Button>
                   </label>
                   {selectedFile && (
-                    <Button onClick={handleUploadSubmit} className="ml-4">
-                      Upload File
-                    </Button>
+                    <div className="mt-4 space-y-3">
+                      <Input
+                        placeholder="Enter file name (optional)"
+                        value={fileName}
+                        onChange={(e) => setFileName(e.target.value)}
+                        className="max-w-md mx-auto"
+                      />
+                      <Button onClick={handleUploadSubmit}>
+                        Upload File
+                      </Button>
+                    </div>
                   )}
                 </div>
                 
@@ -304,8 +406,20 @@ const RulesManagement = () => {
                       <p className="text-sm text-muted-foreground mb-4">
                         Automatically extract rules from PDF documents with AI assistance
                       </p>
-                      <Button variant="outline" className="w-full">
-                        Process PDFs
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        onClick={handleProcessPDFs}
+                        disabled={isProcessing || uploadedFiles.length === 0}
+                      >
+                        {isProcessing ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                            Processing...
+                          </div>
+                        ) : (
+                          `Process PDFs (${uploadedFiles.filter(f => f.status === 'uploaded').length})`
+                        )}
                       </Button>
                     </CardContent>
                   </Card>
@@ -318,12 +432,55 @@ const RulesManagement = () => {
                       <p className="text-sm text-muted-foreground mb-4">
                         Import rules from text files or manual entry
                       </p>
-                      <Button variant="outline" className="w-full">
-                        Import Text
-                      </Button>
+                      <div className="space-y-3">
+                        <textarea
+                          placeholder="Paste your rule text here..."
+                          value={textImport}
+                          onChange={(e) => setTextImport(e.target.value)}
+                          className="w-full h-24 p-3 border border-border rounded-lg resize-none focus:ring-2 focus:ring-primary focus:border-primary"
+                        />
+                        <Button variant="outline" className="w-full" onClick={handleImportText}>
+                          Import Text
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
+                
+                {uploadedFiles.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="font-semibold mb-3">Uploaded Files ({uploadedFiles.length})</h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {uploadedFiles.map((file) => (
+                        <div key={file.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{file.name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge 
+                                className={
+                                  file.status === 'processed' ? 'bg-success/10 text-success' :
+                                  file.status === 'imported' ? 'bg-primary/10 text-primary' :
+                                  'bg-warning/10 text-warning'
+                                }
+                              >
+                                {file.status}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">{file.date}</span>
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => handleRemoveFile(file.id)}
+                            className="hover:bg-destructive hover:text-destructive-foreground"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -340,26 +497,43 @@ const RulesManagement = () => {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
                     <div className="flex-1">
-                      <Input placeholder="Source Rule ID" />
+                      <Input 
+                        placeholder="Source Rule ID (e.g., 4.01)" 
+                        value={sourceRuleId}
+                        onChange={(e) => setSourceRuleId(e.target.value)}
+                      />
                     </div>
                     <LinkIcon className="h-5 w-5 text-muted-foreground" />
                     <div className="flex-1">
-                      <Input placeholder="Target Rule ID" />
+                      <Input 
+                        placeholder="Target Rule ID (e.g., 4.02)" 
+                        value={targetRuleId}
+                        onChange={(e) => setTargetRuleId(e.target.value)}
+                      />
                     </div>
-                    <Button>Add Link</Button>
+                    <Button onClick={handleAddCrossReference}>Add Link</Button>
                   </div>
                   
                   <div className="border border-border rounded-lg p-4">
-                    <h4 className="font-semibold mb-3">Existing Cross References</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                        <span className="text-sm">Rule 4.01 ↔ Rule 4.02</span>
-                        <Button size="sm" variant="outline">Remove</Button>
-                      </div>
-                      <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                        <span className="text-sm">Rule 4.01 ↔ Rule 4.03</span>
-                        <Button size="sm" variant="outline">Remove</Button>
-                      </div>
+                    <h4 className="font-semibold mb-3">Existing Cross References ({crossReferences.length})</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {crossReferences.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">No cross-references found. Add one above.</p>
+                      ) : (
+                        crossReferences.map((ref) => (
+                          <div key={ref.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                            <span className="text-sm font-medium">Rule {ref.source} ↔ Rule {ref.target}</span>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => handleRemoveLink(ref.id)}
+                              className="hover:bg-destructive hover:text-destructive-foreground"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
