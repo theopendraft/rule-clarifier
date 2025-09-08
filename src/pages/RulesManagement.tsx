@@ -369,17 +369,18 @@ const RulesManagement = () => {
                   <p className="text-muted-foreground mb-4">
                     {selectedFile ? `Selected: ${selectedFile.name}` : 'Drag and drop your PDF files here, or click to browse'}
                   </p>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <Button type="button" onClick={() => document.getElementById('file-upload')?.click()}>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose Files
-                  </Button>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <Button type="button" className="pointer-events-none">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Choose Files
+                    </Button>
+                  </div>
                   {selectedFile && (
                     <div className="mt-4 space-y-3">
                       <Input
