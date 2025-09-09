@@ -48,29 +48,67 @@ const getStatusIcon = (status: string) => {
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <Header />
       
-      <main className="container mx-auto py-6 px-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Railway Rules Portal</h1>
-          <p className="text-muted-foreground text-lg">
-            Comprehensive management system for railway operational rules and procedures
-          </p>
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-800/5 to-blue-600/5"></div>
+        <div className="container mx-auto py-16 px-6 relative">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-5xl font-bold text-slate-800 mb-6 tracking-tight">
+              Railway Rules <span className="text-gradient">Portal</span>
+            </h1>
+            <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+              Comprehensive management system for railway operational rules and procedures.
+              Streamline compliance, enhance safety, and ensure operational excellence.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/admin">
+                <Button size="lg" className="bg-gradient-to-r from-slate-800 to-slate-600 hover:from-slate-700 hover:to-slate-500 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                  Access Dashboard
+                </Button>
+              </Link>
+              <Button variant="outline" size="lg" className="px-8 py-3 rounded-xl font-semibold border-slate-300 hover:bg-slate-50 transition-all duration-300">
+                View Documentation
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="container mx-auto py-12 px-6">
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-800 mb-2">Chapter Overview</h2>
+              <p className="text-slate-600">
+                Browse and manage railway operational chapters and their associated rules
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Badge variant="outline" className="px-3 py-1 text-sm font-medium">
+                {chapters.length} Chapters
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1 text-sm font-medium">
+                {chapters.reduce((sum, ch) => sum + ch.rules, 0)} Total Rules
+              </Badge>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {chapters.map((chapter) => (
-            <Card key={chapter.id} className="hover:shadow-md transition-shadow border border-border/50">
-              <CardHeader className="pb-3">
+            <Card key={chapter.id} className="group bg-white/80 backdrop-blur-sm border-slate-200/60 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-xl overflow-hidden">
+              <CardHeader className="pb-4 bg-gradient-to-br from-slate-50 to-white">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="bg-primary/10 p-2 rounded-lg">
-                      <BookOpen className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-gradient-to-br from-slate-100 to-slate-200 p-3 rounded-xl group-hover:from-slate-200 group-hover:to-slate-300 transition-all duration-300">
+                      <BookOpen className="h-5 w-5 text-slate-700" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">Chapter {chapter.id}</CardTitle>
-                      <Badge className={getStatusColor(chapter.status)} variant="secondary">
+                      <CardTitle className="text-lg font-bold text-slate-800">Chapter {chapter.id}</CardTitle>
+                      <Badge className={`${getStatusColor(chapter.status)} border-0 font-medium`} variant="secondary">
                         {getStatusIcon(chapter.status)}
                         <span className="ml-1 capitalize">{chapter.status}</span>
                       </Badge>
@@ -79,25 +117,25 @@ const Index = () => {
                 </div>
               </CardHeader>
               
-              <CardContent className="pt-0">
-                <h3 className="font-semibold text-foreground mb-3">{chapter.title}</h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex justify-between">
-                    <span>Total Rules:</span>
-                    <span className="font-medium">{chapter.rules}</span>
+              <CardContent className="pt-0 px-6 pb-6">
+                <h3 className="font-semibold text-slate-800 mb-4 text-base leading-tight">{chapter.title}</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center py-2 px-3 bg-slate-50/80 rounded-lg">
+                    <span className="text-slate-600 font-medium">Total Rules:</span>
+                    <span className="font-bold text-slate-800">{chapter.rules}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Last Modified:</span>
-                    <span className="font-medium">{chapter.lastModified}</span>
+                  <div className="flex justify-between items-center py-2 px-3 bg-slate-50/80 rounded-lg">
+                    <span className="text-slate-600 font-medium">Last Modified:</span>
+                    <span className="font-bold text-slate-800">{chapter.lastModified}</span>
                   </div>
                 </div>
                 
-                <div className="mt-4 space-y-2">
-                  <Button variant="outline" size="sm" className="w-full">
+                <div className="mt-6 space-y-3">
+                  <Button variant="outline" size="sm" className="w-full rounded-lg font-medium border-slate-300 hover:bg-slate-50 transition-all duration-200">
                     View Rules
                   </Button>
                   <Link to="/admin/rules">
-                    <Button variant="ghost" size="sm" className="w-full">
+                    <Button variant="ghost" size="sm" className="w-full rounded-lg font-medium hover:bg-slate-100 transition-all duration-200">
                       Edit Chapter
                     </Button>
                   </Link>
@@ -105,14 +143,6 @@ const Index = () => {
               </CardContent>
             </Card>
           ))}
-        </div>
-        
-        <div className="mt-8 text-center">
-          <Link to="/admin">
-            <Button size="lg" className="bg-primary hover:bg-primary-hover">
-              Access Admin Dashboard
-            </Button>
-          </Link>
         </div>
       </main>
     </div>

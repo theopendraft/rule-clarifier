@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bell, Search, Settings, Train, AlertTriangle, Clock, LogOut } from "lucide-react";
+import { Bell, Search, Settings, Train, AlertTriangle, Clock, LogOut, Menu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -40,24 +40,25 @@ export function Header() {
   };
   
   return (
-    <header className="bg-background border-b border-border shadow-sm">
+    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm sticky top-0 z-50">
       <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center space-x-6">
-          <Link to="/" className="flex items-center space-x-3">
-            <div className="bg-primary p-2 rounded-lg">
-              <Train className="h-6 w-6 text-primary-foreground" />
+        <div className="flex items-center space-x-8">
+          <Link to="/" className="flex items-center space-x-4 group">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-600 p-3 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <Train className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Railway Admin Portal</h1>
-              <p className="text-sm text-muted-foreground">Rules Management System</p>
+              <h1 className="text-xl font-bold text-slate-800 tracking-tight">Railway Portal</h1>
+              <p className="text-sm text-slate-500 font-medium">Rules Management System</p>
             </div>
           </Link>
           
-          <nav className="flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-2">
             <Link to="/admin">
               <Button
                 variant={location.pathname === "/admin" ? "default" : "ghost"}
                 size="sm"
+                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >
                 Dashboard
               </Button>
@@ -66,6 +67,7 @@ export function Header() {
               <Button
                 variant={location.pathname === "/admin/rules" ? "default" : "ghost"}
                 size="sm"
+                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >
                 Rules Management
               </Button>
@@ -74,11 +76,11 @@ export function Header() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <form onSubmit={handleSearch} className="relative hidden sm:block">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search rules (e.g., 4.01, timing...)"
-              className="pl-10 w-64"
+              className="pl-10 w-72 bg-slate-50/80 border-slate-200 focus:bg-white focus:border-slate-300 transition-all duration-200 rounded-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -86,44 +88,44 @@ export function Header() {
           
           <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground px-1.5 py-0.5 text-xs">
+              <Button variant="ghost" size="sm" className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                <Bell className="h-5 w-5 text-slate-600" />
+                <Badge className="absolute -top-1 -right-1 bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full border-2 border-white">
                   {notifications.length}
                 </Badge>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-0" align="end">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Notifications</CardTitle>
+            <PopoverContent className="w-80 p-0 shadow-xl border-slate-200 rounded-xl" align="end">
+              <Card className="border-0 shadow-none">
+                <CardHeader className="pb-3 px-4 pt-4">
+                  <CardTitle className="text-sm font-semibold text-slate-800">Notifications</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="max-h-64 overflow-y-auto">
                     {notifications.map((notification) => (
-                      <div key={notification.id} className="flex items-start space-x-3 p-3 border-b border-border last:border-b-0 hover:bg-muted/50">
-                        <div className={`p-1.5 rounded-full ${
-                          notification.priority === "high" ? "bg-destructive/10" :
-                          notification.priority === "medium" ? "bg-warning/10" :
-                          "bg-primary/10"
+                      <div key={notification.id} className="flex items-start space-x-3 p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/80 transition-colors">
+                        <div className={`p-2 rounded-lg ${
+                          notification.priority === "high" ? "bg-red-50 text-red-600" :
+                          notification.priority === "medium" ? "bg-amber-50 text-amber-600" :
+                          "bg-blue-50 text-blue-600"
                         }`}>
                           {notification.priority === "high" ? (
-                            <AlertTriangle className="h-3 w-3 text-destructive" />
+                            <AlertTriangle className="h-4 w-4" />
                           ) : notification.priority === "medium" ? (
-                            <Clock className="h-3 w-3 text-warning" />
+                            <Clock className="h-4 w-4" />
                           ) : (
-                            <Bell className="h-3 w-3 text-primary" />
+                            <Bell className="h-4 w-4" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs text-foreground font-medium leading-tight">{notification.message}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{notification.date}</p>
+                          <p className="text-sm text-slate-800 font-medium leading-tight">{notification.message}</p>
+                          <p className="text-xs text-slate-500 mt-1">{notification.date}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="p-3 border-t border-border">
-                    <Button variant="outline" size="sm" className="w-full">
+                  <div className="p-4 border-t border-slate-100">
+                    <Button variant="outline" size="sm" className="w-full rounded-lg font-medium">
                       View All Notifications
                     </Button>
                   </div>
@@ -132,12 +134,16 @@ export function Header() {
             </PopoverContent>
           </Popover>
           
-          <Button variant="ghost" size="sm" onClick={handleSettings}>
-            <Settings className="h-5 w-5" />
+          <Button variant="ghost" size="sm" onClick={handleSettings} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+            <Settings className="h-5 w-5 text-slate-600" />
           </Button>
           
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
-            <LogOut className="h-5 w-5" />
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+            <LogOut className="h-5 w-5 text-slate-600" />
+          </Button>
+          
+          <Button variant="ghost" size="sm" className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors">
+            <Menu className="h-5 w-5 text-slate-600" />
           </Button>
         </div>
       </div>
