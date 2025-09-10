@@ -7,6 +7,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import RulesManagement from "./pages/RulesManagement";
 import ChapterView from "./pages/ChapterView";
+import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
@@ -22,8 +23,9 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      <Route path="/login" element={!isAuthenticated ? <AdminLogin /> : <Navigate to="/admin" />} />
-      <Route path="/" element={<Navigate to={isAuthenticated ? "/admin" : "/login"} />} />
+      <Route path="/login" element={!isAuthenticated ? <AdminLogin /> : <Navigate to="/home" />} />
+      <Route path="/" element={<Navigate to={isAuthenticated ? "/home" : "/login"} />} />
+      <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/rules" element={<ProtectedRoute><RulesManagement /></ProtectedRoute>} />
       <Route path="/admin/chapter/:chapterId" element={<ProtectedRoute><ChapterView /></ProtectedRoute>} />

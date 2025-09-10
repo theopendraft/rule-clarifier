@@ -72,38 +72,7 @@ const AdminDashboard = () => {
           </p>
         </div>
 
-        {/* Quick Actions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Link to="/admin/rules">
-                <Button variant="outline" className="w-full h-20 flex flex-col">
-                  <FileText className="h-6 w-6 mb-2" />
-                  Manage Rules
-                </Button>
-              </Link>
-              <Button 
-                variant="outline" 
-                className="w-full h-20 flex flex-col"
-                onClick={() => navigate('/admin/rules?tab=upload')}
-              >
-                <Upload className="h-6 w-6 mb-2" />
-                Upload PDF
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full h-20 flex flex-col"
-                onClick={handleAnalytics}
-              >
-                <BarChart3 className="h-6 w-6 mb-2" />
-                Analytics
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Chapters */}
         <Card className="mb-6">

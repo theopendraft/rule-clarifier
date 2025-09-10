@@ -27,7 +27,7 @@ const AdminLogin = () => {
     
     if (login(credentials.username, credentials.password)) {
       toast.success("Login successful!");
-      navigate("/admin");
+      navigate("/home");
     } else {
       toast.error("Invalid credentials!");
     }

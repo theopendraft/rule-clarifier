@@ -54,6 +54,15 @@ export function Header() {
           </Link>
           
           <nav className="hidden md:flex items-center space-x-2">
+            <Link to="/home">
+              <Button
+                variant={location.pathname === "/home" ? "default" : "ghost"}
+                size="sm"
+                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+              >
+                Home
+              </Button>
+            </Link>
             <Link to="/admin">
               <Button
                 variant={location.pathname === "/admin" ? "default" : "ghost"}
@@ -69,7 +78,7 @@ export function Header() {
                 size="sm"
                 className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >
-                Rules Management
+                Upload Files
               </Button>
             </Link>
           </nav>
