@@ -72,9 +72,9 @@ export function Header() {
                 Dashboard
               </Button>
             </Link>
-            <Link to="/admin/rules">
+            <Link to="/upload">
               <Button
-                variant={location.pathname === "/admin/rules" ? "default" : "ghost"}
+                variant={location.pathname === "/upload" ? "default" : "ghost"}
                 size="sm"
                 className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >

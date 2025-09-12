@@ -52,7 +52,7 @@ const ChapterView = () => {
   const [editingRule, setEditingRule] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-  const [isChapterEditMode, setIsChapterEditMode] = useState(false);
+
   
   const chapter = chapterData[chapterId as keyof typeof chapterData];
   
@@ -108,18 +108,7 @@ const ChapterView = () => {
     toast.success(`Link added for Rule ${ruleId}`);
   };
 
-  const handleEditChapter = () => {
-    setIsChapterEditMode(true);
-    toast.info("Chapter edit mode enabled. Click on rule edit buttons to modify rules.");
-  };
 
-  const handleExitEditMode = () => {
-    setIsChapterEditMode(false);
-    setEditingRule(null);
-    setEditTitle("");
-    setEditContent("");
-    toast.info("Chapter edit mode disabled.");
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -177,19 +166,7 @@ const ChapterView = () => {
                 <h1 className="text-4xl font-bold text-foreground mb-4">CHAPTER {chapterId}</h1>
                 <h2 className="text-2xl font-semibold text-muted-foreground mb-6">{chapter.subtitle}</h2>
                 <h3 className="text-lg font-medium text-foreground">{chapter.section}</h3>
-                <div className="mt-6">
-                  {!isChapterEditMode ? (
-                    <Button onClick={handleEditChapter} className="bg-blue-600 hover:bg-blue-700">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Chapter
-                    </Button>
-                  ) : (
-                    <Button onClick={handleExitEditMode} variant="outline">
-                      <X className="h-4 w-4 mr-2" />
-                      Exit Edit Mode
-                    </Button>
-                  )}
-                </div>
+
               </div>
 
               <div className="space-y-8">
@@ -223,16 +200,7 @@ const ChapterView = () => {
                             {rule.id}. {rule.title}:-
                           </h4>
                           <div className="flex items-center gap-2">
-                            {isChapterEditMode && editingRule !== rule.id && (
-                              <Button 
-                                onClick={() => handleEditRule(rule.id, rule.title, rule.content)} 
-                                variant="ghost" 
-                                size="sm"
-                              >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit
-                              </Button>
-                            )}
+
                             {editingRule === rule.id && (
                               <>
                                 <Button onClick={handleSaveRule} size="sm" className="bg-green-600 hover:bg-green-700">

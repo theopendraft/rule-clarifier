@@ -8,6 +8,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import RulesManagement from "./pages/RulesManagement";
 import ChapterView from "./pages/ChapterView";
 import Home from "./pages/Home";
+import UploadPage from "./pages/Upload";
 import NotFound from "./pages/NotFound";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
@@ -26,6 +27,7 @@ const AppRoutes = () => {
       <Route path="/login" element={!isAuthenticated ? <AdminLogin /> : <Navigate to="/home" />} />
       <Route path="/" element={<Navigate to={isAuthenticated ? "/home" : "/login"} />} />
       <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+      <Route path="/upload" element={<ProtectedRoute><UploadPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/rules" element={<ProtectedRoute><RulesManagement /></ProtectedRoute>} />
       <Route path="/admin/chapter/:chapterId" element={<ProtectedRoute><ChapterView /></ProtectedRoute>} />

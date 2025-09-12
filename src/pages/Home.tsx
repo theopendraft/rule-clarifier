@@ -1,7 +1,11 @@
                     import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
-import { BookOpen, ChevronRight, ChevronDown, Edit3, Download } from "lucide-react";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, FileText, Upload } from "lucide-react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 
 const chapters = [
@@ -284,6 +288,54 @@ const Home = () => {
   const [selectedRule, setSelectedRule] = useState("4.01");
   const [expandedChapters, setExpandedChapters] = useState<number[]>([4]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [editingRule, setEditingRule] = useState<string | null>(null);
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedContent, setEditedContent] = useState("");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [supportingDoc, setSupportingDoc] = useState("");
+  const [changeReason, setChangeReason] = useState("");
+  const [docType, setDocType] = useState<"upload" | "text">("upload");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedText, setSelectedText] = useState("");
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [linkType, setLinkType] = useState<"manual" | "circular" | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const manuals = [
+    { id: "M001", title: "Operating Manual - Section A", description: "Basic operating procedures" },
+    { id: "M002", title: "Safety Manual - Chapter 3", description: "Emergency protocols" },
+    { id: "M003", title: "Maintenance Manual - Part B", description: "Equipment maintenance" }
+  ];
+
+  const circulars = [
+    { id: "C001", title: "Circular No. 2024/01", description: "Updated safety guidelines" },
+    { id: "C002", title: "Circular No. 2024/02", description: "New operational procedures" },
+    { id: "C003", title: "Circular No. 2023/15", description: "Equipment specifications" }
+  ];
+
+  const getRuleContent = (ruleId: string) => {
+    if (ruleId === "4.01") {
+      return `The working of trains between stations shall be regulated by the standard time prescribed by the Government of India, which shall be transmitted daily to all the principal stations of the railway at 16.00 hours in the manner prescribed.
+
+S.R.4.01 'Standard time' as referred in GR 4.01 shall be the time displayed in GPS clock provided in the Control office and shall be transmitted to all stations at 16.00 hours by the section Controller.
+
+For stations, which are not connected to the control, the specified stations shall pass on this information through telephone.
+
+At all class "D" stations where there is no telephone connections either with the adjacent station or Control, the Clerk-in-charge shall check their station clocks daily with the time of the Guard of the first stopping train for the day.
+
+(Ref: Railway Board letter No. ED/Safety-II/Rly Board letter No.2020/ Safety(A&R)/ 19/09 dated 28.07.2021) (Correction Memo 03/2021 dated 25.08.2021)`;
+    }
+    const rule = chapters.find(ch => ch.rules.some(r => r.id === ruleId))?.rules.find(r => r.id === ruleId);
+    return `This section covers the detailed procedures and guidelines for ${rule?.title.toLowerCase()}. All railway personnel must adhere to these regulations to ensure safe and efficient operations throughout the railway network.
+
+The implementation of these rules requires comprehensive training and thorough understanding of the operational context. Personnel must be familiar with all aspects of this regulation including its application in various operational scenarios, emergency situations, and routine operations.
+
+Compliance with this rule is mandatory for all railway staff involved in the relevant operations. Any deviation from the prescribed procedures must be reported immediately to the appropriate authorities.
+
+Training programs must be conducted regularly to ensure all personnel are updated with the latest procedures and any amendments to this rule.`;
+  };
   const currentChapter = chapters.find(ch => ch.id === selectedChapter);
   const currentRule = currentChapter?.rules.find(rule => rule.id === selectedRule);
 
@@ -449,20 +501,115 @@ const Home = () => {
                     <div className="flex items-start space-x-4">
                       <span className="text-blue-600 font-bold text-lg">{rule.id}.</span>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-lg font-semibold text-slate-800">{rule.title}:-</h4>
-                          {isEditMode && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toast.info(`Editing rule ${rule.id}: ${rule.title}`)}
-                              className="text-blue-600 hover:text-blue-800"
-                            >
-                              <Edit3 className="h-4 w-4" />
-                            </Button>
+                        <div className="mb-4">
+                          {editingRule === rule.id ? (
+                            <div className="space-y-4">
+                              {/* Action Buttons at Top */}
+                              <div className="flex justify-end space-x-2 mb-4">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (hasUnsavedChanges) {
+                                      setShowSaveDialog(true);
+                                    } else {
+                                      toast.error("No changes to save");
+                                    }
+                                  }}
+                                  className="text-green-600 hover:text-green-800"
+                                  disabled={!hasUnsavedChanges}
+                                >
+                                  Save
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    toast.info(`Cancelled editing rule ${rule.id}`);
+                                    setEditingRule(null);
+                                  }}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const selection = window.getSelection()?.toString();
+                                    if (selection) {
+                                      setSelectedText(selection);
+                                      setShowLinkDialog(true);
+                                    } else {
+                                      toast.info("Please select text first to create a link");
+                                    }
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  Link
+                                </Button>
+                              </div>
+                              
+                              {/* Edit Form */}
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-slate-700 mb-1">Rule Title</label>
+                                  <Input
+                                    value={editedTitle}
+                                    onChange={(e) => {
+                                      setEditedTitle(e.target.value);
+                                      setHasUnsavedChanges(true);
+                                    }}
+                                    className="w-full"
+                                    placeholder="Enter rule title"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-slate-700 mb-1">Rule Content</label>
+                                  <Textarea
+                                    value={editedContent}
+                                    onChange={(e) => {
+                                      setEditedContent(e.target.value);
+                                      setHasUnsavedChanges(true);
+                                    }}
+                                    className="w-full resize-none"
+                                    style={{ 
+                                      height: `${Math.max(300, editedContent.split('\n').length * 24 + 60)}px`,
+                                      minWidth: '100%'
+                                    }}
+                                    placeholder="Edit rule content..."
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-lg font-semibold text-slate-800">{rule.title}:-</h4>
+                              {isEditMode && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingRule(rule.id);
+                                    setEditedTitle(rule.title);
+                                    setEditedContent(getRuleContent(rule.id));
+                                    setHasUnsavedChanges(false);
+                                    toast.info(`Editing rule ${rule.id}: ${rule.title}`);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  <Edit3 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           )}
                         </div>
-                        <div className="space-y-4 text-slate-700 leading-relaxed">
+                        <div ref={contentRef} className="space-y-4 text-slate-700 leading-relaxed" onMouseUp={() => {
+                          const selection = window.getSelection()?.toString();
+                          if (selection && editingRule === rule.id) {
+                            setSelectedText(selection);
+                          }
+                        }}>
                           {rule.id === "4.01" ? (
                             <>
                               <p>
@@ -527,6 +674,190 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {/* Save Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save Changes</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Supporting Document</label>
+              <div className="flex space-x-2 mb-3">
+                <Button
+                  type="button"
+                  variant={docType === "upload" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setDocType("upload")}
+                  className="flex-1"
+                >
+                  <Upload className="h-4 w-4 mr-1" />
+                  Upload File
+                </Button>
+                <Button
+                  type="button"
+                  variant={docType === "text" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setDocType("text")}
+                  className="flex-1"
+                >
+                  <FileText className="h-4 w-4 mr-1" />
+                  Write Text
+                </Button>
+              </div>
+              
+              {docType === "upload" ? (
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadedFile(file);
+                        setSupportingDoc(file.name);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full"
+                  >
+                    {uploadedFile ? uploadedFile.name : "Choose File"}
+                  </Button>
+                </div>
+              ) : (
+                <Input
+                  value={supportingDoc}
+                  onChange={(e) => setSupportingDoc(e.target.value)}
+                  placeholder="Enter document reference (e.g., Circular No. 2024/01)"
+                />
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Reason for Change</label>
+              <Textarea
+                value={changeReason}
+                onChange={(e) => setChangeReason(e.target.value)}
+                placeholder="Describe the reason for this change..."
+                className="min-h-[100px]"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (supportingDoc && changeReason) {
+                    const docInfo = docType === "upload" ? `file: ${uploadedFile?.name}` : `reference: ${supportingDoc}`;
+                    toast.success(`Changes saved with supporting document (${docInfo})`);
+                    setShowSaveDialog(false);
+                    setEditingRule(null);
+                    setHasUnsavedChanges(false);
+                    setSupportingDoc("");
+                    setChangeReason("");
+                    setUploadedFile(null);
+                    setDocType("upload");
+                  } else {
+                    toast.error("Please provide both supporting document and reason");
+                  }
+                }}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Dialog */}
+      <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Link Selected Text</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-3 bg-blue-50 rounded border">
+              <p className="text-sm font-medium">Selected Text:</p>
+              <p className="text-sm text-slate-600 mt-1">"{selectedText}"</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Link Type</label>
+              <div className="flex space-x-2">
+                <Button
+                  variant={linkType === "manual" ? "default" : "outline"}
+                  onClick={() => setLinkType("manual")}
+                  className="flex-1"
+                >
+                  Manual
+                </Button>
+                <Button
+                  variant={linkType === "circular" ? "default" : "outline"}
+                  onClick={() => setLinkType("circular")}
+                  className="flex-1"
+                >
+                  Circular
+                </Button>
+              </div>
+            </div>
+
+            {linkType === "manual" && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Available Manuals</label>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {manuals.map((manual) => (
+                    <div key={manual.id} className="p-3 border rounded hover:bg-slate-50 cursor-pointer"
+                         onClick={() => {
+                           toast.success(`Linked to ${manual.title}`);
+                           setShowLinkDialog(false);
+                           setLinkType(null);
+                         }}>
+                      <p className="font-medium text-sm">{manual.title}</p>
+                      <p className="text-xs text-slate-600">{manual.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {linkType === "circular" && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Available Circulars</label>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {circulars.map((circular) => (
+                    <div key={circular.id} className="p-3 border rounded hover:bg-slate-50 cursor-pointer"
+                         onClick={() => {
+                           toast.success(`Linked to ${circular.title}`);
+                           setShowLinkDialog(false);
+                           setLinkType(null);
+                         }}>
+                      <p className="font-medium text-sm">{circular.title}</p>
+                      <p className="text-xs text-slate-600">{circular.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => {
+                setShowLinkDialog(false);
+                setLinkType(null);
+              }}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
