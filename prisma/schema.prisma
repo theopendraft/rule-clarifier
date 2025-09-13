@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  USER
+}
+
+// Main rule book model
+model RuleBook {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  version     String   @default("1.0.0")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  // Relations
+  creator     User      @relation(fields: [createdBy], references: [id])
+  chapters    Chapter[]
+
+  @@map("rule_books")
+}
+
+// Chapter model
+model Chapter {
+  id          String   @id @default(cuid())
+  bookId      String
+  number      Int
+  title       String
+  subtitle    String?
+  section     String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  book        RuleBook    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  subChapters SubChapter[]
+  rules       Rule[]
+
+  @@unique([bookId, number])
+  @@map("chapters")
+}
+
+// Sub-chapter model
+model SubChapter {
+  id          String   @id @default(cuid())
+  chapterId   String
+  number      Int
+  title       String
+  subtitle    String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  chapter     Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  rules       Rule[]
+
+  @@unique([chapterId, number])
+  @@map("sub_chapters")
+}
+
+// Rule model
+model Rule {
+  id           String   @id @default(cuid())
+  chapterId    String?
+  subChapterId String?
+  number       String   // e.g., "4.01", "1.02"
+  title        String
+  content      String   @db.Text
+  order        Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  chapter      Chapter?     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  subChapter   SubChapter?  @relation(fields: [subChapterId], references: [id], onDelete: Cascade)
+  contentBlocks ContentBlock[]
+  links        RuleLink[]
+
+  @@map("rules")
+}
+
+// Content blocks for rich text formatting
+model ContentBlock {
+  id        String        @id @default(cuid())
+  ruleId    String
+  type      ContentType
+  content   String        @db.Text
+  metadata  Json?         // For storing additional formatting data
+  order     Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  rule      Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@map("content_blocks")
+}
+
+enum ContentType {
+  TEXT
+  HEADING
+  IMAGE
+  TABLE
+  LIST
+  QUOTE
+  CODE
+  LINK
+}
+
+// Rule links to other rules, manuals, or external resources
+model RuleLink {
+  id          String     @id @default(cuid())
+  ruleId      String
+  linkType    LinkType
+  title       String
+  url         String?
+  targetRuleId String?   // For internal rule links
+  description String?
+  order       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  rule        Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@map("rule_links")
+}
+
+enum LinkType {
+  INTERNAL_RULE
+  MANUAL
+  CIRCULAR
+  EXTERNAL_URL
+  DOCUMENT
+}
+
+// Image uploads
+model Image {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  url         String
+  size        Int
+  mimeType    String
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  uploader    User @relation(fields: [uploadedBy], references: [id])
+
+  @@map("images")
+}
+
+// Change log for tracking all modifications
+model ChangeLog {
+  id          String      @id @default(cuid())
+  entityType  EntityType
+  entityId    String
+  action      ChangeAction
+  changes     Json        // Store the actual changes made
+  reason      String?
+  supportingDoc String?   // Reference to supporting document
+  userId      String
+  createdAt   DateTime    @default(now())
+
+  // Relations
+  user        User @relation(fields: [userId], references: [id])
+
+  @@map("change_logs")
+}
+
+enum EntityType {
+  RULE_BOOK
+  CHAPTER
+  SUB_CHAPTER
+  RULE
+  CONTENT_BLOCK
+  RULE_LINK
+}
+
+enum ChangeAction {
+  CREATE
+  UPDATE
+  DELETE
+  ARCHIVE
+  RESTORE
+}
+
+// User model for authentication and tracking changes
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  changeLogs ChangeLog[]
+  books      RuleBook[]
+  images     Image[]
+
+  @@map("users")
+}

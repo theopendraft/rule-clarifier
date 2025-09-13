@@ -11,6 +11,7 @@ lerna-debug.log*
 node_modules/
 .pnp
 .pnp.js
+.next/
 
 # Build outputs
 dist/
@@ -62,3 +63,4 @@ coverage/
 # Temporary folders
 tmp/
 temp/
+/generated/prisma
