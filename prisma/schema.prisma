@@ -34,14 +34,14 @@ model RuleBook {
   @@map("rule_books")
 }
 
-// Chapter model
+// Chapter model - matches the exact structure from Home component
 model Chapter {
   id          String   @id @default(cuid())
   bookId      String
-  number      Int
-  title       String
-  subtitle    String?
-  section     String?
+  number      Int      // Chapter number (1, 2, 3, etc.)
+  title       String   // Chapter title
+  subtitle    String?  // Optional subtitle
+  section     String?  // Optional section (like "A. Timing and Running of Trains")
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -49,62 +49,40 @@ model Chapter {
 
   // Relations
   book        RuleBook    @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  subChapters SubChapter[]
   rules       Rule[]
 
   @@unique([bookId, number])
   @@map("chapters")
 }
 
-// Sub-chapter model
-model SubChapter {
-  id          String   @id @default(cuid())
-  chapterId   String
-  number      Int
-  title       String
-  subtitle    String?
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  chapter     Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  rules       Rule[]
-
-  @@unique([chapterId, number])
-  @@map("sub_chapters")
-}
-
-// Rule model
+// Rule model - matches the exact structure from Home component
 model Rule {
   id           String   @id @default(cuid())
-  chapterId    String?
-  subChapterId String?
-  number       String   // e.g., "4.01", "1.02"
-  title        String
-  content      String   @db.Text
+  chapterId    String
+  number       String   // Rule number (e.g., "4.01", "1.02")
+  title        String   // Rule title
+  content      String   @db.Text // Full rule content
   order        Int      @default(0)
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   // Relations
-  chapter      Chapter?     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  subChapter   SubChapter?  @relation(fields: [subChapterId], references: [id], onDelete: Cascade)
+  chapter      Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   contentBlocks ContentBlock[]
   links        RuleLink[]
+  images       RuleImage[]
 
   @@map("rules")
 }
 
-// Content blocks for rich text formatting
+// Content blocks for rich text formatting (for future images and tables)
 model ContentBlock {
   id        String        @id @default(cuid())
   ruleId    String
   type      ContentType
   content   String        @db.Text
-  metadata  Json?         // For storing additional formatting data
+  metadata  Json?         // For storing additional formatting data (table structure, image info, etc.)
   order     Int           @default(0)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -124,6 +102,8 @@ enum ContentType {
   QUOTE
   CODE
   LINK
+  PARAGRAPH
+  REFERENCE
 }
 
 // Rule links to other rules, manuals, or external resources
@@ -153,7 +133,7 @@ enum LinkType {
   DOCUMENT
 }
 
-// Image uploads
+// Image uploads - enhanced for rule images
 model Image {
   id          String   @id @default(cuid())
   filename    String
@@ -166,8 +146,54 @@ model Image {
 
   // Relations
   uploader    User @relation(fields: [uploadedBy], references: [id])
+  ruleImages  RuleImage[]
 
   @@map("images")
+}
+
+// Junction table for rule images
+model RuleImage {
+  id        String   @id @default(cuid())
+  ruleId    String
+  imageId   String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  // Relations
+  rule      Rule  @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  image     Image @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleId, imageId])
+  @@map("rule_images")
+}
+
+// Manuals and Circulars for linking
+model Manual {
+  id          String   @id @default(cuid())
+  code        String   @unique // e.g., "M001"
+  title       String
+  description String?
+  version     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("manuals")
+}
+
+model Circular {
+  id          String   @id @default(cuid())
+  code        String   @unique // e.g., "C001"
+  title       String
+  description String?
+  number      String?  // e.g., "2024/01"
+  date        DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("circulars")
 }
 
 // Change log for tracking all modifications
@@ -191,10 +217,11 @@ model ChangeLog {
 enum EntityType {
   RULE_BOOK
   CHAPTER
-  SUB_CHAPTER
   RULE
   CONTENT_BLOCK
   RULE_LINK
+  MANUAL
+  CIRCULAR
 }
 
 enum ChangeAction {

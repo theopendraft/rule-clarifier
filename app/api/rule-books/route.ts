@@ -13,16 +13,6 @@ export async function GET() {
               where: { isActive: true },
               orderBy: { order: 'asc' },
             },
-            subChapters: {
-              where: { isActive: true },
-              include: {
-                rules: {
-                  where: { isActive: true },
-                  orderBy: { order: 'asc' },
-                },
-              },
-              orderBy: { order: 'asc' },
-            },
           },
           orderBy: { order: 'asc' },
         },

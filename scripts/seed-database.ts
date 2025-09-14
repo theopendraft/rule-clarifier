@@ -2,10 +2,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Exact data structure from Home component
 const chapters = [
   { 
     id: 1, 
     title: "General Rules",
+    section: "A. General Operating Procedures",
     rules: [
       { id: "1.01", title: "Standard time" },
       { id: "1.02", title: "Adherence to advertised time" },
@@ -22,6 +24,7 @@ const chapters = [
   { 
     id: 2, 
     title: "Signals and Communication",
+    section: "B. Signal Systems and Communication Protocols",
     rules: [
       { id: "2.01", title: "Signal aspects" },
       { id: "2.02", title: "Hand signals" },
@@ -38,6 +41,7 @@ const chapters = [
   { 
     id: 3, 
     title: "Safety Procedures",
+    section: "C. Safety Protocols and Emergency Response",
     rules: [
       { id: "3.01", title: "Safety protocols" },
       { id: "3.02", title: "Emergency procedures" },
@@ -54,6 +58,7 @@ const chapters = [
   { 
     id: 4, 
     title: "Working of Trains Generally",
+    section: "A. Timing and Running of Trains",
     rules: [
       { id: "4.01", title: "Standard time" },
       { id: "4.02", title: "Adherence to advertised time" },
@@ -70,6 +75,7 @@ const chapters = [
   { 
     id: 5, 
     title: "Station Working",
+    section: "B. Station Operations and Management",
     rules: [
       { id: "5.01", title: "Station master duties" },
       { id: "5.02", title: "Platform safety" },
@@ -86,6 +92,7 @@ const chapters = [
   { 
     id: 6, 
     title: "Block Working",
+    section: "C. Block System Operations",
     rules: [
       { id: "6.01", title: "Block section rules" },
       { id: "6.02", title: "Token system" },
@@ -102,6 +109,7 @@ const chapters = [
   { 
     id: 7, 
     title: "Automatic Block System",
+    section: "D. ABS Operations and Maintenance",
     rules: [
       { id: "7.01", title: "ABS operations" },
       { id: "7.02", title: "Signal failures" },
@@ -118,6 +126,7 @@ const chapters = [
   { 
     id: 8, 
     title: "Track Maintenance",
+    section: "E. Track Infrastructure and Maintenance",
     rules: [
       { id: "8.01", title: "Track inspection" },
       { id: "8.02", title: "Maintenance procedures" },
@@ -134,6 +143,7 @@ const chapters = [
   { 
     id: 9, 
     title: "Rolling Stock",
+    section: "F. Vehicle Maintenance and Operations",
     rules: [
       { id: "9.01", title: "Vehicle inspection" },
       { id: "9.02", title: "Maintenance schedules" },
@@ -150,6 +160,7 @@ const chapters = [
   { 
     id: 10, 
     title: "Operating Procedures",
+    section: "G. General Operating Guidelines",
     rules: [
       { id: "10.01", title: "Operating guidelines" },
       { id: "10.02", title: "Crew procedures" },
@@ -166,6 +177,7 @@ const chapters = [
   { 
     id: 11, 
     title: "Emergency Protocols",
+    section: "H. Emergency Response and Crisis Management",
     rules: [
       { id: "11.01", title: "Emergency response" },
       { id: "11.02", title: "Accident procedures" },
@@ -182,6 +194,7 @@ const chapters = [
   { 
     id: 12, 
     title: "Personnel Duties",
+    section: "I. Staff Responsibilities and Management",
     rules: [
       { id: "12.01", title: "Staff responsibilities" },
       { id: "12.02", title: "Duty rosters" },
@@ -198,6 +211,7 @@ const chapters = [
   { 
     id: 13, 
     title: "Equipment Standards",
+    section: "J. Equipment Specifications and Maintenance",
     rules: [
       { id: "13.01", title: "Equipment specifications" },
       { id: "13.02", title: "Quality standards" },
@@ -214,6 +228,7 @@ const chapters = [
   { 
     id: 14, 
     title: "Documentation",
+    section: "K. Record Keeping and Documentation",
     rules: [
       { id: "14.01", title: "Record keeping" },
       { id: "14.02", title: "Report formats" },
@@ -230,6 +245,7 @@ const chapters = [
   { 
     id: 15, 
     title: "Training Requirements",
+    section: "L. Training Programs and Certification",
     rules: [
       { id: "15.01", title: "Training programs" },
       { id: "15.02", title: "Certification" },
@@ -246,6 +262,7 @@ const chapters = [
   { 
     id: 16, 
     title: "Inspection Procedures",
+    section: "M. Audit and Inspection Protocols",
     rules: [
       { id: "16.01", title: "Inspection schedules" },
       { id: "16.02", title: "Audit procedures" },
@@ -262,6 +279,7 @@ const chapters = [
   { 
     id: 17, 
     title: "Reporting Systems",
+    section: "N. Performance and Incident Reporting",
     rules: [
       { id: "17.01", title: "Incident reporting" },
       { id: "17.02", title: "Performance reports" },
@@ -277,7 +295,20 @@ const chapters = [
   }
 ];
 
-const getRuleContent = (ruleId: string) => {
+// Manuals and Circulars data
+const manuals = [
+  { code: "M001", title: "Operating Manual - Section A", description: "Basic operating procedures", version: "2024.1" },
+  { code: "M002", title: "Safety Manual - Chapter 3", description: "Emergency protocols", version: "2024.1" },
+  { code: "M003", title: "Maintenance Manual - Part B", description: "Equipment maintenance", version: "2024.1" }
+];
+
+const circulars = [
+  { code: "C001", title: "Circular No. 2024/01", description: "Updated safety guidelines", number: "2024/01", date: new Date("2024-01-15") },
+  { code: "C002", title: "Circular No. 2024/02", description: "New operational procedures", number: "2024/02", date: new Date("2024-02-01") },
+  { code: "C003", title: "Circular No. 2023/15", description: "Equipment specifications", number: "2023/15", date: new Date("2023-12-15") }
+];
+
+const getRuleContent = (ruleId: string, ruleTitle: string) => {
   if (ruleId === "4.01") {
     return `The working of trains between stations shall be regulated by the standard time prescribed by the Government of India, which shall be transmitted daily to all the principal stations of the railway at 16.00 hours in the manner prescribed.
 
@@ -321,13 +352,15 @@ S.R.1.01 All railway servants shall be conversant with the General and Subsidiar
   }
 
   // Default content for other rules
-  return `This section covers the detailed procedures and guidelines for this rule. All railway personnel must adhere to these regulations to ensure safe and efficient operations throughout the railway network.
+  return `This section covers the detailed procedures and guidelines for ${ruleTitle.toLowerCase()}. All railway personnel must adhere to these regulations to ensure safe and efficient operations throughout the railway network.
 
-The implementation of these rules requires comprehensive training and thorough understanding of the operational context. Personnel must be familiar with all aspects of this regulation including its application in various operational scenarios, emergency situations, and routine operations.
+The implementation of these rules requires comprehensive training and thorough understanding of the operational context. Personnel must be familiar with all aspects of this regulation including its application in various operational scenarios, emergency situations, and routine operations. Regular updates and revisions may be issued by the Railway Board as needed to maintain the highest standards of safety and operational efficiency.
 
-Compliance with this rule is mandatory for all railway staff involved in the relevant operations. Any deviation from the prescribed procedures must be reported immediately to the appropriate authorities.
+Compliance with this rule is mandatory for all railway staff involved in the relevant operations. Any deviation from the prescribed procedures must be reported immediately to the appropriate authorities. The rule encompasses various operational parameters including safety protocols, performance standards, equipment specifications, and procedural requirements that must be strictly followed.
 
-Training programs must be conducted regularly to ensure all personnel are updated with the latest procedures and any amendments to this rule.`;
+Training programs must be conducted regularly to ensure all personnel are updated with the latest procedures and any amendments to this rule. Documentation of training completion and competency assessment must be maintained as per the prescribed standards. Supervisory staff must ensure proper implementation and monitor compliance with this rule during regular operations and inspections.
+
+(Ref: Railway Operating Manual - Rule ${ruleId} | Last Updated: ${new Date().toLocaleDateString()} | Version: 2024.1)`;
 };
 
 export async function seedDatabase() {
@@ -362,22 +395,44 @@ export async function seedDatabase() {
 
     console.log('✅ Created/updated rule book:', ruleBook.title);
 
-    // Clear existing chapters and rules to avoid duplicates
-    await prisma.rule.deleteMany({
-      where: {
-        chapter: {
-          bookId: ruleBook.id
-        }
-      }
-    });
-    
-    await prisma.chapter.deleteMany({
-      where: {
-        bookId: ruleBook.id
-      }
-    });
+    // Clear existing data to avoid duplicates
+    await prisma.ruleImage.deleteMany();
+    await prisma.ruleLink.deleteMany();
+    await prisma.contentBlock.deleteMany();
+    await prisma.rule.deleteMany();
+    await prisma.chapter.deleteMany();
+    await prisma.manual.deleteMany();
+    await prisma.circular.deleteMany();
+    await prisma.changeLog.deleteMany();
 
     console.log('🧹 Cleared existing data');
+
+    // Create manuals
+    for (const manualData of manuals) {
+      await prisma.manual.create({
+        data: {
+          code: manualData.code,
+          title: manualData.title,
+          description: manualData.description,
+          version: manualData.version,
+        },
+      });
+      console.log(`📚 Created manual: ${manualData.title}`);
+    }
+
+    // Create circulars
+    for (const circularData of circulars) {
+      await prisma.circular.create({
+        data: {
+          code: circularData.code,
+          title: circularData.title,
+          description: circularData.description,
+          number: circularData.number,
+          date: circularData.date,
+        },
+      });
+      console.log(`📄 Created circular: ${circularData.title}`);
+    }
 
     // Create chapters and rules
     for (const chapterData of chapters) {
@@ -386,6 +441,7 @@ export async function seedDatabase() {
           bookId: ruleBook.id,
           number: chapterData.id,
           title: chapterData.title,
+          section: chapterData.section,
           order: chapterData.id,
         },
       });
@@ -400,7 +456,7 @@ export async function seedDatabase() {
             chapterId: chapter.id,
             number: ruleData.id,
             title: ruleData.title,
-            content: getRuleContent(ruleData.id),
+            content: getRuleContent(ruleData.id, ruleData.title),
             order: i,
           },
         });
@@ -430,6 +486,7 @@ export async function seedDatabase() {
 
     console.log('🎉 Database seeding completed successfully!');
     console.log(`📚 Created ${chapters.length} chapters with ${chapters.reduce((acc, ch) => acc + ch.rules.length, 0)} rules`);
+    console.log(`📖 Created ${manuals.length} manuals and ${circulars.length} circulars`);
     
   } catch (error) {
     console.error('❌ Error during seeding:', error);
