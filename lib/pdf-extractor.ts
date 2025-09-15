@@ -12,60 +12,122 @@ export interface ExtractedContent {
   };
 }
 
-export async function extractTextFromPDF(pdfBuffer: Buffer): Promise<ExtractedContent> {
+function parsePDFDate(dateStr?: string): Date | undefined {
+  if (!dateStr) return undefined;
   try {
-    // For now, return a mock implementation
-    // In a real implementation, you would use a PDF parsing library
-    return {
-      text: "This is extracted text from the PDF. In a real implementation, this would contain the actual text content extracted from the PDF file using a proper PDF parsing library like pdf-parse or pdfjs-dist.",
-      pages: 1,
-      metadata: {
-        title: "Sample PDF Document",
-        author: "System",
-        subject: "PDF Text Extraction",
-        creator: "PDF Upload System",
-        producer: "Railway Rule Clarifier",
-        creationDate: new Date(),
-        modificationDate: new Date(),
-      }
-    };
-  } catch (error) {
-    console.error('Error extracting text from PDF:', error);
-    throw new Error('Failed to extract text from PDF');
+    const clean = dateStr.replace(/^D:/, '');
+    const match = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/.exec(clean);
+    if (!match) return new Date(dateStr);
+    const [_, year, month, day, hour, minute, second] = match;
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second)
+    );
+  } catch {
+    return undefined;
   }
 }
 
-export async function extractTextFromPDFWithOCR(pdfBuffer: Buffer): Promise<ExtractedContent> {
-  try {
-    // First try regular text extraction
-    const regularExtraction = await extractTextFromPDF(pdfBuffer);
-    
-    // If we got good text content, return it
-    if (regularExtraction.text.trim().length > 100) {
-      return regularExtraction;
-    }
-    
-    // If text extraction didn't work well, return what we have
-    console.log('Regular extraction yielded little text, returning available content');
-    return regularExtraction;
-  } catch (error) {
-    console.error('Error extracting text from PDF with OCR:', error);
-    throw new Error('Failed to extract text from PDF');
+export async function extractTextFromPDF(pdfBuffer: Buffer): Promise<ExtractedContent> {
+  if (!pdfBuffer || pdfBuffer.length === 0) {
+    throw new Error('Invalid PDF buffer');
   }
+
+  // Validate PDF header
+  const header = pdfBuffer.toString('ascii', 0, 8);
+  if (!header.startsWith('%PDF-')) {
+    throw new Error('Invalid PDF format');
+  }
+
+  // Try pdf-parse with proper isolation
+  try {
+    // Use eval to isolate the require and prevent webpack from processing it
+    const pdfParse = eval('require')('pdf-parse');
+    
+    // Create a clean buffer copy to avoid any reference issues
+    const cleanBuffer = Buffer.from(pdfBuffer);
+    
+    const data = await pdfParse(cleanBuffer, {
+      normalizeWhitespace: false,
+      disableCombineTextItems: false,
+      max: 0
+    });
+
+    return {
+      text: data.text || "",
+      pages: data.numpages || 1,
+      metadata: {
+        title: data.info?.Title,
+        author: data.info?.Author,
+        subject: data.info?.Subject,
+        creator: data.info?.Creator,
+        producer: data.info?.Producer,
+        creationDate: parsePDFDate(data.info?.CreationDate),
+        modificationDate: parsePDFDate(data.info?.ModDate),
+      },
+    };
+  } catch (error) {
+    console.error("PDF extraction with pdf-parse failed, trying fallback:", error);
+    
+    // Fallback extraction
+    try {
+      const pdfString = pdfBuffer.toString('latin1');
+      let text = '';
+      
+      // Extract text from parentheses
+      const matches = pdfString.match(/\(([^)]*)\)/g) || [];
+      for (const match of matches) {
+        const content = match.slice(1, -1);
+        if (content.length > 2 && /[a-zA-Z]/.test(content) && 
+            !/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\xFF]/.test(content)) {
+          text += content + ' ';
+        }
+      }
+      
+      const pageCount = (pdfString.match(/\/Type\s*\/Page[^s]/g) || []).length || 1;
+      
+      return {
+        text: text.trim(),
+        pages: pageCount,
+        metadata: {}
+      };
+    } catch (fallbackError) {
+      console.error("Fallback extraction also failed:", fallbackError);
+      throw new Error(`PDF extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+}
+
+// Placeholder: you can plug in OCR (e.g., tesseract.js) later
+export async function extractTextFromPDFWithOCR(pdfBuffer: Buffer): Promise<ExtractedContent> {
+  return await extractTextFromPDF(pdfBuffer);
 }
 
 export async function extractTextFromPDFUrl(pdfUrl: string): Promise<ExtractedContent> {
   try {
-    // Fetch the PDF from the URL
+    console.log("Fetching PDF from URL:", pdfUrl);
+
     const response = await fetch(pdfUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch PDF: ${response.statusText}`);
     }
-    
-    const pdfBuffer = Buffer.from(await response.arrayBuffer());
-    return await extractTextFromPDFWithOCR(pdfBuffer);
+
+    const arrayBuffer = await response.arrayBuffer();
+    const pdfBuffer = Buffer.from(arrayBuffer);
+
+    console.log("PDF downloaded successfully, size:", pdfBuffer.length, "bytes");
+
+    return await extractTextFromPDF(pdfBuffer);
   } catch (error) {
-    console.error('Error extracting text from PDF URL:', error);
-    throw new Error('Failed to extract text from PDF URL');
+    console.error("Error fetching PDF from URL:", error);
+    return {
+      text: "",
+      pages: 1,
+      metadata: {},
+    };
   }
 }
