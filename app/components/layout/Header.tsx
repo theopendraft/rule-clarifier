@@ -21,7 +21,7 @@ const notifications = [
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, userRole } = useAuth();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -66,24 +66,38 @@ export function Header() {
                 Home
               </Button>
             </Link>
-            <Link href="/admin">
-              <Button
-                variant={pathname === "/admin" ? "default" : "ghost"}
-                size="sm"
-                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
-              >
-                Admin
-              </Button>
-            </Link>
-            <Link href="/upload">
-              <Button
-                variant={pathname === "/upload" ? "default" : "ghost"}
-                size="sm"
-                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
-              >
-                Upload Files
-              </Button>
-            </Link>
+            {userRole === 'user' ? (
+              <Link href="/changelog">
+                <Button
+                  variant={pathname === "/changelog" ? "default" : "ghost"}
+                  size="sm"
+                  className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                  Changelog
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/admin">
+                  <Button
+                    variant={pathname === "/admin" ? "default" : "ghost"}
+                    size="sm"
+                    className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                  >
+                    Admin
+                  </Button>
+                </Link>
+                <Link href="/upload">
+                  <Button
+                    variant={pathname === "/upload" ? "default" : "ghost"}
+                    size="sm"
+                    className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                  >
+                    Upload Files
+                  </Button>
+                </Link>
+              </>
+            )}
           </nav>
         </div>
 

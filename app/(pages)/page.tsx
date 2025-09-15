@@ -6,16 +6,16 @@ import { useEffect } from 'react'
 import Home from '@/components/pages/Home'
 
 export default function HomePage() {
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading, userRole } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    console.log('Auth state:', { isAuthenticated, loading });
     if (!loading && !isAuthenticated) {
-      console.log('Redirecting to login');
       router.push('/login')
+    } else if (!loading && isAuthenticated && userRole === 'user') {
+      router.push('/users')
     }
-  }, [isAuthenticated, loading, router])
+  }, [isAuthenticated, loading, userRole, router])
 
   if (loading) {
     return (

@@ -112,7 +112,92 @@ const Home = () => {
 
 
   const handleDownloadChapter = () => {
-    toast.success(`Downloading Chapter ${selectedChapter}: ${currentChapter?.title}`);
+    if (!currentChapter) return;
+    
+    const content = `
+      <html>
+        <head>
+          <title>Chapter ${selectedChapter}: ${currentChapter.title}</title>
+          <style>
+            body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; margin: 0; padding: 2rem; background: white; }
+            .text-center { text-align: center; }
+            .mb-8 { margin-bottom: 2rem; }
+            .mb-2 { margin-bottom: 0.5rem; }
+            .mb-4 { margin-bottom: 1rem; }
+            .mb-6 { margin-bottom: 1.5rem; }
+            .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+            .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+            .text-blue-600 { color: rgb(37 99 235); }
+            .text-slate-800 { color: rgb(30 41 59); }
+            .text-slate-700 { color: rgb(51 65 85); }
+            .text-slate-600 { color: rgb(71 85 105); }
+            .font-medium { font-weight: 500; }
+            .font-bold { font-weight: 700; }
+            .font-semibold { font-weight: 600; }
+            .max-w-4xl { max-width: 56rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .space-y-12 > * + * { margin-top: 3rem; }
+            .space-y-4 > * + * { margin-top: 1rem; }
+            .flex { display: flex; }
+            .items-start { align-items: flex-start; }
+            .space-x-4 > * + * { margin-left: 1rem; }
+            .flex-1 { flex: 1 1 0%; }
+            .leading-relaxed { line-height: 1.625; }
+            .prose { color: rgb(51 65 85); line-height: 1.625; }
+            .prose p { margin-bottom: 1rem; }
+            .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+            .prose li { margin-bottom: 0.5rem; }
+            .scroll-mt-8 { scroll-margin-top: 2rem; }
+          </style>
+        </head>
+        <body>
+          <div class="text-center mb-8">
+            <p class="text-sm text-blue-600 font-medium mb-2">
+              ${currentChapter.title.toUpperCase()}
+            </p>
+            <h1 class="text-4xl font-bold text-slate-800 mb-4">
+              CHAPTER ${selectedChapter}
+            </h1>
+            <h2 class="text-2xl font-semibold text-slate-700 mb-6">
+              ${currentChapter.title.toUpperCase()}
+            </h2>
+            ${currentChapter.section ? `<h3 class="text-lg text-slate-600">${currentChapter.section}</h3>` : ''}
+          </div>
+          <div class="max-w-4xl mx-auto">
+            <div class="space-y-12">
+              ${currentChapter.rules.map(rule => `
+                <div class="scroll-mt-8">
+                  <div class="flex items-start space-x-4">
+                    <div class="flex-1">
+                      <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-slate-800"><span class="text-blue-600 font-bold">${rule.number}.</span> ${rule.title}:-</h4>
+                      </div>
+                      <div class="space-y-4 text-slate-700 leading-relaxed">
+                        <div class="prose prose-sm max-w-none">${rule.content}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Chapter_${selectedChapter}_${currentChapter.title.replace(/\s+/g, '_')}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast.success(`Downloaded Chapter ${selectedChapter}: ${currentChapter.title}`);
   };
 
   const toggleChapter = (chapterId: number) => {
