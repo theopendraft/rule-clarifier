@@ -66,38 +66,33 @@ export function Header() {
                 Home
               </Button>
             </Link>
-            {userRole === 'user' ? (
-              <Link href="/changelog">
-                <Button
-                  variant={pathname === "/changelog" ? "default" : "ghost"}
-                  size="sm"
-                  className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
-                >
-                  Changelog
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/admin">
-                  <Button
-                    variant={pathname === "/admin" ? "default" : "ghost"}
-                    size="sm"
-                    className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
-                  >
-                    Admin
-                  </Button>
-                </Link>
-                <Link href="/upload">
-                  <Button
-                    variant={pathname === "/upload" ? "default" : "ghost"}
-                    size="sm"
-                    className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
-                  >
-                    Upload Files
-                  </Button>
-                </Link>
-              </>
-            )}
+            <Link href="/admin">
+              <Button
+                variant={pathname === "/admin" ? "default" : "ghost"}
+                size="sm"
+                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+              >
+                Admin
+              </Button>
+            </Link>
+            <Link href="/upload">
+              <Button
+                variant={pathname === "/upload" ? "default" : "ghost"}
+                size="sm"
+                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+              >
+                Upload Files
+              </Button>
+            </Link>
+            <Link href="/changelog">
+              <Button
+                variant={pathname === "/changelog" ? "default" : "ghost"}
+                size="sm"
+                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+              >
+                Change Log
+              </Button>
+            </Link>
           </nav>
         </div>
 

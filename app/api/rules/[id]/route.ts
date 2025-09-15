@@ -9,6 +9,18 @@ export async function PUT(
     const { id } = await params;
     const { title, content, supportingDoc, changeReason, docType, uploadedFile } = await request.json();
     
+    // First, get the current rule to capture the old values
+    const currentRule = await prisma.rule.findUnique({
+      where: { id }
+    });
+
+    if (!currentRule) {
+      return NextResponse.json(
+        { error: 'Rule not found' },
+        { status: 404 }
+      );
+    }
+    
     // Update the rule in the database
     const updatedRule = await prisma.rule.update({
       where: { id },
@@ -19,19 +31,19 @@ export async function PUT(
       },
     });
 
-    // Create audit log entry
+    // Create audit log entry with proper before/after values
     await prisma.changeLog.create({
       data: {
         entityType: 'RULE',
         entityId: id,
         action: 'UPDATE',
         changes: {
-          title: { from: updatedRule.title, to: title },
-          content: { from: updatedRule.content, to: content }
+          title: { from: currentRule.title, to: title },
+          content: { from: currentRule.content, to: content }
         },
         supportingDoc: supportingDoc || null,
         reason: changeReason || null,
-        userId: 'cmfiiqfrv00006vtwd7bl0l22', // TODO: Get from auth context
+        userId: 'cmflhnuzb0000tt0sc7iezcsi', // HARDCODED: Admin user ID - TODO: Get from auth context
       },
     });
 

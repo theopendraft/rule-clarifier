@@ -125,6 +125,7 @@ npm run dev
 - `/home-old` - Original hardcoded home page (for comparison)
 - `/admin` - Admin interface for rule book management
 - `/admin/dashboard` - Admin dashboard interface
+- `/changelog` - Change log interface for tracking all modifications
 
 ## Key Benefits
 

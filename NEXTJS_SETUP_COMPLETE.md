@@ -127,6 +127,7 @@ All API routes are built into Next.js:
 - **`/login`** - Authentication
 - **`/admin`** - Admin rulebook management interface
 - **`/admin/dashboard`** - Admin dashboard interface
+- **`/changelog`** - Change log interface for tracking all modifications
 
 ## 🛠️ Development Workflow
 
@@ -143,6 +144,7 @@ All API routes are built into Next.js:
 3. **Admin operations**:
    - Visit `/admin` for rulebook management
    - Visit `/admin/dashboard` for admin dashboard
+   - Visit `/changelog` to view all system changes
    - Manage chapters and rules
    - View change logs
 
