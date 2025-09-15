@@ -66,9 +66,9 @@ export function Header() {
                 Home
               </Button>
             </Link>
-            <Link href="/admin/rulebook">
+            <Link href="/admin">
               <Button
-                variant={pathname === "/admin/rulebook" ? "default" : "ghost"}
+                variant={pathname === "/admin" ? "default" : "ghost"}
                 size="sm"
                 className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >

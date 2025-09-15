@@ -123,7 +123,8 @@ npm run dev
 
 - `/home` - Updated home page with database integration
 - `/home-old` - Original hardcoded home page (for comparison)
-- `/admin/rulebook` - Admin interface for rule book management
+- `/admin` - Admin interface for rule book management
+- `/admin/dashboard` - Admin dashboard interface
 
 ## Key Benefits
 

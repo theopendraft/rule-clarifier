@@ -72,7 +72,12 @@ export default function LoginPage() {
             </Button>
           </form>
           <div className="mt-4 text-sm text-gray-600">
-            <p>Demo credentials:</p>
+            <p>User credentials:</p>
+            <p>Email: user@railway.com</p>
+            <p>Password: user123</p>
+          </div>
+          <div className="mt-4 text-sm text-gray-600">
+            <p>Admin credentials:</p>
             <p>Email: admin@railway.com</p>
             <p>Password: admin123</p>
           </div>

@@ -3,9 +3,9 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import RulesManagement from '../components/pages/RulesManagement'
+import AdminRuleBook from '@/components/pages/AdminRuleBook'
 
-export default function RulesManagementPage() {
+export default function AdminRuleBookPage() {
   const { isAuthenticated, loading } = useAuth()
   const router = useRouter()
 
@@ -30,5 +30,5 @@ export default function RulesManagementPage() {
     return null
   }
 
-  return <RulesManagement />
+  return <AdminRuleBook />
 }

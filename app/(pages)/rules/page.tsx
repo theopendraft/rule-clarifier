@@ -3,9 +3,9 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import ChapterView from '../components/pages/ChapterView'
+import RulesManagement from '@/components/pages/RulesManagement'
 
-export default function ChapterViewPage() {
+export default function RulesManagementPage() {
   const { isAuthenticated, loading } = useAuth()
   const router = useRouter()
 
@@ -30,5 +30,5 @@ export default function ChapterViewPage() {
     return null
   }
 
-  return <ChapterView />
+  return <RulesManagement />
 }

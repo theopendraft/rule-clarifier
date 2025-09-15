@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import Home from './components/pages/Home'
+import Home from '@/components/pages/Home'
 
 export default function HomePage() {
   const { isAuthenticated, loading } = useAuth()

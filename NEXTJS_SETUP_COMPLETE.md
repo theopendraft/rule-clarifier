@@ -28,7 +28,8 @@ rule-clarifier-ai/
 │   ├── page.tsx                 # Home page
 │   ├── globals.css              # Global styles
 │   ├── login/page.tsx           # Login page
-│   ├── admin/rulebook/page.tsx  # Admin interface
+│   ├── admin/page.tsx  # Admin rulebook interface
+│   ├── admin/dashboard/page.tsx  # Admin dashboard interface
 │   └── api/                     # API routes
 │       ├── rule-books/
 │       ├── rules/
@@ -124,7 +125,8 @@ All API routes are built into Next.js:
 
 - **`/`** - Main rule book display
 - **`/login`** - Authentication
-- **`/admin/rulebook`** - Admin management interface
+- **`/admin`** - Admin rulebook management interface
+- **`/admin/dashboard`** - Admin dashboard interface
 
 ## 🛠️ Development Workflow
 
@@ -139,7 +141,8 @@ All API routes are built into Next.js:
    - Browse the rule book
 
 3. **Admin operations**:
-   - Visit `/admin/rulebook`
+   - Visit `/admin` for rulebook management
+   - Visit `/admin/dashboard` for admin dashboard
    - Manage chapters and rules
    - View change logs
 

@@ -3,9 +3,9 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import AdminDashboard from '../../components/pages/AdminDashboard'
+import ChapterView from '@/components/pages/ChapterView'
 
-export default function AdminDashboardPage() {
+export default function ChapterViewPage() {
   const { isAuthenticated, loading } = useAuth()
   const router = useRouter()
 
@@ -30,5 +30,5 @@ export default function AdminDashboardPage() {
     return null
   }
 
-  return <AdminDashboard />
+  return <ChapterView />
 }

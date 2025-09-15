@@ -3,11 +3,11 @@
 import { UploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "./uploadthing";
 import { useState, useEffect } from "react";
-import { Button } from "../app/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../app/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, CheckCircle, AlertCircle, Edit3, Save, X } from "lucide-react";
-import { Alert, AlertDescription } from "../app/components/ui/alert";
-import { RichTextEditor } from "../app/components/ui/rich-text-editor";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 interface UploadedFile {
   name: string;
