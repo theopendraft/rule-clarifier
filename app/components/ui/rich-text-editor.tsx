@@ -18,7 +18,26 @@ import {
   Quote,
   Code
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+interface Manual {
+  id: string;
+  code: string;
+  title: string;
+  description?: string;
+  version?: string;
+  isActive: boolean;
+}
+
+interface Circular {
+  id: string;
+  code: string;
+  title: string;
+  description?: string;
+  number?: string;
+  date?: string;
+  isActive: boolean;
+}
 
 interface RichTextEditorProps {
   content: string;
@@ -30,6 +49,9 @@ interface RichTextEditorProps {
 export function RichTextEditor({ content, onChange, placeholder, className }: RichTextEditorProps) {
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const [linkType, setLinkType] = useState<'manual' | 'circular' | null>(null);
+  const [manuals, setManuals] = useState<Manual[]>([]);
+  const [circulars, setCirculars] = useState<Circular[]>([]);
 
   const editor = useEditor({
     extensions: [
@@ -55,12 +77,36 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     },
   });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const manualsResponse = await fetch('/api/manuals');
+        const manualsData = await manualsResponse.json();
+        setManuals(manualsData || []);
+
+        const circularsResponse = await fetch('/api/circulars');
+        const circularsData = await circularsResponse.json();
+        setCirculars(circularsData || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const addLink = () => {
     if (linkUrl) {
       editor?.chain().focus().setLink({ href: linkUrl }).run();
       setLinkUrl('');
       setShowLinkDialog(false);
+      setLinkType(null);
     }
+  };
+
+  const addSuggestionLink = (url: string) => {
+    editor?.chain().focus().setLink({ href: url }).run();
+    setShowLinkDialog(false);
+    setLinkType(null);
   };
 
   const removeLink = () => {
@@ -206,17 +252,106 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
                   className="w-full p-2 border rounded-md"
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Or choose from suggestions:</label>
+                <div className="flex gap-2 mb-3">
+                  <Button
+                    variant={linkType === 'manual' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setLinkType('manual')}
+                    className="flex-1"
+                  >
+                    Manual
+                  </Button>
+                  <Button
+                    variant={linkType === 'circular' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setLinkType('circular')}
+                    className="flex-1"
+                  >
+                    Circular
+                  </Button>
+                </div>
+              </div>
+
+              {linkType === 'manual' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2">Available Manuals</label>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {manuals.filter(manual => manual.isActive).map((manual) => (
+                      <div
+                        key={manual.id}
+                        className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => addSuggestionLink(`http://localhost:3000/manuals/${manual.id}`)}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <p className="font-medium text-sm">{manual.title}</p>
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{manual.code}</span>
+                        </div>
+                        {manual.description && (
+                          <p className="text-xs text-gray-600">{manual.description}</p>
+                        )}
+                        {manual.version && (
+                          <p className="text-xs text-gray-500 mt-1">Version: {manual.version}</p>
+                        )}
+                      </div>
+                    ))}
+                    {manuals.filter(manual => manual.isActive).length === 0 && (
+                      <p className="text-sm text-gray-500 text-center py-4">No active manuals available</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {linkType === 'circular' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2">Available Circulars</label>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {circulars.filter(circular => circular.isActive).map((circular) => (
+                      <div
+                        key={circular.id}
+                        className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => addSuggestionLink(`http://localhost:3000/circulars/${circular.id}`)}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <p className="font-medium text-sm">{circular.title}</p>
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">{circular.code}</span>
+                        </div>
+                        {circular.description && (
+                          <p className="text-xs text-gray-600">{circular.description}</p>
+                        )}
+                        <div className="flex justify-between items-center mt-1">
+                          {circular.number && (
+                            <span className="text-xs text-gray-500">No: {circular.number}</span>
+                          )}
+                          {circular.date && (
+                            <span className="text-xs text-gray-500">
+                              {new Date(circular.date).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {circulars.filter(circular => circular.isActive).length === 0 && (
+                      <p className="text-sm text-gray-500 text-center py-4">No active circulars available</p>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={() => {
                     setShowLinkDialog(false);
                     setLinkUrl('');
+                    setLinkType(null);
                   }}
                 >
                   Cancel
                 </Button>
-                <Button onClick={addLink}>
+                <Button onClick={addLink} disabled={!linkUrl}>
                   Add Link
                 </Button>
               </div>

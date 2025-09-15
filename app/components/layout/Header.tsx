@@ -8,15 +8,22 @@ import { Bell, Search, Settings, Train, AlertTriangle, Clock, LogOut, Menu } fro
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
-const notifications = [
-  { id: 1, message: "Rule 5.12 requires review and approval", priority: "high", date: "2024-01-21" },
-  { id: 2, message: "New PDF uploaded for Chapter 8 processing", priority: "medium", date: "2024-01-21" },
-  { id: 3, message: "Cross-reference links need updating in Chapter 12", priority: "low", date: "2024-01-20" }
-];
+interface ChangeLog {
+  id: string;
+  entityType: string;
+  action: string;
+  changes: any;
+  reason?: string;
+  createdAt: string;
+  user: {
+    name?: string;
+    email: string;
+  };
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -24,6 +31,7 @@ export function Header() {
   const { logout, userRole } = useAuth();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [recentChanges, setRecentChanges] = useState<ChangeLog[]>([]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +49,21 @@ export function Header() {
     toast.success("Logged out successfully");
     router.push("/login");
   };
+
+  useEffect(() => {
+    const fetchRecentChanges = async () => {
+      try {
+        const response = await fetch('/api/change-logs?limit=5');
+        if (response.ok) {
+          const data = await response.json();
+          setRecentChanges(data);
+        }
+      } catch (error) {
+        console.error('Error fetching recent changes:', error);
+      }
+    };
+    fetchRecentChanges();
+  }, []);
   
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm sticky top-0 z-50">
@@ -57,42 +80,76 @@ export function Header() {
           </Link>
           
           <nav className="hidden md:flex items-center space-x-2">
-            <Link href="/">
+            <Link href={userRole === 'user' ? "/users" : "/"}>
               <Button
-                variant={pathname === "/" ? "default" : "ghost"}
+                variant={(pathname === "/" || pathname === "/users") ? "default" : "ghost"}
                 size="sm"
                 className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >
                 Home
               </Button>
             </Link>
-            <Link href="/admin">
+            {userRole === 'admin' && (
+              <Link href="/admin">
+                <Button
+                  variant={pathname === "/admin" ? "default" : "ghost"}
+                  size="sm"
+                  className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                  Admin
+                </Button>
+              </Link>
+            )}
+            <Link href="/manuals">
               <Button
-                variant={pathname === "/admin" ? "default" : "ghost"}
+                variant={pathname === "/manuals" ? "default" : "ghost"}
                 size="sm"
                 className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >
-                Admin
+                Manuals
               </Button>
             </Link>
-            <Link href="/upload">
+            <Link href="/circulars">
               <Button
-                variant={pathname === "/upload" ? "default" : "ghost"}
+                variant={pathname === "/circulars" ? "default" : "ghost"}
                 size="sm"
                 className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
               >
-                Upload Files
+                Circulars
               </Button>
             </Link>
-            <Link href="/changelog">
-              <Button
-                variant={pathname === "/changelog" ? "default" : "ghost"}
-                size="sm"
-                className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
-              >
-                Change Log
-              </Button>
-            </Link>
+            {userRole === 'user' ? (
+              <Link href="/changelog">
+                <Button
+                  variant={pathname === "/changelog" ? "default" : "ghost"}
+                  size="sm"
+                  className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                >
+                  Changelog
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/upload">
+                  <Button
+                    variant={pathname === "/upload" ? "default" : "ghost"}
+                    size="sm"
+                    className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                  >
+                    Upload Files
+                  </Button>
+                </Link>
+                <Link href="/changelog">
+                  <Button
+                    variant={pathname === "/changelog" ? "default" : "ghost"}
+                    size="sm"
+                    className="font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                  >
+                    Change Log
+                  </Button>
+                </Link>
+              </>
+            )}
           </nav>
         </div>
 
@@ -112,7 +169,7 @@ export function Header() {
               <Button variant="ghost" size="sm" className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
                 <Bell className="h-5 w-5 text-slate-600" />
                 <Badge className="absolute -top-1 -right-1 bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full border-2 border-white">
-                  {notifications.length}
+                  {recentChanges.length}
                 </Badge>
               </Button>
             </PopoverTrigger>
@@ -123,31 +180,41 @@ export function Header() {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="max-h-64 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <div key={notification.id} className="flex items-start space-x-3 p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/80 transition-colors">
+                    {recentChanges.length > 0 ? recentChanges.map((change) => (
+                      <div key={change.id} className="flex items-start space-x-3 p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/80 transition-colors">
                         <div className={`p-2 rounded-lg ${
-                          notification.priority === "high" ? "bg-red-50 text-red-600" :
-                          notification.priority === "medium" ? "bg-amber-50 text-amber-600" :
+                          change.action === "CREATE" ? "bg-green-50 text-green-600" :
+                          change.action === "UPDATE" ? "bg-amber-50 text-amber-600" :
+                          change.action === "DELETE" ? "bg-red-50 text-red-600" :
                           "bg-blue-50 text-blue-600"
                         }`}>
-                          {notification.priority === "high" ? (
+                          {change.action === "DELETE" ? (
                             <AlertTriangle className="h-4 w-4" />
-                          ) : notification.priority === "medium" ? (
+                          ) : change.action === "UPDATE" ? (
                             <Clock className="h-4 w-4" />
                           ) : (
                             <Bell className="h-4 w-4" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-slate-800 font-medium leading-tight">{notification.message}</p>
-                          <p className="text-xs text-slate-500 mt-1">{notification.date}</p>
+                          <p className="text-sm text-slate-800 font-medium leading-tight">
+                            {change.action} {change.entityType.toLowerCase().replace('_', ' ')}
+                            {change.reason && ` - ${change.reason}`}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {new Date(change.createdAt).toLocaleDateString()} by {change.user.name || change.user.email}
+                          </p>
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="p-4 text-center text-slate-500">
+                        <p className="text-sm">No recent changes</p>
+                      </div>
+                    )}
                   </div>
                   <div className="p-4 border-t border-slate-100">
-                    <Button variant="outline" size="sm" className="w-full rounded-lg font-medium">
-                      View All Notifications
+                    <Button variant="outline" size="sm" className="w-full rounded-lg font-medium" onClick={() => router.push('/changelog')}>
+                      View All Changes
                     </Button>
                   </div>
                 </CardContent>

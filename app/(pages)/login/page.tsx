@@ -13,7 +13,7 @@ export default function LoginPage() {
   const { loginAsAdmin, loginAsUser } = useAuth()
   const router = useRouter()
 
-  const handleQuickLogin = async (type: 'admin' | 'user') => {
+  const handleQuickLogin = (type: 'admin' | 'user') => {
     setIsLoading(true)
     try {
       const success = type === 'admin' ? loginAsAdmin() : loginAsUser()

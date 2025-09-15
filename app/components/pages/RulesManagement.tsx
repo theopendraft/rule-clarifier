@@ -54,7 +54,7 @@ const sampleRules = [
 
 const RulesManagement = () => {
   const router = useRouter();
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const [selectedRule, setSelectedRule] = useState(sampleRules[0]);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(selectedRule.content);

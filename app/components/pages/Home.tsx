@@ -64,6 +64,7 @@ const Home = () => {
   const [selectedText, setSelectedText] = useState("");
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkType, setLinkType] = useState<"manual" | "circular" | null>(null);
+  const [linkUrl, setLinkUrl] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Fetch data from database
@@ -452,22 +453,7 @@ const Home = () => {
                                 >
                                   Cancel
                                 </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    const selection = window.getSelection()?.toString();
-                                    if (selection) {
-                                      setSelectedText(selection);
-                                      setShowLinkDialog(true);
-                                    } else {
-                                      toast.info("Please select text first to create a link");
-                                    }
-                                  }}
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  Link
-                                </Button>
+
                               </div>
                               
                               {/* Edit Form */}
@@ -519,16 +505,19 @@ const Home = () => {
                           )}
                         </div>
                         {editingRule !== rule.number && (
-                          <div ref={contentRef} className="space-y-4 text-slate-700 leading-relaxed" onMouseUp={() => {
-                            const selection = window.getSelection()?.toString();
-                            if (selection && editingRule === rule.number) {
-                              setSelectedText(selection);
-                            }
-                          }}>
-                            <div 
-                              className="prose prose-sm max-w-none"
-                              dangerouslySetInnerHTML={{ __html: rule.content }}
-                            />
+                          <div className="space-y-4">
+
+                            <div ref={contentRef} className="text-slate-700 leading-relaxed" onMouseUp={() => {
+                              const selection = window.getSelection()?.toString();
+                              if (selection) {
+                                setSelectedText(selection);
+                              }
+                            }}>
+                              <div 
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: rule.content }}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
@@ -638,19 +627,24 @@ const Home = () => {
 
       {/* Link Dialog */}
       <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Link Selected Text</DialogTitle>
+            <DialogTitle>Add Link</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-3 bg-blue-50 rounded border">
-              <p className="text-sm font-medium">Selected Text:</p>
-              <p className="text-sm text-slate-600 mt-1">"{selectedText}"</p>
+            <div>
+              <label className="block text-sm font-medium mb-2">URL</label>
+              <Input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full"
+              />
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-2">Link Type</label>
-              <div className="flex space-x-2">
+              <label className="block text-sm font-medium mb-2">Or choose from suggestions:</label>
+              <div className="flex space-x-2 mb-3">
                 <Button
                   variant={linkType === "manual" ? "default" : "outline"}
                   onClick={() => setLinkType("manual")}
@@ -675,9 +669,29 @@ const Home = () => {
                   {manuals.map((manual) => (
                     <div key={manual.id} className="p-3 border rounded hover:bg-slate-50 cursor-pointer"
                          onClick={() => {
-                           toast.success(`Linked to ${manual.title}`);
+                           const linkHtml = `<a href="/manual/${manual.id}" class="text-blue-600 underline hover:text-blue-800" title="${manual.description || manual.title}">${selectedText}</a>`;
+                           
+                           // Find current rule and update its content
+                           const currentRule = currentChapter?.rules.find(r => r.id === editingRule || (!editingRule && r.number));
+                           if (currentRule) {
+                             const updatedContent = currentRule.content.replace(selectedText, linkHtml);
+                             
+                             setChapters(prevChapters => 
+                               prevChapters.map(chapter => ({
+                                 ...chapter,
+                                 rules: chapter.rules.map(rule => 
+                                   rule.id === currentRule.id 
+                                     ? { ...rule, content: updatedContent }
+                                     : rule
+                                 )
+                               }))
+                             );
+                           }
+                           
+                           toast.success(`Linked "${selectedText}" to ${manual.title}`);
                            setShowLinkDialog(false);
                            setLinkType(null);
+                           setSelectedText("");
                          }}>
                       <p className="font-medium text-sm">{manual.title}</p>
                       <p className="text-xs text-slate-600">{manual.description}</p>
@@ -694,9 +708,29 @@ const Home = () => {
                   {circulars.map((circular) => (
                     <div key={circular.id} className="p-3 border rounded hover:bg-slate-50 cursor-pointer"
                          onClick={() => {
-                           toast.success(`Linked to ${circular.title}`);
+                           const linkHtml = `<a href="/circular/${circular.id}" class="text-blue-600 underline hover:text-blue-800" title="${circular.description || circular.title}">${selectedText}</a>`;
+                           
+                           // Find current rule and update its content
+                           const currentRule = currentChapter?.rules.find(r => r.id === editingRule || (!editingRule && r.number));
+                           if (currentRule) {
+                             const updatedContent = currentRule.content.replace(selectedText, linkHtml);
+                             
+                             setChapters(prevChapters => 
+                               prevChapters.map(chapter => ({
+                                 ...chapter,
+                                 rules: chapter.rules.map(rule => 
+                                   rule.id === currentRule.id 
+                                     ? { ...rule, content: updatedContent }
+                                     : rule
+                                 )
+                               }))
+                             );
+                           }
+                           
+                           toast.success(`Linked "${selectedText}" to ${circular.title}`);
                            setShowLinkDialog(false);
                            setLinkType(null);
+                           setSelectedText("");
                          }}>
                       <p className="font-medium text-sm">{circular.title}</p>
                       <p className="text-xs text-slate-600">{circular.description}</p>
@@ -710,10 +744,41 @@ const Home = () => {
               <Button variant="outline" onClick={() => {
                 setShowLinkDialog(false);
                 setLinkType(null);
+                setLinkUrl("");
               }}>
                 Cancel
               </Button>
+              <Button onClick={() => {
+                if (linkUrl) {
+                  const linkHtml = `<a href="${linkUrl}" class="text-blue-600 underline hover:text-blue-800" target="_blank">${selectedText}</a>`;
+                  
+                  const currentRule = currentChapter?.rules.find(r => r.id === editingRule || (!editingRule && r.number));
+                  if (currentRule) {
+                    const updatedContent = currentRule.content.replace(selectedText, linkHtml);
+                    
+                    setChapters(prevChapters => 
+                      prevChapters.map(chapter => ({
+                        ...chapter,
+                        rules: chapter.rules.map(rule => 
+                          rule.id === currentRule.id 
+                            ? { ...rule, content: updatedContent }
+                            : rule
+                        )
+                      }))
+                    );
+                  }
+                  
+                  toast.success(`Linked "${selectedText}" to ${linkUrl}`);
+                  setShowLinkDialog(false);
+                  setLinkType(null);
+                  setSelectedText("");
+                  setLinkUrl("");
+                }
+              }} disabled={!linkUrl}>
+                Add Link
+              </Button>
             </div>
+          
           </div>
         </DialogContent>
       </Dialog>
