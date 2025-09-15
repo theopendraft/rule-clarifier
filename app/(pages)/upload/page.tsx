@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { PDFUploadDropzone } from '../../../lib/uploadthing-components';
 import { 
   Image, 
@@ -25,6 +26,7 @@ interface UploadedFile {
 
 export default function UploadPage() {
   const [allUploadedFiles, setAllUploadedFiles] = useState<UploadedFile[]>([]);
+  const [uploadType, setUploadType] = useState('pdf');
 
   const handleFileUpload = (files: UploadedFile[]) => {
     setAllUploadedFiles(prev => [...prev, ...files]);
@@ -68,8 +70,21 @@ export default function UploadPage() {
                   Upload PDF files up to 16MB. Text will be automatically extracted and can be edited with rich text formatting.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <PDFUploadDropzone />
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Upload Type</Label>
+                  <RadioGroup value={uploadType} onValueChange={setUploadType} className="mt-2">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="manual" id="manual" />
+                      <Label htmlFor="manual">Manual</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="circular" id="circular" />
+                      <Label htmlFor="circular">Circular</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+                <PDFUploadDropzone uploadType={uploadType} />
               </CardContent>
             </Card>
           </div>
