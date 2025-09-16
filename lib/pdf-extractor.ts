@@ -43,35 +43,42 @@ export async function extractTextFromPDF(pdfBuffer: Buffer): Promise<ExtractedCo
     throw new Error('Invalid PDF format');
   }
 
-  // Try pdf-parse with proper isolation
+  // Try pdf-parse with production-safe import
   try {
-    // Use eval to isolate the require and prevent webpack from processing it
-    const pdfParse = eval('require')('pdf-parse');
+    const pdfParse = (await import('pdf-parse')).default;
     
-    // Create a clean buffer copy to avoid any reference issues
-    const cleanBuffer = Buffer.from(pdfBuffer);
-    
-    const data = await pdfParse(cleanBuffer, {
+    const data = await pdfParse(pdfBuffer, {
       normalizeWhitespace: false,
       disableCombineTextItems: false,
       max: 0
     });
 
-    return {
-      text: data.text || "",
-      pages: data.numpages || 1,
-      metadata: {
-        title: data.info?.Title,
-        author: data.info?.Author,
-        subject: data.info?.Subject,
-        creator: data.info?.Creator,
-        producer: data.info?.Producer,
-        creationDate: parsePDFDate(data.info?.CreationDate),
-        modificationDate: parsePDFDate(data.info?.ModDate),
-      },
-    };
+    if (data.text && data.text.trim().length > 0) {
+      // Clean text while preserving formatting
+      const cleanText = data.text
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\xFF]/g, '') // Remove only control chars
+        .replace(/[ \t]{3,}/g, '  ') // Normalize excessive spaces but keep some
+        .replace(/\n{3,}/g, '\n\n') // Normalize excessive newlines
+        .trim();
+
+      if (cleanText.length > 10) {
+        return {
+          text: cleanText,
+          pages: data.numpages || 1,
+          metadata: {
+            title: data.info?.Title,
+            author: data.info?.Author,
+            subject: data.info?.Subject,
+            creator: data.info?.Creator,
+            producer: data.info?.Producer,
+            creationDate: parsePDFDate(data.info?.CreationDate),
+            modificationDate: parsePDFDate(data.info?.ModDate),
+          },
+        };
+      }
+    }
   } catch (error) {
-    console.error("PDF extraction with pdf-parse failed, trying fallback:", error);
+    console.error("PDF-parse failed, using fallback:", error);
     
     // Fallback extraction
     try {
