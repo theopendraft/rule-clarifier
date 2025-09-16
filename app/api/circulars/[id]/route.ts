@@ -9,8 +9,16 @@ export async function GET(
     const { id } = await params
     console.log('Circular API - Fetching ID:', id)
     
+    // Alternative: Try to get ID from URL as fallback
+    const url = new URL(request.url)
+    const pathId = url.pathname.split('/').pop()
+    console.log('Circular API - Path ID:', pathId)
+    
+    const finalId = id || pathId
+    console.log('Circular API - Final ID:', finalId)
+    
     const circular = await prisma.circular.findUnique({
-      where: { id },
+      where: { id: finalId },
       select: {
         id: true,
         code: true,
@@ -29,7 +37,7 @@ export async function GET(
     console.log('Circular API - Found circular:', circular ? 'Yes' : 'No')
 
     if (!circular) {
-      console.log('Circular API - Circular not found for ID:', id)
+      console.log('Circular API - Circular not found for ID:', finalId)
       return NextResponse.json(
         { error: 'Circular not found' },
         { status: 404 }
