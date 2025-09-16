@@ -175,6 +175,8 @@ model Manual {
   title       String
   description String?
   version     String?
+  pdfUrl      String?  // URL to the uploaded PDF file
+  pdfFileName String?  // Original PDF filename with timestamp
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -189,6 +191,8 @@ model Circular {
   description String?
   number      String?  // e.g., "2024/01"
   date        DateTime?
+  pdfUrl      String?  // URL to the uploaded PDF file
+  pdfFileName String?  // Original PDF filename with timestamp
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -209,7 +213,8 @@ model ChangeLog {
   createdAt   DateTime    @default(now())
 
   // Relations
-  user        User @relation(fields: [userId], references: [id])
+  user         User           @relation(fields: [userId], references: [id])
+  notifications Notification[]
 
   @@map("change_logs")
 }
@@ -242,9 +247,39 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  changeLogs ChangeLog[]
-  books      RuleBook[]
-  images     Image[]
+  changeLogs    ChangeLog[]
+  books         RuleBook[]
+  images        Image[]
+  notifications Notification[]
 
   @@map("users")
+}
+
+// Notification model for user-specific notifications
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  changelogId String?  // Reference to the changelog that triggered this notification
+  title       String
+  message     String
+  type        NotificationType @default(INFO)
+  isRead      Boolean  @default(false)
+  entityType  EntityType?
+  entityId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  changelog   ChangeLog? @relation(fields: [changelogId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  CHANGE
 }

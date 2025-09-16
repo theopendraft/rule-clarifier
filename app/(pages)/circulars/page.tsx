@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { FileText, Search, Calendar, Hash, Filter, ArrowRight } from 'lucide-react'
+import { FileText, Search, Calendar, Hash, Filter, ArrowRight, Clock } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { format } from 'date-fns'
 
@@ -44,6 +44,17 @@ export default function CircularsPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   const filteredCirculars = circulars.filter(circular => {
@@ -109,48 +120,7 @@ export default function CircularsPage() {
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-blue-600" />
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">{circulars.length}</p>
-                  <p className="text-slate-600">Total Circulars</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <Calendar className="h-8 w-8 text-green-600" />
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {circulars.filter(c => c.isActive).length}
-                  </p>
-                  <p className="text-slate-600">Active Circulars</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <Hash className="h-8 w-8 text-purple-600" />
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {circulars.filter(c => c.date && new Date(c.date) >= new Date('2024-01-01')).length}
-                  </p>
-                  <p className="text-slate-600">2024 Circulars</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* Circulars List */}
         {filteredCirculars.length === 0 ? (
@@ -201,6 +171,10 @@ export default function CircularsPage() {
                               {format(new Date(circular.date), 'MMM dd, yyyy')}
                             </span>
                           )}
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Updated {formatDate(circular.updatedAt)}
+                          </span>
                         </div>
                       </div>
                       <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
@@ -208,9 +182,18 @@ export default function CircularsPage() {
                   </CardHeader>
                   {circular.description && (
                     <CardContent>
-                      <CardDescription className="text-slate-700">
-                        {circular.description}
-                      </CardDescription>
+                      <CardDescription 
+                        className="text-slate-700 prose prose-sm max-w-none"
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}
+                        dangerouslySetInnerHTML={{ 
+                          __html: circular.description
+                        }}
+                      />
                     </CardContent>
                   )}
                 </Card>

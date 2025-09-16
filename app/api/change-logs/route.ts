@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { EntityType } from '@prisma/client'
+import { createNotificationFromChangeLog, createNotificationForRole } from '@/lib/notification-utils'
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,6 +53,21 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    // Create notification for the change
+    try {
+      await createNotificationFromChangeLog({
+        id: changeLog.id,
+        entityType: changeLog.entityType,
+        entityId: changeLog.entityId,
+        action: changeLog.action,
+        reason: changeLog.reason,
+        userId: changeLog.userId,
+      });
+    } catch (notificationError) {
+      console.error('Error creating notification:', notificationError);
+      // Don't fail the change log creation if notification fails
+    }
 
     return NextResponse.json(changeLog)
   } catch (error) {

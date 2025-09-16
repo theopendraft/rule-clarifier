@@ -16,9 +16,10 @@ import {
   List,
   ListOrdered,
   Quote,
-  Code
+  Code,
+  Palette
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Manual {
   id: string;
@@ -52,6 +53,8 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
   const [linkType, setLinkType] = useState<'manual' | 'circular' | null>(null);
   const [manuals, setManuals] = useState<Manual[]>([]);
   const [circulars, setCirculars] = useState<Circular[]>([]);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -72,7 +75,8 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] p-4 border rounded-md',
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 border rounded-md text-sm',
+        style: 'font-size: 14px;',
       },
     },
   });
@@ -94,6 +98,23 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     fetchData();
   }, []);
 
+  // Close color picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
+        setShowColorPicker(false);
+      }
+    };
+
+    if (showColorPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showColorPicker]);
+
   const addLink = () => {
     if (linkUrl) {
       editor?.chain().focus().setLink({ href: linkUrl }).run();
@@ -112,6 +133,31 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
   const removeLink = () => {
     editor?.chain().focus().unsetLink().run();
   };
+
+  const setTextColor = (color: string) => {
+    editor?.chain().focus().setColor(color).run();
+    setShowColorPicker(false);
+  };
+
+  const removeTextColor = () => {
+    editor?.chain().focus().unsetColor().run();
+    setShowColorPicker(false);
+  };
+
+  const predefinedColors = [
+    '#000000', // Black
+    '#374151', // Gray 700
+    '#6B7280', // Gray 500
+    '#9CA3AF', // Gray 400
+    '#EF4444', // Red 500
+    '#F97316', // Orange 500
+    '#EAB308', // Yellow 500
+    '#22C55E', // Green 500
+    '#06B6D4', // Cyan 500
+    '#3B82F6', // Blue 500
+    '#8B5CF6', // Violet 500
+    '#EC4899', // Pink 500
+  ];
 
   if (!editor) {
     return null;
@@ -144,6 +190,58 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
           >
             <Underline className="h-4 w-4" />
           </Button>
+        </div>
+
+        {/* Text Color */}
+        <div className="flex gap-1 border-r pr-2 mr-2 relative" ref={colorPickerRef}>
+          <Button
+            variant={editor.isActive('textStyle', { color: /^#/ }) ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            title="Text Color"
+          >
+            <Palette className="h-4 w-4" />
+          </Button>
+          
+          {showColorPicker && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg p-3 z-50 min-w-[200px]">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Text Color</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={removeTextColor}
+                    className="text-xs"
+                  >
+                    Remove
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-6 gap-2">
+                  {predefinedColors.map((color) => (
+                    <button
+                      key={color}
+                      className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
+                      style={{ backgroundColor: color }}
+                      onClick={() => setTextColor(color)}
+                      title={color}
+                    />
+                  ))}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    className="w-8 h-8 rounded border border-gray-300 cursor-pointer"
+                    onChange={(e) => setTextColor(e.target.value)}
+                    title="Custom Color"
+                  />
+                  <span className="text-xs text-gray-600">Custom</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Text Size */}

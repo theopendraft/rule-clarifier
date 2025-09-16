@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Save, Bold, Italic, List, Quote, Code, Link, Image, Heading } from 'lucide-react';
@@ -13,13 +13,15 @@ interface RichTextEditorProps {
 
 const RichTextEditor = ({ content, onChange, readOnly = false }: RichTextEditorProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
-  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (editorRef.current) {
+      // Content is already processed for display when it comes from the upload component
       editorRef.current.innerHTML = content;
     }
   }, [content]);
+
+  // Content is already processed for display when it comes from the upload component
 
   const handleInput = () => {
     if (editorRef.current && !readOnly) {
@@ -53,7 +55,7 @@ const RichTextEditor = ({ content, onChange, readOnly = false }: RichTextEditorP
   if (readOnly) {
     return (
       <div 
-        className="prose max-w-none p-4 border rounded-lg bg-gray-50"
+        className="prose prose-sm max-w-none p-4 border rounded-lg bg-gray-50 text-sm"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     );
@@ -62,24 +64,12 @@ const RichTextEditor = ({ content, onChange, readOnly = false }: RichTextEditorP
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Rich Text Editor
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              {isEditing ? 'Preview' : 'Edit'}
-            </Button>
-          </div>
-        </CardTitle>
+        <CardTitle>Rich Text Editor</CardTitle>
       </CardHeader>
       <CardContent>
-        {isEditing ? (
-          <div className="space-y-4">
-            {/* Toolbar */}
-            <div className="flex flex-wrap gap-2 p-2 border rounded-lg bg-gray-50">
+        <div className="space-y-4">
+          {/* Toolbar */}
+          <div className="flex flex-wrap gap-2 p-2 border rounded-lg bg-gray-50">
               <Button
                 variant="outline"
                 size="sm"
@@ -172,21 +162,19 @@ const RichTextEditor = ({ content, onChange, readOnly = false }: RichTextEditorP
               </div>
             </div>
 
-            {/* Editor */}
-            <div
-              ref={editorRef}
-              contentEditable
-              onInput={handleInput}
-              className="min-h-[200px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              style={{ minHeight: '200px' }}
-            />
-          </div>
-        ) : (
-          <div 
-            className="prose max-w-none p-4 border rounded-lg bg-gray-50 min-h-[200px]"
-            dangerouslySetInnerHTML={{ __html: content }}
+          {/* Editor */}
+          <div
+            ref={editorRef}
+            contentEditable
+            onInput={handleInput}
+            className="min-h-[200px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            style={{ 
+              minHeight: '200px',
+              wordWrap: 'break-word',
+              fontSize: '14px'
+            }}
           />
-        )}
+        </div>
       </CardContent>
     </Card>
   );

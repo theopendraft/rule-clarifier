@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, BookOpen, Calendar, Tag, Clock, User, FileText } from 'lucide-react'
+import { ArrowLeft, BookOpen, Calendar, Tag, Clock, User, FileText, Download, ExternalLink } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { format } from 'date-fns'
 
@@ -15,6 +15,8 @@ interface Manual {
   title: string
   description: string | null
   version: string | null
+  pdfUrl: string | null
+  pdfFileName: string | null
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -89,7 +91,12 @@ export default function ManualDetailPage() {
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
+
+
+        {/* Main Content */}
+        <div className="max-w-4xl mx-auto">
+
+                  {/* Back Button */}
         <div className="mb-6">
           <Button 
             variant="ghost" 
@@ -100,9 +107,6 @@ export default function ManualDetailPage() {
             Back to Manuals
           </Button>
         </div>
-
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-start justify-between mb-4">
@@ -137,7 +141,72 @@ export default function ManualDetailPage() {
                 <CardTitle className="text-lg">Description</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-700 leading-relaxed">{manual.description}</p>
+                <div 
+                  className="text-slate-700 leading-relaxed prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: manual.description }}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Original PDF */}
+          {manual.pdfUrl && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Original PDF Document
+                </CardTitle>
+                <CardDescription>
+                  View or download the original PDF file
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* PDF Viewer */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <iframe
+                      src={manual.pdfUrl}
+                      className="w-full h-96"
+                      title={`PDF: ${manual.title}`}
+                    />
+                  </div>
+                  
+                  {/* PDF Actions */}
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-slate-600" />
+                      <span className="text-sm text-slate-600">
+                        {manual.pdfFileName || 'Original PDF'}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(manual.pdfUrl!, '_blank')}
+                        className="flex items-center gap-2"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Open in New Tab
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = manual.pdfUrl!;
+                          link.download = manual.pdfFileName || 'manual.pdf';
+                          link.click();
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createNotificationFromChangeLog } from '@/lib/notification-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,20 +19,12 @@ export async function POST(request: NextRequest) {
         rules: {
           orderBy: { order: 'asc' },
         },
-        subChapters: {
-          include: {
-            rules: {
-              orderBy: { order: 'asc' },
-            },
-          },
-          orderBy: { order: 'asc' },
-        },
       },
     })
 
     // Log the changes
     if (userId) {
-      await prisma.changeLog.create({
+      const changeLog = await prisma.changeLog.create({
         data: {
           entityType: 'CHAPTER',
           entityId: chapter.id,
@@ -41,6 +34,21 @@ export async function POST(request: NextRequest) {
           userId,
         },
       })
+
+      // Create notification for the change
+      try {
+        await createNotificationFromChangeLog({
+          id: changeLog.id,
+          entityType: changeLog.entityType,
+          entityId: changeLog.entityId,
+          action: changeLog.action,
+          reason: changeLog.reason,
+          userId: changeLog.userId,
+        });
+      } catch (notificationError) {
+        console.error('Error creating notification:', notificationError);
+        // Don't fail the chapter creation if notification fails
+      }
     }
 
     return NextResponse.json(chapter)
