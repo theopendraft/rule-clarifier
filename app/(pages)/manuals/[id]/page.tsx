@@ -36,7 +36,7 @@ export default function ManualDetailPage() {
 
   const fetchManual = async (id: string) => {
     try {
-      const response = await fetch(`/api/manuals/${id}`)
+      const response = await fetch(`/api/manuals/get?id=${id}`)
       if (response.ok) {
         const data = await response.json()
         setManual(data)

@@ -37,7 +37,7 @@ export default function CircularDetailPage() {
 
   const fetchCircular = async (id: string) => {
     try {
-      const response = await fetch(`/api/circulars/${id}`)
+      const response = await fetch(`/api/circulars/get?id=${id}`)
       if (response.ok) {
         const data = await response.json()
         setCircular(data)

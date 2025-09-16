@@ -6,26 +6,25 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     const id = url.searchParams.get('id')
     
-    console.log('Circular API - Request URL:', request.url)
-    console.log('Circular API - Fetching ID from query params:', id)
+    console.log('Manual GET API - Request URL:', request.url)
+    console.log('Manual GET API - Fetching ID from query params:', id)
     
     if (!id) {
-      console.log('Circular API - No ID provided in query params')
+      console.log('Manual GET API - No ID provided in query params')
       return NextResponse.json(
         { error: 'ID parameter is required' },
         { status: 400 }
       )
     }
     
-    const circular = await prisma.circular.findUnique({
+    const manual = await prisma.manual.findUnique({
       where: { id },
       select: {
         id: true,
         code: true,
         title: true,
         description: true,
-        number: true,
-        date: true,
+        version: true,
         pdfUrl: true,
         pdfFileName: true,
         isActive: true,
@@ -34,25 +33,25 @@ export async function GET(request: Request) {
       }
     })
 
-    console.log('Circular API - Found circular:', circular ? 'Yes' : 'No')
+    console.log('Manual GET API - Found manual:', manual ? 'Yes' : 'No')
 
-    if (!circular) {
-      console.log('Circular API - Circular not found for ID:', id)
+    if (!manual) {
+      console.log('Manual GET API - Manual not found for ID:', id)
       return NextResponse.json(
-        { error: 'Circular not found' },
+        { error: 'Manual not found' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json(circular)
+    return NextResponse.json(manual)
   } catch (error) {
-    console.error('Error fetching circular:', error)
+    console.error('Error fetching manual:', error)
     console.error('Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     })
     return NextResponse.json(
-      { error: 'Failed to fetch circular' },
+      { error: 'Failed to fetch manual' },
       { status: 500 }
     )
   }
