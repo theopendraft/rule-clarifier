@@ -7,9 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, FileText, Upload } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import { UploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "../../../lib/uploadthing";
 
 // Types for database data
 interface Rule {
@@ -60,6 +63,8 @@ const Home = () => {
   const [changeReason, setChangeReason] = useState("");
   const [docType, setDocType] = useState<"upload" | "text">("upload");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedText, setSelectedText] = useState("");
   const [showLinkDialog, setShowLinkDialog] = useState(false);
@@ -223,6 +228,27 @@ const Home = () => {
     }
   };
 
+  const handleFileUpload = (res: any) => {
+    console.log("Files: ", res);
+    setUploadedFiles(res);
+    if (res && res.length > 0) {
+      setUploadedFile(res[0]);
+      setSupportingDoc(res[0].url);
+      toast.success(`File uploaded: ${res[0].name}`);
+    }
+  };
+
+  const handleUploadError = (error: Error) => {
+    console.error("Upload Error:", error);
+    toast.error(`Upload failed: ${error.message}`);
+    setIsUploading(false);
+  };
+
+  const handleUploadBegin = (name: string) => {
+    console.log("Uploading:", name);
+    setIsUploading(true);
+  };
+
   const handleSaveRule = async () => {
     if (!editingRule) return;
     
@@ -254,7 +280,9 @@ const Home = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update rule');
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        throw new Error(`Failed to update rule: ${errorData.error || 'Unknown error'}`);
       }
 
       // Update local state
@@ -280,7 +308,8 @@ const Home = () => {
       toast.success('Rule updated successfully');
     } catch (error) {
       console.error('Error updating rule:', error);
-      toast.error('Failed to update rule');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to update rule: ${errorMessage}`);
     }
   };
 
@@ -539,60 +568,81 @@ const Home = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Supporting Document</label>
-              <div className="flex space-x-2 mb-3">
-                <Button
-                  type="button"
-                  variant={docType === "upload" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setDocType("upload")}
-                  className="flex-1"
-                >
-                  <Upload className="h-4 w-4 mr-1" />
-                  Upload File
-                </Button>
-                <Button
-                  type="button"
-                  variant={docType === "text" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setDocType("text")}
-                  className="flex-1"
-                >
-                  <FileText className="h-4 w-4 mr-1" />
-                  Write Text
-                </Button>
-              </div>
-              
-              {docType === "upload" ? (
-                <div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.doc,.docx,.txt"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setUploadedFile(file);
-                        setSupportingDoc(file.name);
-                      }
-                    }}
-                    className="hidden"
+              <Tabs value={docType} onValueChange={(value) => setDocType(value as "upload" | "text")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="upload" className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    Upload File
+                  </TabsTrigger>
+                  <TabsTrigger value="text" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Write Text
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upload" className="mt-4">
+                  <div className="space-y-4">
+                    {uploadedFiles.length === 0 ? (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <div className="space-y-4">
+                          <FileText className="h-12 w-12 text-gray-400 mx-auto" />
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                              Upload Supporting Document
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-4">
+                              Select a file to upload as supporting documentation
+                            </p>
+                            <UploadButton<OurFileRouter, "pdfUploader">
+                              endpoint="pdfUploader"
+                              onClientUploadComplete={handleFileUpload}
+                              onUploadError={handleUploadError}
+                              onUploadBegin={handleUploadBegin}
+                              appearance={{
+                                button: "bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium",
+                                allowedContent: "text-xs text-muted-foreground mt-2"
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {uploadedFiles.map((file, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-green-600" />
+                              <span className="text-sm font-medium text-green-800">{file.name}</span>
+                              <span className="text-xs text-green-600">({(file.size / 1024).toFixed(1)} KB)</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setUploadedFiles([]);
+                                setUploadedFile(null);
+                                setSupportingDoc("");
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="text" className="mt-4">
+                  <Input
+                    value={supportingDoc}
+                    onChange={(e) => setSupportingDoc(e.target.value)}
+                    placeholder="Enter document reference (e.g., Circular No. 2024/01)"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full"
-                  >
-                    {uploadedFile ? uploadedFile.name : "Choose File"}
-                  </Button>
-                </div>
-              ) : (
-                <Input
-                  value={supportingDoc}
-                  onChange={(e) => setSupportingDoc(e.target.value)}
-                  placeholder="Enter document reference (e.g., Circular No. 2024/01)"
-                />
-              )}
+                </TabsContent>
+              </Tabs>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Reason for Change</label>

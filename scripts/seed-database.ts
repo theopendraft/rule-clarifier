@@ -297,15 +297,60 @@ const chapters = [
 
 // Manuals and Circulars data
 const manuals = [
-  { code: "M001", title: "Operating Manual - Section A", description: "Basic operating procedures", version: "2024.1" },
-  { code: "M002", title: "Safety Manual - Chapter 3", description: "Emergency protocols", version: "2024.1" },
-  { code: "M003", title: "Maintenance Manual - Part B", description: "Equipment maintenance", version: "2024.1" }
+  { 
+    code: "M001", 
+    title: "Operating Manual - Section A", 
+    description: "Basic operating procedures", 
+    version: "2024.1",
+    pdfUrl: "https://utfs.io/f/operating-manual-section-a-20241201.pdf",
+    pdfFileName: "operating-manual-section-a-20241201.pdf"
+  },
+  { 
+    code: "M002", 
+    title: "Safety Manual - Chapter 3", 
+    description: "Emergency protocols", 
+    version: "2024.1",
+    pdfUrl: "https://utfs.io/f/safety-manual-chapter3-20241201.pdf",
+    pdfFileName: "safety-manual-chapter3-20241201.pdf"
+  },
+  { 
+    code: "M003", 
+    title: "Maintenance Manual - Part B", 
+    description: "Equipment maintenance", 
+    version: "2024.1",
+    pdfUrl: "https://utfs.io/f/maintenance-manual-partb-20241201.pdf",
+    pdfFileName: "maintenance-manual-partb-20241201.pdf"
+  }
 ];
 
 const circulars = [
-  { code: "C001", title: "Circular No. 2024/01", description: "Updated safety guidelines", number: "2024/01", date: new Date("2024-01-15") },
-  { code: "C002", title: "Circular No. 2024/02", description: "New operational procedures", number: "2024/02", date: new Date("2024-02-01") },
-  { code: "C003", title: "Circular No. 2023/15", description: "Equipment specifications", number: "2023/15", date: new Date("2023-12-15") }
+  { 
+    code: "C001", 
+    title: "Circular No. 2024/01", 
+    description: "Updated safety guidelines", 
+    number: "2024/01", 
+    date: new Date("2024-01-15"),
+    pdfUrl: "https://utfs.io/f/circular-2024-01-20240115.pdf",
+    pdfFileName: "circular-2024-01-20240115.pdf"
+  },
+  { 
+    code: "C002", 
+    title: "Circular No. 2024/02", 
+    description: "New operational procedures", 
+    number: "2024/02", 
+    date: new Date("2024-02-01"),
+    pdfUrl: "https://utfs.io/f/circular-2024-02-20240201.pdf",
+    pdfFileName: "circular-2024-02-20240201.pdf"
+  },
+  { 
+    code: "C003", 
+    title: "Circular No. 2023/15", 
+    description: "Equipment specifications", 
+    number: "2023/15", 
+    date: new Date("2023-12-15"),
+    pdfUrl: "https://utfs.io/f/circular-2023-15-20231215.pdf",
+    pdfFileName: "circular-2023-15-20231215.pdf"
+  }
 ];
 
 const getRuleContent = (ruleId: string, ruleTitle: string) => {
@@ -396,9 +441,24 @@ export async function seedDatabase() {
     console.log('✅ Created/updated rule book:', ruleBook.title);
 
     // Clear existing data to avoid duplicates
-    await prisma.ruleImage.deleteMany();
-    await prisma.ruleLink.deleteMany();
-    await prisma.contentBlock.deleteMany();
+    try {
+      await prisma.ruleImage.deleteMany();
+    } catch (error) {
+      console.log('⚠️  RuleImage table does not exist, skipping...');
+    }
+    
+    try {
+      await prisma.ruleLink.deleteMany();
+    } catch (error) {
+      console.log('⚠️  RuleLink table does not exist, skipping...');
+    }
+    
+    try {
+      await prisma.contentBlock.deleteMany();
+    } catch (error) {
+      console.log('⚠️  ContentBlock table does not exist, skipping...');
+    }
+    
     await prisma.rule.deleteMany();
     await prisma.chapter.deleteMany();
     await prisma.manual.deleteMany();
@@ -415,6 +475,8 @@ export async function seedDatabase() {
           title: manualData.title,
           description: manualData.description,
           version: manualData.version,
+          pdfUrl: manualData.pdfUrl,
+          pdfFileName: manualData.pdfFileName,
         },
       });
       console.log(`📚 Created manual: ${manualData.title}`);
@@ -429,6 +491,8 @@ export async function seedDatabase() {
           description: circularData.description,
           number: circularData.number,
           date: circularData.date,
+          pdfUrl: circularData.pdfUrl,
+          pdfFileName: circularData.pdfFileName,
         },
       });
       console.log(`📄 Created circular: ${circularData.title}`);

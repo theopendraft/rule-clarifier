@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createNotificationFromChangeLog } from '@/lib/notification-utils';
 
 export async function PUT(
   request: NextRequest,
@@ -32,7 +33,7 @@ export async function PUT(
     });
 
     // Create audit log entry with proper before/after values
-    await prisma.changeLog.create({
+    const changeLog = await prisma.changeLog.create({
       data: {
         entityType: 'RULE',
         entityId: id,
@@ -43,9 +44,24 @@ export async function PUT(
         },
         supportingDoc: supportingDoc || null,
         reason: changeReason || null,
-        userId: 'cmflhnuzb0000tt0sc7iezcsi', // HARDCODED: Admin user ID - TODO: Get from auth context
+        userId: 'cmflolqqc00006vyvs484vwgq', // HARDCODED: Admin user ID - TODO: Get from auth context
       },
     });
+
+    // Create notification for the change
+    try {
+      await createNotificationFromChangeLog({
+        id: changeLog.id,
+        entityType: changeLog.entityType,
+        entityId: changeLog.entityId,
+        action: changeLog.action,
+        reason: changeLog.reason,
+        userId: changeLog.userId,
+      });
+    } catch (notificationError) {
+      console.error('Error creating notification:', notificationError);
+      // Don't fail the rule update if notification fails
+    }
 
     return NextResponse.json(updatedRule);
   } catch (error) {

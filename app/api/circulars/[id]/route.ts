@@ -9,7 +9,20 @@ export async function GET(
     const { id } = await params
     
     const circular = await prisma.circular.findUnique({
-      where: { id }
+      where: { id },
+      select: {
+        id: true,
+        code: true,
+        title: true,
+        description: true,
+        number: true,
+        date: true,
+        pdfUrl: true,
+        pdfFileName: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true
+      }
     })
 
     if (!circular) {

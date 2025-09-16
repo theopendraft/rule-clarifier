@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PDFUploadDropzone } from '../../../lib/uploadthing-components';
 import { 
   Image, 
@@ -26,7 +25,7 @@ interface UploadedFile {
 
 export default function UploadPage() {
   const [allUploadedFiles, setAllUploadedFiles] = useState<UploadedFile[]>([]);
-  const [uploadType, setUploadType] = useState('pdf');
+  const [uploadType, setUploadType] = useState('manual');
 
   const handleFileUpload = (files: UploadedFile[]) => {
     setAllUploadedFiles(prev => [...prev, ...files]);
@@ -50,12 +49,6 @@ export default function UploadPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">PDF Upload & Text Extraction</h1>
-          <p className="text-muted-foreground">
-            Upload PDF files to extract text content, edit with rich formatting, and save as supporting documents for rule changes.
-          </p>
-        </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Upload Section */}
@@ -64,27 +57,25 @@ export default function UploadPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  PDF Upload & Text Extraction
+                  Add Manual or Circular
                 </CardTitle>
                 <CardDescription>
-                  Upload PDF files up to 16MB. Text will be automatically extracted and can be edited with rich text formatting.
+                Select a PDF file to extract text:
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-base font-medium">Upload Type</Label>
-                  <RadioGroup value={uploadType} onValueChange={setUploadType} className="mt-2">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="manual" id="manual" />
-                      <Label htmlFor="manual">Manual</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="circular" id="circular" />
-                      <Label htmlFor="circular">Circular</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                <PDFUploadDropzone uploadType={uploadType} />
+                <Tabs value={uploadType} onValueChange={setUploadType} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="manual">Manual</TabsTrigger>
+                    <TabsTrigger value="circular">Circular</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="manual" className="mt-4">
+                    <PDFUploadDropzone uploadType="manual" />
+                  </TabsContent>
+                  <TabsContent value="circular" className="mt-4">
+                    <PDFUploadDropzone uploadType="circular" />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
@@ -127,41 +118,6 @@ export default function UploadPage() {
               </CardContent>
             </Card>
 
-            {/* Upload Statistics */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  Upload Statistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Total Files:</span>
-                    <Badge variant="outline">{allUploadedFiles.length}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Total Size:</span>
-                    <Badge variant="outline">
-                      {formatFileSize(allUploadedFiles.reduce((acc, file) => acc + file.size, 0))}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">PDFs:</span>
-                    <Badge variant="outline">
-                      {allUploadedFiles.filter(f => f.type.includes('pdf')).length}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Extracted:</span>
-                    <Badge variant="outline">
-                      {allUploadedFiles.filter(f => f.type.includes('pdf')).length}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
 

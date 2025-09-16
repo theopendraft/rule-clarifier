@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { BookOpen, Search, Tag, Filter, FileText, ArrowRight } from 'lucide-react'
+import { BookOpen, Search, Tag, Filter, FileText, ArrowRight, Clock } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 
 interface Manual {
@@ -41,6 +41,25 @@ export default function ManualsPage() {
       console.error('Error fetching manuals:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) {
+        return 'Invalid date'
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch (error) {
+      console.error('Error formatting date:', error)
+      return 'Invalid date'
     }
   }
 
@@ -107,48 +126,7 @@ export default function ManualsPage() {
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <BookOpen className="h-8 w-8 text-blue-600" />
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">{manuals.length}</p>
-                  <p className="text-slate-600">Total Manuals</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-green-600" />
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {manuals.filter(m => m.isActive).length}
-                  </p>
-                  <p className="text-slate-600">Active Manuals</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <Tag className="h-8 w-8 text-purple-600" />
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {new Set(manuals.map(m => m.version)).size}
-                  </p>
-                  <p className="text-slate-600">Unique Versions</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        
 
         {/* Manuals List */}
         {filteredManuals.length === 0 ? (
@@ -182,7 +160,7 @@ export default function ManualsPage() {
                             {manual.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-slate-600 mb-2">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 mb-2">
                           <span className="flex items-center gap-1">
                             <Tag className="h-3 w-3" />
                             {manual.code}
@@ -193,6 +171,10 @@ export default function ManualsPage() {
                               v{manual.version}
                             </span>
                           )}
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Updated {manual.updatedAt ? formatDate(manual.updatedAt) : 'Unknown'}
+                          </span>
                         </div>
                       </div>
                       <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
@@ -200,9 +182,18 @@ export default function ManualsPage() {
                   </CardHeader>
                   {manual.description && (
                     <CardContent>
-                      <CardDescription className="text-slate-700">
-                        {manual.description}
-                      </CardDescription>
+                      <CardDescription 
+                        className="text-slate-700 prose prose-sm max-w-none"
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}
+                        dangerouslySetInnerHTML={{ 
+                          __html: manual.description
+                        }}
+                      />
                     </CardContent>
                   )}
                 </Card>

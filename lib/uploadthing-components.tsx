@@ -3,9 +3,12 @@
 import { UploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "./uploadthing";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, CheckCircle, AlertCircle, Edit3, Save, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { FileText, CheckCircle, AlertCircle, Save, X, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
@@ -35,16 +38,29 @@ interface PDFUploadDropzoneProps {
 }
 
 export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
+  const router = useRouter();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
+  const [aiProcessingStep, setAiProcessingStep] = useState(0);
   const [extractedContent, setExtractedContent] = useState<ExtractedContent | null>(null);
   const [editingContent, setEditingContent] = useState<string>('');
-  const [isEditing, setIsEditing] = useState(false);
+  const [documentTitle, setDocumentTitle] = useState<string>('');
   const [extractionError, setExtractionError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [uploadButtonReady, setUploadButtonReady] = useState(false);
+
+  const aiProcessingSteps = [
+    "Analyzing document structure...",
+    "Extracting text content...",
+    "Processing with AI algorithms...",
+    "Optimizing content formatting...",
+    "Generating rich text markup...",
+    "Finalizing document processing..."
+  ];
 
   const clearMessages = () => {
     setUploadError(null);
@@ -67,6 +83,88 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
     setUploadButtonReady(true);
   }, []);
 
+  // AI Processing effect
+  useEffect(() => {
+    if (isAiProcessing) {
+      const interval = setInterval(() => {
+        setAiProcessingStep(prev => (prev + 1) % aiProcessingSteps.length);
+      }, 2000); // Change step every 2 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isAiProcessing, aiProcessingSteps.length]);
+
+  const extractTextFromPDF = async (pdfUrl: string) => {
+    setIsExtracting(true);
+    setExtractionError(null);
+    clearMessages();
+
+    try {
+      console.log('Extracting text from PDF URL:', pdfUrl);
+      
+      const response = await fetch('/api/extract-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pdfUrl }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Extraction successful:', data);
+      
+      if (data.content) {
+        setExtractedContent(data.content);
+        
+        // Process content to preserve line breaks and indentation
+        const processContentForDisplay = (text: string) => {
+          if (!text) return '';
+          
+          // Check if content has actual HTML tags
+          const hasHtmlTags = /<[a-zA-Z][^>]*>/.test(text);
+          
+          if (hasHtmlTags) {
+            return text; // Return HTML as-is
+          }
+          
+          // For plain text, convert line breaks to HTML and preserve indentation
+          return text
+            .replace(/\r\n/g, '<br>') // Handle Windows line endings first
+            .replace(/\n/g, '<br>')   // Handle Unix line endings
+            .replace(/\r/g, '<br>')   // Handle Mac line endings
+            .replace(/\s{2,}/g, (match) => {
+              // Convert multiple spaces to non-breaking spaces for proper indentation
+              return '&nbsp;'.repeat(match.length);
+            })
+            .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // Convert tabs to 4 spaces
+        };
+        
+        const processedContent = processContentForDisplay(data.content.text || '');
+        setEditingContent(processedContent);
+        
+        // Set default title from filename
+        setDocumentTitle(uploadedFiles[0]?.name?.replace('.pdf', '') || '');
+        
+        if (data.content.text && data.content.text.trim().length > 0) {
+          setSuccessMessage(`PDF processed and text extracted successfully! Found ${data.content.text.length} characters from ${data.content.pages} pages.`);
+        } else {
+          setSuccessMessage('PDF processed successfully! The PDF appears to be image-based or encrypted. Please manually enter the content below.');
+        }
+      } else {
+        throw new Error('Failed to process PDF');
+      }
+    } catch (error) {
+      console.error('Error processing PDF:', error);
+      setExtractionError(`Failed to process PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
   const handleFileUpload = async (res: any) => {
     console.log('Upload complete:', res);
     clearMessages();
@@ -83,82 +181,42 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
       
       setUploadedFiles(prev => [...prev, newFile]);
       
-      // Automatically extract text from PDF
+      // Start AI processing loader
+      setIsAiProcessing(true);
+      setAiProcessingStep(0);
+      
+      // Wait for minimum 10 seconds
+      const minProcessingTime = 10000; // 10 seconds
+      const startTime = Date.now();
+      
+      // Extract text from PDF
       await extractTextFromPDF(pdfUrl);
+      
+      // Calculate remaining time to reach 10 seconds minimum
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minProcessingTime - elapsedTime);
+      
+      // Wait for remaining time if needed
+      if (remainingTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      }
+      
+      // Stop AI processing
+      setIsAiProcessing(false);
     } else {
       setUploadError('No file was uploaded. Please try again.');
     }
     setIsUploading(false);
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || file.type !== 'application/pdf') {
-      setUploadError('Please select a valid PDF file');
-      return;
-    }
-
-    setIsExtracting(true);
-    setExtractionError(null);
-    clearMessages();
-
-    try {
-      console.log('Processing selected PDF:', file.name);
-      
-      const newFile = {
-        name: file.name,
-        url: '#local',
-        size: file.size,
-        type: 'application/pdf'
-      };
-      
-      setUploadedFiles([newFile]);
-      
-      // Read file as array buffer
-      const arrayBuffer = await file.arrayBuffer();
-      
-      // Send to API for extraction
-      const response = await fetch('/api/extract-pdf-buffer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/octet-stream',
-        },
-        body: arrayBuffer,
-      });
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Extraction successful:', data);
-      
-      if (data.content) {
-        setExtractedContent(data.content);
-        setEditingContent(data.content.text || '');
-        if (data.content.text && data.content.text.trim().length > 0) {
-          setSuccessMessage(`PDF processed and text extracted successfully! Found ${data.content.text.length} characters from ${data.content.pages} pages.`);
-        } else {
-          setSuccessMessage('PDF processed successfully! The PDF appears to be image-based or encrypted. Please manually enter the content below.');
-          setIsEditing(true);
-        }
-      } else {
-        throw new Error('Failed to process PDF');
-      }
-    } catch (error) {
-      console.error('Error processing PDF:', error);
-      setExtractionError(`Failed to process PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsExtracting(false);
-    }
-  };
 
   const handleEdit = () => {
-    setIsEditing(true);
+    console.log('Editing content:', editingContent);
   };
 
   const handleSave = async () => {
-    if (extractedContent && uploadedFiles.length > 0) {
+    if (extractedContent && uploadedFiles.length > 0 && documentTitle.trim()) {
+      setIsSaving(true);
       try {
         const response = await fetch('/api/save-extracted-content', {
           method: 'POST',
@@ -170,97 +228,126 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
             uploadType,
             fileName: uploadedFiles[0].name,
             fileUrl: uploadedFiles[0].url,
-            metadata: extractedContent.metadata
+            metadata: extractedContent.metadata,
+            title: documentTitle.trim()
           }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to save content');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to save content');
         }
 
+        const result = await response.json();
+        
         setExtractedContent({
           ...extractedContent,
           text: editingContent
         });
-        setSuccessMessage('Content saved successfully!');
+        setSuccessMessage(`${result.message || 'Content saved successfully!'} Redirecting to ${uploadType}s page...`);
+        
+        // Show success message and redirect
+        setTimeout(() => {
+          const redirectPath = uploadType === 'manual' ? '/manuals' : '/circulars';
+          router.push(redirectPath);
+        }, 3000);
+        
       } catch (error) {
         setUploadError(`Failed to save content: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        setIsSaving(false);
       }
     }
-    setIsEditing(false);
   };
 
   const handleCancel = () => {
     if (extractedContent) {
       setEditingContent(extractedContent.text);
     }
-    setIsEditing(false);
   };
 
-  const handleTestUpload = () => {
-    clearMessages();
-    setIsUploading(true);
-    
-    // Use sample railway content directly
-    setTimeout(() => {
-      const mockFile = {
-        name: "railway-manual-sample.pdf",
-        url: "#sample",
-        size: 13264,
-        type: "application/pdf"
-      };
-      
-      setUploadedFiles([mockFile]);
-      setIsUploading(false);
-      
-      // Set sample content directly
-      const sampleContent = {
-        text: `RAILWAY MANUAL - SECTION 4: SIGNAL OPERATIONS\n\n4.01 GENERAL PRINCIPLES OF SIGNALING\n\n(a) Signals are provided to ensure safe movement of trains by conveying information or instructions to the Loco Pilot regarding the condition of the line ahead.\n\n(b) All signals shall be placed on the left-hand side of the track in the direction of traffic, except where local conditions make this impracticable.\n\n(c) The normal aspect of all Stop signals is 'ON' (Red) which conveys 'STOP'.\n\n4.02 CLASSIFICATION OF SIGNALS\n\nSignals are classified as:\n(a) Fixed Signals - Signals fixed at definite locations\n(b) Hand Signals - Signals given by authorized railway servants\n(c) Detonating Signals - Explosive devices placed on rails\n\n4.03 SIGNAL ASPECTS AND MEANINGS\n\nRED: Stop - The train must not pass the signal\nYELLOW: Caution - Proceed with caution, be prepared to stop at next signal\nGREEN: All Clear - Proceed at normal speed`,
-        pages: 2,
-        metadata: {
-          title: "Railway Manual - Signal Operations",
-          author: "Railway Board",
-          subject: "Signal Operations",
-          creator: "Railway Authority",
-          producer: "Railway Rule Clarifier",
-          creationDate: new Date(),
-          modificationDate: new Date(),
-        }
-      };
-      
-      setExtractedContent(sampleContent);
-      setEditingContent(sampleContent.text);
-      setSuccessMessage('Sample PDF content loaded successfully!');
-    }, 1000);
-  };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-4">
-        <div>
-          <p className="text-sm text-muted-foreground mb-2">Load sample railway manual content:</p>
-          <Button onClick={handleTestUpload} disabled={isUploading || isExtracting} variant="default">
-            Load Sample Content
-          </Button>
+    <div className="space-y-6 relative">
+      {/* Full Page Loader */}
+      {isSaving && (
+        <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+          <div className="bg-white/95 backdrop-blur-md rounded-lg p-8 flex flex-col items-center space-y-4 shadow-2xl border border-white/20">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900">Saving Document</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Please wait while we save your {uploadType} to the database...
+              </p>
+            </div>
+          </div>
         </div>
-        
+      )}
+
+      {/* AI Processing Loader */}
+      {isAiProcessing && (
+        <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+          <div className="bg-white/95 backdrop-blur-md rounded-lg p-8 flex flex-col items-center space-y-6 max-w-md mx-4 shadow-2xl border border-white/20">
+            <div className="relative">
+              <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-8 w-8 bg-blue-100 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">AI Processing Document</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Our advanced AI is analyzing and processing your PDF...
+              </p>
+              <div className="bg-gray-100 rounded-full h-2 w-full mb-4">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${((aiProcessingStep + 1) / aiProcessingSteps.length) * 100}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-blue-600 font-medium animate-pulse">
+                {aiProcessingSteps[aiProcessingStep]}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {uploadedFiles.length === 0 && (
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Select a PDF file to extract text:</p>
           <div className="flex justify-center">
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <div className="space-y-4">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileSelect}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-                <p className="text-xs text-gray-500">Select PDF file to upload</p>
+                <FileText className="h-12 w-12 text-gray-400 mx-auto" />
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Upload PDF Document
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Select a PDF file to extract text and create a {uploadType}
+                  </p>
+                  {uploadButtonReady && (
+                    <UploadButton<OurFileRouter, "pdfUploader">
+                      endpoint="pdfUploader"
+                      onClientUploadComplete={handleFileUpload}
+                      onUploadError={(error: Error) => {
+                        setUploadError(`Upload failed: ${error.message}`);
+                        setIsUploading(false);
+                      }}
+                      onUploadBegin={(name) => {
+                        setIsUploading(true);
+                        clearMessages();
+                      }}
+                      appearance={{
+                        button: "bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium",
+                        allowedContent: "text-xs text-muted-foreground mt-2"
+                      }}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
       
       {(isUploading || isExtracting) && (
         <Alert>
@@ -332,43 +419,47 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                {!isEditing ? (
-                  <Button onClick={handleEdit} size="sm">
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                ) : (
-                  <>
-                    <Button onClick={handleSave} size="sm">
-                      <Save className="h-4 w-4 mr-2" />
-                      Save
-                    </Button>
-                    <Button onClick={handleCancel} variant="outline" size="sm">
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
-                    </Button>
-                  </>
-                )}
+                <Button 
+                  onClick={handleSave} 
+                  size="sm" 
+                  disabled={isSaving || !documentTitle.trim()}
+                >
+                  {isSaving ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  {isSaving ? 'Saving...' : 'Save'}
+                </Button>
+                <Button onClick={handleCancel} variant="outline" size="sm" disabled={isSaving}>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            {isEditing ? (
-              <div className="space-y-4">
-                <RichTextEditor
-                  content={editingContent}
-                  onChange={setEditingContent}
-                  placeholder="Edit extracted PDF content..."
-                  className="min-h-[400px]"
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="document-title">Document Title</Label>
+                <Input
+                  id="document-title"
+                  type="text"
+                  placeholder={`Enter ${uploadType} title...`}
+                  value={documentTitle}
+                  onChange={(e) => setDocumentTitle(e.target.value)}
+                  disabled={isSaving}
+                  className="w-full"
                 />
+                <p className="text-xs text-muted-foreground">
+                  This will be the title of your {uploadType} document
+                </p>
               </div>
-            ) : (
-              <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed bg-white text-gray-900 p-6 rounded-lg border border-gray-300 shadow-sm overflow-x-auto" style={{color: '#000000'}}>
-                  {extractedContent.text}
-                </pre>
-              </div>
-            )}
+              <RichTextEditor
+                content={editingContent}
+                onChange={setEditingContent}
+              />
+            </div>
           </CardContent>
         </Card>
       )}

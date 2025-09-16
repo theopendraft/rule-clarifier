@@ -220,6 +220,15 @@ export default function ChangeLogPage() {
     return changedFields.map(([key]) => key)
   }
 
+  const isUrl = (string: string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   const createDiffHighlight = (from: string, to: string) => {
     // Server-safe HTML tokenizer
     const tokenizeHtml = (html: string) => {
@@ -421,6 +430,28 @@ export default function ChangeLogPage() {
               </div>
             </div>
           )
+        } else if (typeof value === 'object' && value.to) {
+          // Handle object with just 'to' property (like CREATE actions)
+          return (
+            <div key={key} className="text-sm mb-4">
+              <div className="font-medium text-slate-700 mb-3 capitalize flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                {key} Created
+              </div>
+              <div className="border rounded-lg overflow-hidden bg-white">
+                <div className="bg-green-50 px-4 py-2 border-b text-xs font-medium text-green-700 flex items-center gap-2">
+                  <Plus className="h-3 w-3" />
+                  New {key}
+                </div>
+                <div className="p-4">
+                  <div 
+                    className="text-slate-800 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: String(value.to) }}
+                  />
+                </div>
+              </div>
+            </div>
+          )
         } else {
           // Single value change
           return (
@@ -437,14 +468,66 @@ export default function ChangeLogPage() {
         }
       }
       
+      // Handle description field specially
+      if (key === 'description') {
+        if (typeof value === 'object' && value.to) {
+          return (
+            <div key={key} className="text-sm mb-4">
+              <div className="font-medium text-slate-700 mb-3 capitalize flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                {key} Created
+              </div>
+              <div className="border rounded-lg overflow-hidden bg-white">
+                <div className="bg-green-50 px-4 py-2 border-b text-xs font-medium text-green-700 flex items-center gap-2">
+                  <Plus className="h-3 w-3" />
+                  New {key}
+                </div>
+                <div className="p-4">
+                  <div 
+                    className="text-slate-800 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: String(value.to) }}
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        } else {
+          return (
+            <div key={key} className="text-sm mb-4">
+              <div className="font-medium text-slate-700 mb-2 capitalize">{key}:</div>
+              <div className="p-3 bg-slate-50 rounded border">
+                <div 
+                  className="text-slate-800 prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: String(value) }}
+                />
+              </div>
+            </div>
+          )
+        }
+      }
+      
       // Handle other change types
+      if (typeof value === 'object' && value.to) {
+        // Object with 'to' property
+        return (
+          <div key={key} className="text-sm mb-3">
+            <span className="font-medium text-slate-600 capitalize">{key}:</span>
+            <div className="mt-1 p-2 bg-green-50 rounded border border-green-200">
+              <div className="text-sm text-slate-800">
+                {typeof value.to === 'string' ? value.to : JSON.stringify(value.to, null, 2)}
+              </div>
+            </div>
+          </div>
+        )
+      }
+      
       return (
         <div key={key} className="text-sm mb-3">
           <span className="font-medium text-slate-600 capitalize">{key}:</span>
           <div className="mt-1 p-2 bg-slate-50 rounded border">
-            <pre className="text-xs text-slate-800 whitespace-pre-wrap">
+            <div className="text-sm text-slate-800">
               {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
-            </pre>
+            </div>
           </div>
         </div>
       )
@@ -583,19 +666,27 @@ export default function ChangeLogPage() {
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-2">
-                            <Badge className={actionColors[log.action]}>
-                              {actionLabels[log.action]}
-                            </Badge>
-                            <div className="flex items-center gap-1 text-sm text-slate-500">
+                            <div className="flex items-center gap-1 text-sm text-slate-800 font-bold">
                               <EntityIcon className="h-4 w-4" />
                               {entityTypeLabels[log.entityType]}
                             </div>
                             <div className="text-sm text-slate-500">
                               ID: {log.entityId}
                             </div>
-                            {log.changes && (log.changes.title || log.changes.content) && (
-                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                                Content Modified
+                            {log.changes && Object.keys(log.changes).length > 0 && (
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${
+                                  log.action === 'CREATE' 
+                                    ? 'bg-green-50 text-green-700 border-green-200' 
+                                    : log.action === 'UPDATE'
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                    : log.action === 'DELETE'
+                                    ? 'bg-red-50 text-red-700 border-red-200'
+                                    : 'bg-gray-50 text-gray-700 border-gray-200'
+                                }`}
+                              >
+                                {actionLabels[log.action]}
                               </Badge>
                             )}
                           </div>
@@ -617,14 +708,51 @@ export default function ChangeLogPage() {
                             </p>
                           )}
                           
+                          {log.supportingDoc && (
+                            <div className="mb-3">
+                              {isUrl(log.supportingDoc) ? (
+                                <div className="flex items-center gap-2">
+                                  
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open(log.supportingDoc, '_blank')}
+                                    className="flex items-center gap-1 text-xs"
+                                  >
+                                    <Link className="h-3 w-3" />
+                                    View Supporting Document
+                                  </Button>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-slate-700">
+                                  <span className="font-medium flex items-center gap-2 mb-1">
+                                    Supporting Text: 
+                                    <span className="text-slate-700 font-normal">{log.supportingDoc}</span>
+                                  </span>
+                                  
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          
                           {log.changes && Object.keys(log.changes).length > 0 && (
                             <div className="mb-3">
                               <div className="text-sm text-slate-600 mb-1">
-                                <span className="font-medium">Changed:</span>
+                                <span className="font-medium">
+                                  {log.action === 'CREATE' ? 'Created:' : 'Changed:'}
+                                </span>
                               </div>
                               <div className="flex flex-wrap gap-1">
                                 {getChangeSummary(log.changes).map((field) => (
-                                  <Badge key={field} variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                  <Badge 
+                                    key={field} 
+                                    variant="outline" 
+                                    className={`text-xs ${
+                                      log.action === 'CREATE' 
+                                        ? 'bg-green-50 text-green-700 border-green-200' 
+                                        : 'bg-blue-50 text-blue-700 border-blue-200'
+                                    }`}
+                                  >
                                     {field}
                                   </Badge>
                                 ))}

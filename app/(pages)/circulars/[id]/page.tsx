@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, FileText, Calendar, Hash, Clock, User, Tag } from 'lucide-react'
+import { ArrowLeft, FileText, Calendar, Hash, Clock, User, Tag, Download, ExternalLink } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { format } from 'date-fns'
 
@@ -16,6 +16,8 @@ interface Circular {
   description: string | null
   number: string | null
   date: string | null
+  pdfUrl: string | null
+  pdfFileName: string | null
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -90,6 +92,9 @@ export default function CircularDetailPage() {
       <Header />
       
       <div className="container mx-auto px-4 py-8">
+        {/* Main Content */}
+        <div className="max-w-4xl mx-auto">
+
         {/* Back Button */}
         <div className="mb-6">
           <Button 
@@ -101,9 +106,6 @@ export default function CircularDetailPage() {
             Back to Circulars
           </Button>
         </div>
-
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-start justify-between mb-4">
@@ -144,7 +146,72 @@ export default function CircularDetailPage() {
                 <CardTitle className="text-lg">Description</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-700 leading-relaxed">{circular.description}</p>
+                <div 
+                  className="text-slate-700 leading-relaxed prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: circular.description }}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Original PDF */}
+          {circular.pdfUrl && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Original PDF Document
+                </CardTitle>
+                <CardDescription>
+                  View or download the original PDF file
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* PDF Viewer */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <iframe
+                      src={circular.pdfUrl}
+                      className="w-full h-96"
+                      title={`PDF: ${circular.title}`}
+                    />
+                  </div>
+                  
+                  {/* PDF Actions */}
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-slate-600" />
+                      <span className="text-sm text-slate-600">
+                        {circular.pdfFileName || 'Original PDF'}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(circular.pdfUrl!, '_blank')}
+                        className="flex items-center gap-2"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Open in New Tab
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = circular.pdfUrl!;
+                          link.download = circular.pdfFileName || 'circular.pdf';
+                          link.click();
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
