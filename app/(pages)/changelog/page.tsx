@@ -404,7 +404,7 @@ export default function ChangeLogPage() {
               <div key={key} className="text-sm mb-4">
                 <div className="font-medium text-slate-700 mb-3 capitalize flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  {key} (No Changes)
+                  {key}
                   <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
                     Unchanged
                   </Badge>
@@ -412,8 +412,8 @@ export default function ChangeLogPage() {
                 <div className="bg-gray-50 p-3 rounded-md">
                   <div className="text-sm text-gray-600">
                     <strong>Content:</strong>
-                    <div className="mt-1 p-2 bg-white rounded border text-gray-800">
-                      {value.to}
+                    <div className="mt-1 p-2 bg-white rounded border text-gray-800 prose prose-sm max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: value.to }} />
                     </div>
                   </div>
                 </div>
@@ -816,10 +816,23 @@ export default function ChangeLogPage() {
                                           <p className="text-sm">No structured changes detected</p>
                                         </div>
                                         <div className="bg-slate-50 p-4 rounded-md">
-                                          <h5 className="font-medium text-slate-700 mb-2">Raw Change Data:</h5>
-                                          <pre className="text-xs text-slate-600 bg-white p-3 rounded border overflow-auto">
-                                            {JSON.stringify(log.changes, null, 2)}
-                                          </pre>
+                                          <h5 className="font-medium text-slate-700 mb-2">Content:</h5>
+                                          <div className="prose prose-sm max-w-none bg-white p-3 rounded border">
+                                            {Object.entries(log.changes).map(([key, value]) => {
+                                              if (typeof value === 'object' && value.to) {
+                                                return (
+                                                  <div key={key} className="mb-4">
+                                                    <h6 className="font-medium text-slate-700 mb-2 capitalize">{key}:</h6>
+                                                    <div 
+                                                      className="text-slate-600"
+                                                      dangerouslySetInnerHTML={{ __html: value.to }}
+                                                    />
+                                                  </div>
+                                                )
+                                              }
+                                              return null
+                                            })}
+                                          </div>
                                         </div>
                                       </div>
                                     )
