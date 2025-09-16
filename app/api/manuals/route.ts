@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const manuals = await prisma.manual.findMany({
       orderBy: [
-        { code: 'asc' }
+        { createdAt: 'desc' }
       ]
     })
 
