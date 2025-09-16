@@ -29,12 +29,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate content size (limit to 1MB for database)
+    if (content.length > 1048576) {
+      console.error('Save API - Content too large:', content.length);
+      return NextResponse.json(
+        { error: 'Content is too large. Please reduce the content size.' },
+        { status: 413 }
+      );
+    }
+
     // Generate timestamp-based filename for PDF storage
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     const pdfFileName = `${uploadType}-${fileName.replace(/\.[^/.]+$/, '')}-${timestamp}.pdf`;
 
     // HARDCODED: Admin user ID - TODO: Get from auth context
     const adminUserId = 'cmflolqqc00006vyvs484vwgq';
+
+    // Test database connection
+    try {
+      await prisma.$connect();
+    } catch (dbError) {
+      console.error('Save API - Database connection failed:', dbError);
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 503 }
+      );
+    }
 
     let savedRecord;
     let changeLog;
