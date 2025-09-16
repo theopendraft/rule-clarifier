@@ -7,6 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    console.log('Circular API - Fetching ID:', id)
     
     const circular = await prisma.circular.findUnique({
       where: { id },
@@ -25,7 +26,10 @@ export async function GET(
       }
     })
 
+    console.log('Circular API - Found circular:', circular ? 'Yes' : 'No')
+
     if (!circular) {
+      console.log('Circular API - Circular not found for ID:', id)
       return NextResponse.json(
         { error: 'Circular not found' },
         { status: 404 }
@@ -35,6 +39,10 @@ export async function GET(
     return NextResponse.json(circular)
   } catch (error) {
     console.error('Error fetching circular:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    })
     return NextResponse.json(
       { error: 'Failed to fetch circular' },
       { status: 500 }
