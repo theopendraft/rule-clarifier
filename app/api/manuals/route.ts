@@ -4,11 +4,8 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const manuals = await prisma.manual.findMany({
-
       orderBy: [
-        { isActive: 'desc' },
-        { version: 'desc' },
-        { createdAt: 'desc' }
+        { code: 'asc' }
       ]
     })
 

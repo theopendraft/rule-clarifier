@@ -4,9 +4,25 @@ import { createNotificationFromChangeLog } from '@/lib/notification-utils';
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, uploadType, fileName, fileUrl, metadata, title } = await request.json();
+    const body = await request.json();
+    console.log('Save API - Received data:', {
+      hasContent: !!body.content,
+      contentLength: body.content?.length,
+      uploadType: body.uploadType,
+      fileName: body.fileName,
+      title: body.title,
+      hasFileUrl: !!body.fileUrl
+    });
+    
+    const { content, uploadType, fileName, fileUrl, metadata, title } = body;
     
     if (!content || !uploadType || !fileName || !title) {
+      console.error('Save API - Missing required fields:', {
+        content: !!content,
+        uploadType: !!uploadType,
+        fileName: !!fileName,
+        title: !!title
+      });
       return NextResponse.json(
         { error: 'Content, upload type, file name, and title are required' },
         { status: 400 }
@@ -37,16 +53,27 @@ export async function POST(request: NextRequest) {
       }
 
       // Save as Manual
+      console.log('Save API - Creating manual with data:', {
+        code: nextCode,
+        title: title,
+        descriptionLength: content?.length,
+        version: '1.0.0',
+        pdfUrl: fileUrl,
+        pdfFileName: pdfFileName,
+      });
+      
       savedRecord = await prisma.manual.create({
         data: {
           code: nextCode,
           title: title,
-          description: content.substring(0, 500) + (content.length > 500 ? '...' : ''),
+          description: content,
           version: '1.0.0',
           pdfUrl: fileUrl,
           pdfFileName: pdfFileName,
         }
       });
+      
+      console.log('Save API - Manual created successfully:', savedRecord.id);
 
       // Create change log
       changeLog = await prisma.changeLog.create({
@@ -57,7 +84,6 @@ export async function POST(request: NextRequest) {
           changes: {
             title: { to: savedRecord.title },
             description: { to: savedRecord.description },
-            content: { to: content },
             version: { to: savedRecord.version },
             code: { to: savedRecord.code },
             pdfUrl: { to: savedRecord.pdfUrl },
@@ -98,17 +124,28 @@ export async function POST(request: NextRequest) {
       }
 
       // Save as Circular
+      console.log('Save API - Creating circular with data:', {
+        code: nextCode,
+        title: title,
+        descriptionLength: content?.length,
+        number: `${new Date().getFullYear()}/${String(Date.now()).slice(-3)}`,
+        pdfUrl: fileUrl,
+        pdfFileName: pdfFileName,
+      });
+      
       savedRecord = await prisma.circular.create({
         data: {
           code: nextCode,
           title: title,
-          description: content.substring(0, 500) + (content.length > 500 ? '...' : ''),
+          description: content,
           number: `${new Date().getFullYear()}/${String(Date.now()).slice(-3)}`,
           date: new Date(),
           pdfUrl: fileUrl,
           pdfFileName: pdfFileName,
         }
       });
+      
+      console.log('Save API - Circular created successfully:', savedRecord.id);
 
       // Create change log
       changeLog = await prisma.changeLog.create({
@@ -119,7 +156,6 @@ export async function POST(request: NextRequest) {
           changes: {
             title: { to: savedRecord.title },
             description: { to: savedRecord.description },
-            content: { to: content },
             number: { to: savedRecord.number },
             code: { to: savedRecord.code },
             pdfUrl: { to: savedRecord.pdfUrl },
@@ -160,9 +196,17 @@ export async function POST(request: NextRequest) {
       message: `${uploadType.charAt(0).toUpperCase() + uploadType.slice(1)} saved successfully with full content and change tracking`
     });
   } catch (error) {
-    console.error('Error saving extracted content:', error);
+    console.error('Save API - Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
+    
     return NextResponse.json(
-      { error: 'Failed to save extracted content' },
+      { 
+        error: 'Failed to save extracted content',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

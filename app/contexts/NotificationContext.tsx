@@ -52,11 +52,21 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await fetch(`/api/notifications?userId=${userId}&limit=50`);
       if (response.ok) {
-        const data = await response.json();
-        setNotifications(data);
+        const text = await response.text();
+        try {
+          const data = JSON.parse(text);
+          setNotifications(data);
+        } catch (jsonError) {
+          console.error('Invalid JSON response from notifications API:', text);
+          setNotifications([]);
+        }
+      } else {
+        console.error('Failed to fetch notifications:', response.status, response.statusText);
+        setNotifications([]);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
@@ -83,6 +93,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
               : notification
           )
         );
+      } else {
+        console.error('Failed to mark notifications as read:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error marking notifications as read:', error);
@@ -107,8 +119,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (response.ok) {
-        const newNotification = await response.json();
-        setNotifications(prev => [newNotification, ...prev]);
+        const text = await response.text();
+        try {
+          const newNotification = JSON.parse(text);
+          setNotifications(prev => [newNotification, ...prev]);
+        } catch (jsonError) {
+          console.error('Invalid JSON response when adding notification:', text);
+        }
+      } else {
+        console.error('Failed to add notification:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error adding notification:', error);
@@ -147,7 +166,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   // Fetch notifications when authenticated
   useEffect(() => {
-    if (isAuthenticated && userId) {
+    if (typeof window !== 'undefined' && isAuthenticated && userId) {
       fetchNotifications();
     } else {
       setNotifications([]);
@@ -156,7 +175,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   // Auto-refresh notifications every 30 seconds
   useEffect(() => {
-    if (!isAuthenticated || !userId) return;
+    if (typeof window === 'undefined' || !isAuthenticated || !userId) return;
 
     const interval = setInterval(() => {
       fetchNotifications();
