@@ -398,9 +398,27 @@ export default function ChangeLogPage() {
       if (key === 'title' || key === 'content') {
         // Check if there are actual changes
         if (typeof value === 'object' && value.from && value.to) {
-          // Skip if no actual change (same content)
+          // Show data even if no actual change (same content)
           if (!hasActualChanges(value)) {
-            return null
+            return (
+              <div key={key} className="text-sm mb-4">
+                <div className="font-medium text-slate-700 mb-3 capitalize flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  {key} (No Changes)
+                  <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
+                    Unchanged
+                  </Badge>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <div className="text-sm text-gray-600">
+                    <strong>Content:</strong>
+                    <div className="mt-1 p-2 bg-white rounded border text-gray-800">
+                      {value.to}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
           }
           
           const isMinimal = isMinimalChange(value)
@@ -792,13 +810,17 @@ export default function ChangeLogPage() {
                                   const changes = formatChanges(log.changes)
                                   if (changes.length === 0) {
                                     return (
-                                      <div className="text-center py-8 text-slate-500">
-                                        <FileText className="h-8 w-8 mx-auto mb-2 text-slate-400" />
-                                        <p>No actual changes detected</p>
-                                        <p className="text-sm">All fields remained the same</p>
-                                        <p className="text-xs text-slate-400 mt-2">
-                                          This may be due to historical data where change tracking wasn't properly implemented.
-                                        </p>
+                                      <div className="space-y-4">
+                                        <div className="text-center py-4 text-slate-500 border-b border-slate-200">
+                                          <FileText className="h-6 w-6 mx-auto mb-2 text-slate-400" />
+                                          <p className="text-sm">No structured changes detected</p>
+                                        </div>
+                                        <div className="bg-slate-50 p-4 rounded-md">
+                                          <h5 className="font-medium text-slate-700 mb-2">Raw Change Data:</h5>
+                                          <pre className="text-xs text-slate-600 bg-white p-3 rounded border overflow-auto">
+                                            {JSON.stringify(log.changes, null, 2)}
+                                          </pre>
+                                        </div>
                                       </div>
                                     )
                                   }

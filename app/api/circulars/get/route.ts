@@ -6,11 +6,11 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     const id = url.searchParams.get('id')
     
-    console.log('Circular API - Request URL:', request.url)
-    console.log('Circular API - Fetching ID from query params:', id)
+    console.log('Circular GET API - Request URL:', request.url)
+    console.log('Circular GET API - Fetching ID from query params:', id)
     
     if (!id) {
-      console.log('Circular API - No ID provided in query params')
+      console.log('Circular GET API - No ID provided in query params')
       return NextResponse.json(
         { error: 'ID parameter is required' },
         { status: 400 }
@@ -34,10 +34,10 @@ export async function GET(request: Request) {
       }
     })
 
-    console.log('Circular API - Found circular:', circular ? 'Yes' : 'No')
+    console.log('Circular GET API - Found circular:', circular ? 'Yes' : 'No')
 
     if (!circular) {
-      console.log('Circular API - Circular not found for ID:', id)
+      console.log('Circular GET API - Circular not found for ID:', id)
       return NextResponse.json(
         { error: 'Circular not found' },
         { status: 404 }
