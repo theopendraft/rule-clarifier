@@ -381,7 +381,7 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
                       <div
                         key={manual.id}
                         className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => addSuggestionLink(`http://localhost:3000/manuals/${manual.id}`)}
+                        onClick={() => addSuggestionLink(`https://rule-clarifier-ai.vercel.app/manuals/${manual.id}`)}
                       >
                         <div className="flex justify-between items-start mb-1">
                           <p className="font-medium text-sm">{manual.title}</p>
@@ -410,7 +410,7 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
                       <div
                         key={circular.id}
                         className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => addSuggestionLink(`http://localhost:3000/circulars/${circular.id}`)}
+                        onClick={() => addSuggestionLink(`https://rule-clarifier-ai.vercel.app/circulars/${circular.id}`)}
                       >
                         <div className="flex justify-between items-start mb-1">
                           <p className="font-medium text-sm">{circular.title}</p>
