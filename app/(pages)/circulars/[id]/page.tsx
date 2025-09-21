@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +28,8 @@ export default function CircularDetailPage() {
   const router = useRouter()
   const [circular, setCircular] = useState<Circular | null>(null)
   const [loading, setLoading] = useState(true)
+  const [divSections, setDivSections] = useState<string[]>([])
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (params.id) {
@@ -41,6 +43,11 @@ export default function CircularDetailPage() {
       if (response.ok) {
         const data = await response.json()
         setCircular(data)
+        
+        // Extract div IDs after setting circular data
+        setTimeout(() => {
+          extractDivSections(data.description)
+        }, 100)
       } else if (response.status === 404) {
         // Handle 404 - circular not found
         setCircular(null)
@@ -51,6 +58,57 @@ export default function CircularDetailPage() {
       setLoading(false)
     }
   }
+
+  const extractDivSections = (description: string) => {
+    if (!description) return
+    
+    const divMatches = description.match(/<div id="(\d+)"/g)
+    if (divMatches) {
+      const ids = divMatches.map(match => match.match(/id="(\d+)"/)?.[1]).filter(Boolean) as string[]
+      setDivSections(ids)
+    }
+  }
+
+  const scrollToSection = (divId: string) => {
+    window.location.hash = ''
+    setTimeout(() => {
+      window.location.hash = divId
+      const element = document.getElementById(divId)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 10)
+  }
+
+  useEffect(() => {
+    if (circular && window.location.hash) {
+      const hash = window.location.hash.substring(1)
+      if (/^\d+$/.test(hash)) {
+        setTimeout(() => scrollToSection(hash), 500)
+      }
+    }
+  }, [circular])
+
+  useEffect(() => {
+    // Add CSS for target highlighting
+    const style = document.createElement('style')
+    style.textContent = `
+      [id]:target {
+        background-color: #dbeafe !important;
+        border-left: 4px solid #3b82f6 !important;
+        padding: 12px !important;
+        border-radius: 6px !important;
+        margin: 8px 0 !important;
+        transition: all 0.3s ease !important;
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -139,16 +197,49 @@ export default function CircularDetailPage() {
             </div>
           </div>
 
+          {/* Navigation */}
+          {/* {divSections.length > 0 && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Quick Navigation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {divSections.map((divId) => (
+                    <Button
+                      key={divId}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => scrollToSection(divId)}
+                      className="text-xs"
+                    >
+                      Section {divId}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )} */}
+
           {/* Description */}
           {circular.description && (
             <Card className="mb-8">
               <CardHeader>
-                <CardTitle className="text-lg">Description</CardTitle>
+                <CardTitle className="text-lg">Content</CardTitle>
               </CardHeader>
               <CardContent>
                 <div 
+                  ref={contentRef}
                   className="text-slate-700 leading-relaxed prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: circular.description }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: circular.description
+                      .replace(/&lt;/g, '<')
+                      .replace(/&gt;/g, '>')
+                      .replace(/&quot;/g, '"')
+                      .replace(/&#39;/g, "'")
+                      .replace(/&amp;/g, '&')
+                      .replace(/<div id="(\d+)"/g, '<div id="$1" class="scroll-mt-20"')
+                  }}
                 />
               </CardContent>
             </Card>

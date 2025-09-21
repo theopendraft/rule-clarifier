@@ -55,6 +55,10 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
   const [circulars, setCirculars] = useState<Circular[]>([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewDocument, setPreviewDocument] = useState<Manual | Circular | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  const [selectedDivId, setSelectedDivId] = useState<string | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -128,6 +132,56 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     editor?.chain().focus().setLink({ href: url }).run();
     setShowLinkDialog(false);
     setLinkType(null);
+    setShowPreview(false);
+    setPreviewDocument(null);
+  };
+
+  const showDocumentPreview = async (document: Manual | Circular) => {
+    setLoadingPreview(true);
+    try {
+      const isManual = 'version' in document;
+      const endpoint = isManual ? `/api/manuals/get?id=${document.id}` : `/api/circulars/get?id=${document.id}`;
+      
+      const response = await fetch(endpoint);
+      if (response.ok) {
+        const data = await response.json();
+        setPreviewDocument(data);
+        setShowPreview(true);
+      }
+    } catch (error) {
+      console.error('Error fetching document details:', error);
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
+  const handleLinkDocument = () => {
+    if (previewDocument) {
+      const isManual = 'version' in previewDocument;
+      const baseUrl = isManual 
+        ? `/manuals/${previewDocument.id}`
+        : `/circulars/${previewDocument.id}`;
+      const url = selectedDivId ? `${baseUrl}#${selectedDivId}` : baseUrl;
+      addSuggestionLink(url);
+    }
+  };
+
+  const handleDivClick = (divId: string) => {
+    setSelectedDivId(selectedDivId === divId ? null : divId);
+  };
+
+  // Make handleDivClick available globally for inline onclick
+  useEffect(() => {
+    (window as any).handleDivClick = handleDivClick;
+    return () => {
+      delete (window as any).handleDivClick;
+    };
+  }, [selectedDivId]);
+
+  const backToSelection = () => {
+    setShowPreview(false);
+    setPreviewDocument(null);
+    setSelectedDivId(null);
   };
 
   const removeLink = () => {
@@ -337,9 +391,11 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
       {/* Link Dialog */}
       {showLinkDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-semibold mb-4">Add Link</h3>
-            <div className="space-y-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {!showPreview ? (
+              <>
+                <h3 className="text-lg font-semibold mb-4">Add Link</h3>
+                <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">URL</label>
                 <input
@@ -381,7 +437,7 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
                       <div
                         key={manual.id}
                         className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => addSuggestionLink(`https://rule-clarifier-ai.vercel.app/manuals/${manual.id}`)}
+                        onClick={() => showDocumentPreview(manual)}
                       >
                         <div className="flex justify-between items-start mb-1">
                           <p className="font-medium text-sm">{manual.title}</p>
@@ -410,7 +466,7 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
                       <div
                         key={circular.id}
                         className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => addSuggestionLink(`https://rule-clarifier-ai.vercel.app/circulars/${circular.id}`)}
+                        onClick={() => showDocumentPreview(circular)}
                       >
                         <div className="flex justify-between items-start mb-1">
                           <p className="font-medium text-sm">{circular.title}</p>
@@ -438,22 +494,99 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
                 </div>
               )}
               
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowLinkDialog(false);
-                    setLinkUrl('');
-                    setLinkType(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={addLink} disabled={!linkUrl}>
-                  Add Link
-                </Button>
-              </div>
-            </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowLinkDialog(false);
+                        setLinkUrl('');
+                        setLinkType(null);
+                        setShowPreview(false);
+                        setPreviewDocument(null);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={addLink} disabled={!linkUrl}>
+                      Add Link
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Document Preview</h3>
+                  <Button variant="outline" size="sm" onClick={backToSelection}>
+                    ← Back to Selection
+                  </Button>
+                </div>
+                
+                {loadingPreview ? (
+                  <div className="flex items-center justify-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : previewDocument ? (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      {'version' in previewDocument && previewDocument.version && (
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Version: {previewDocument.version}</span>
+                      )}
+                      {'number' in previewDocument && previewDocument.number && (
+                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Number: {previewDocument.number}</span>
+                      )}
+                      {'date' in previewDocument && previewDocument.date && (
+                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">Date: {new Date(previewDocument.date).toLocaleDateString()}</span>
+                      )}
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        previewDocument.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {previewDocument.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-lg font-semibold mb-2">{previewDocument.code} - {previewDocument.title}</h4>
+                    </div>
+                    
+                    {previewDocument.description && (
+                      <div className="border rounded-lg p-4">
+                        <h5 className="font-medium mb-2">Content (Click on paragraphs to link specific sections)</h5>
+                        <div 
+                          className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                          dangerouslySetInnerHTML={{ 
+                            __html: previewDocument.description
+                              .replace(/&lt;/g, '<')
+                              .replace(/&gt;/g, '>')
+                              .replace(/&quot;/g, '"')
+                              .replace(/&#39;/g, "'")
+                              .replace(/&amp;/g, '&')
+                              .replace(/<div id="(\d+)"/g, (match, divId) => 
+                                `<div id="${divId}" class="cursor-pointer hover:bg-blue-50 transition-all ${selectedDivId === divId ? 'bg-blue-100' : ''}" onclick="handleDivClick('${divId}')"`
+                              )
+                          }} 
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">Link to this document?</p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          {previewDocument.code} - {previewDocument.title}
+                          {selectedDivId && <span className="ml-2 bg-blue-200 px-2 py-1 rounded">Section: {selectedDivId}</span>}
+                        </p>
+                      </div>
+                      <Button onClick={handleLinkDocument} className="bg-blue-600 hover:bg-blue-700">
+                        {selectedDivId ? 'Link Section' : 'Link Document'}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500">Failed to load document details</p>
+                )}
+              </>
+            )}
           </div>
         </div>
       )}

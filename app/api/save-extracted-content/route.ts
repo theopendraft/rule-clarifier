@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createNotificationFromChangeLog } from '@/lib/notification-utils';
 
+function processParagraphs(text: string): string {
+  return text
+    .replace(/<br>/gi, '<br>')
+    .replace(/&nbsp;/g, ' ')
+    .split(/(<br>\s*<br>)/)
+    .filter(p => p.trim().length > 0 && !p.match(/^<br>\s*<br>$/))
+    .map((paragraph, index) => 
+      `<div id="${index + 1}">${paragraph.trim()}</div>`
+    )
+    .join('<br><br>\n');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -56,6 +68,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Process paragraphs
+    const formattedParagraphs = processParagraphs(content);
+
     let savedRecord;
     let changeLog;
 
@@ -76,7 +91,7 @@ export async function POST(request: NextRequest) {
       console.log('Save API - Creating manual with data:', {
         code: nextCode,
         title: title,
-        descriptionLength: content?.length,
+        descriptionLength: formattedParagraphs?.length,
         version: '1.0.0',
         pdfUrl: fileUrl,
         pdfFileName: pdfFileName,
@@ -86,7 +101,7 @@ export async function POST(request: NextRequest) {
         data: {
           code: nextCode,
           title: title,
-          description: content,
+          description: formattedParagraphs,
           version: '1.0.0',
           pdfUrl: fileUrl,
           pdfFileName: pdfFileName,
@@ -147,7 +162,7 @@ export async function POST(request: NextRequest) {
       console.log('Save API - Creating circular with data:', {
         code: nextCode,
         title: title,
-        descriptionLength: content?.length,
+        descriptionLength: formattedParagraphs?.length,
         number: `${new Date().getFullYear()}/${String(Date.now()).slice(-3)}`,
         pdfUrl: fileUrl,
         pdfFileName: pdfFileName,
@@ -157,7 +172,7 @@ export async function POST(request: NextRequest) {
         data: {
           code: nextCode,
           title: title,
-          description: content,
+          description: formattedParagraphs,
           number: `${new Date().getFullYear()}/${String(Date.now()).slice(-3)}`,
           date: new Date(),
           pdfUrl: fileUrl,
