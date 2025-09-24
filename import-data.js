@@ -3,6 +3,7 @@ import fs from 'fs';
 
 async function importData() {
   const prisma = new PrismaClient();
+
   
   try {
     console.log('🔄 Connecting to new database...');

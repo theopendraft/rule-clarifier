@@ -183,3 +183,4 @@ The application is now a **complete Next.js full-stack application** with:
 
 **Start the application**: `npm run dev`
 **Access**: http://localhost:3000
+
