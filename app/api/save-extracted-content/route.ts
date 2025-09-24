@@ -3,15 +3,18 @@ import { prisma } from '@/lib/prisma';
 import { createNotificationFromChangeLog } from '@/lib/notification-utils';
 
 function processParagraphs(text: string): string {
-  return text
+  // Split content into logical sections based on major HTML elements
+  const sections = text
     .replace(/<br>/gi, '<br>')
     .replace(/&nbsp;/g, ' ')
-    .split(/(<br>\s*<br>)/)
-    .filter(p => p.trim().length > 0 && !p.match(/^<br>\s*<br>$/))
-    .map((paragraph, index) => 
-      `<div id="${index + 1}">${paragraph.trim()}</div>`
-    )
-    .join('<br><br>\n');
+    .split(/(?=<h[1-6])|(?=<table)|(?=<ul)|(?=<ol)|(?=<p>(?!.*<\/table>))/)
+    .filter(section => section.trim().length > 0)
+    .map((section, index) => {
+      const trimmed = section.trim();
+      return `<div id="${index + 1}">${trimmed}</div>`;
+    });
+  
+  return sections.join('\n');
 }
 
 export async function POST(request: NextRequest) {

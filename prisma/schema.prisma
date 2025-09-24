@@ -61,15 +61,21 @@ model Rule {
 }
 
 model ContentBlock {
-  id        String      @id @default(cuid())
-  ruleId    String
+  id        String        @id @default(cuid())
+  ruleId    String?
+  manualId  String?
+  circularId String?
   type      ContentType
-  content   String
-  metadata  Json?
-  order     Int         @default(0)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  rule      Rule        @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  content   String        @db.Text
+  metadata  Json?         // For storing additional formatting data (table structure, image info, etc.)
+  order     Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  rule      Rule?     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  manual    Manual?   @relation(fields: [manualId], references: [id], onDelete: Cascade)
+  circular  Circular? @relation(fields: [circularId], references: [id], onDelete: Cascade)
 
   @@map("content_blocks")
 }
@@ -131,6 +137,9 @@ model Manual {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Relations
+  contentBlocks ContentBlock[]
+
   @@map("manuals")
 }
 
@@ -146,6 +155,9 @@ model Circular {
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  // Relations
+  contentBlocks ContentBlock[]
 
   @@map("circulars")
 }
@@ -225,6 +237,7 @@ enum LinkType {
   EXTERNAL_URL
   DOCUMENT
 }
+
 
 enum EntityType {
   RULE_BOOK

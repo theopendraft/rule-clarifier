@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../../lib/prisma'
+import { storePDFContent } from '../../../lib/pdf-content-service'
+import { utapi } from '../../../lib/uploadthing'
 
 export async function GET() {
   try {
@@ -13,7 +15,7 @@ export async function GET() {
       ]
     })
 
-    console.log('Circulars API - Raw data:', circulars) // Debug log
+   
 
     return NextResponse.json(circulars)
   } catch (error) {
@@ -30,6 +32,61 @@ export async function GET() {
     
     return NextResponse.json(
       { error: 'Failed to fetch circulars' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData()
+    const code = formData.get('code') as string
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+    const number = formData.get('number') as string
+    const date = formData.get('date') as string
+    const pdfFile = formData.get('pdf') as File
+
+    if (!code || !title || !pdfFile) {
+      return NextResponse.json(
+        { error: 'Code, title, and PDF file are required' },
+        { status: 400 }
+      )
+    }
+
+    // Upload PDF to UploadThing
+    const uploadResponse = await utapi.uploadFiles([pdfFile])
+    const uploadedFile = uploadResponse[0]
+
+    if (!uploadedFile.data) {
+      return NextResponse.json(
+        { error: 'Failed to upload PDF' },
+        { status: 500 }
+      )
+    }
+
+    // Create circular record
+    const circular = await prisma.circular.create({
+      data: {
+        code,
+        title,
+        description: description || null,
+        number: number || null,
+        date: date ? new Date(date) : null,
+        pdfUrl: uploadedFile.data.url,
+        pdfFileName: pdfFile.name,
+        isActive: true
+      }
+    })
+
+    // Extract and store PDF content from uploaded URL
+    await storePDFContent(uploadedFile.data.url, 'circular', circular.id)
+
+    return NextResponse.json(circular)
+  } catch (error) {
+    console.error('Error creating circular:', error)
+    return NextResponse.json(
+      { error: 'Failed to create circular' },
       { status: 500 }
     )
   }

@@ -3,8 +3,13 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { TableCell } from '@tiptap/extension-table-cell';
 import { Button } from './button';
 import { 
   Bold, 
@@ -66,12 +71,23 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
       StarterKit,
       TextStyle,
       Color,
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg shadow-sm',
+        },
+      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class: 'text-blue-600 underline hover:text-blue-800',
         },
       }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content,
     immediatelyRender: false,
@@ -83,8 +99,17 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
     },
     editorProps: {
       attributes: {
-        class: `prose prose-sm max-w-none ${readOnly ? '' : 'focus:outline-none'} min-h-[200px] p-4 border rounded-md text-sm ${readOnly ? 'bg-gray-50' : ''}`,
+        class: `prose prose-sm max-w-none ${readOnly ? '' : 'focus:outline-none'} min-h-[200px] p-4 border rounded-md text-sm pdf-content ${readOnly ? 'bg-gray-50' : ''}`,
         style: 'font-size: 14px;',
+      },
+      handlePaste: (view, event, slice) => {
+        // Allow pasting of images and preserve table styling
+        const html = event.clipboardData?.getData('text/html');
+        if (html && html.includes('<table')) {
+          // Preserve table structure when pasting
+          return false;
+        }
+        return false;
       },
     },
   });
@@ -223,6 +248,53 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
 
   return (
     <div className={className}>
+      <style jsx global>{`
+        .pdf-content img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          margin: 16px 0;
+        }
+        .pdf-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 16px 0;
+          font-size: 14px;
+          table-layout: auto;
+        }
+        .pdf-content table th,
+        .pdf-content table td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
+          vertical-align: top;
+          min-width: 50px;
+        }
+        .pdf-content table th {
+          background-color: #f5f5f5;
+          font-weight: bold;
+        }
+        .pdf-content table tbody tr:nth-child(even) {
+          background-color: #f9f9f9;
+        }
+        .pdf-content table tbody tr:hover {
+          background-color: #f0f8ff;
+        }
+        .pdf-content hr {
+          margin: 24px 0;
+          border: none;
+          border-top: 2px solid #e5e7eb;
+        }
+        .pdf-content h1, .pdf-content h2, .pdf-content h3 {
+          margin-top: 24px;
+          margin-bottom: 16px;
+        }
+        .pdf-content p {
+          margin-bottom: 12px;
+          line-height: 1.6;
+        }
+      `}</style>
       {/* Toolbar */}
       {!readOnly && (
       <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1">
