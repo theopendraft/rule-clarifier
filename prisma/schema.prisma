@@ -56,6 +56,7 @@ model Rule {
   links         RuleLink[]
   chapter       Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
+  @@unique([chapterId, number])
   @@map("rules")
 }
 

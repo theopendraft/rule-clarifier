@@ -2,10 +2,20 @@
 
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
-import { BookOpen, ChevronRight, ChevronDown, Download } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { LinkDialog } from "@/components/ui/link-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, FileText, Upload } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import { UploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "../../../lib/uploadthing";
 
+// Types for database data
 interface Rule {
   id: string;
   number: string;
@@ -22,24 +32,80 @@ interface Chapter {
   rules: Rule[];
 }
 
-const UsersView = () => {
+interface Manual {
+  id: string;
+  code: string;
+  title: string;
+  description?: string;
+}
+
+interface Circular {
+  id: string;
+  code: string;
+  title: string;
+  description?: string;
+  number?: string;
+}
+
+const Home = () => {
   const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [manuals, setManuals] = useState<Manual[]>([]);
+  const [circulars, setCirculars] = useState<Circular[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChapter, setSelectedChapter] = useState(4);
+  const [selectedRule, setSelectedRule] = useState("4.01");
   const [expandedChapters, setExpandedChapters] = useState<number[]>([4]);
+  const [editingRule, setEditingRule] = useState<string | null>(null);
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedContent, setEditedContent] = useState("");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [supportingDoc, setSupportingDoc] = useState("");
+  const [changeReason, setChangeReason] = useState("");
+  const [docType, setDocType] = useState<"upload" | "text">("upload");
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url: string } | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<{ name: string; size: number; url: string }[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedText, setSelectedText] = useState("");
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [linkType, setLinkType] = useState<"manual" | "circular" | null>(null);
+  const [linkUrl, setLinkUrl] = useState("");
+  const contentRef = useRef<HTMLDivElement>(null);
 
+  // Fetch data from database
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         
+        // Fetch chapters with rules from all rule books
         const chaptersResponse = await fetch('/api/rule-books');
         const chaptersData = await chaptersResponse.json();
         
         if (chaptersData && chaptersData.length > 0) {
-          const book = chaptersData[0];
-          setChapters(book.chapters || []);
+          // Combine all chapters from all rule books, remove duplicates (keep one with most rules), and sort
+          const allChapters = chaptersData.flatMap(book => book.chapters || []);
+          const uniqueChapters = allChapters.reduce((acc, chapter) => {
+            const existing = acc.find(c => c.number === chapter.number);
+            if (!existing || chapter.rules.length > existing.rules.length) {
+              acc = acc.filter(c => c.number !== chapter.number);
+              acc.push(chapter);
+            }
+            return acc;
+          }, [] as Chapter[]);
+          setChapters(uniqueChapters.sort((a, b) => a.number - b.number));
         }
+
+        // Fetch manuals
+        const manualsResponse = await fetch('/api/manuals');
+        const manualsData = await manualsResponse.json();
+        setManuals(manualsData || []);
+
+        // Fetch circulars
+        const circularsResponse = await fetch('/api/circulars');
+        const circularsData = await circularsResponse.json();
+        setCirculars(circularsData || []);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -52,7 +118,14 @@ const UsersView = () => {
     fetchData();
   }, []);
 
+  const getRuleContent = (ruleId: string) => {
+    // Find the rule in the current chapters data
+    const rule = chapters.find(ch => ch.rules.some(r => r.number === ruleId))?.rules.find(r => r.number === ruleId);
+    return rule?.content || `Rule content not found for ${ruleId}`;
+  };
   const currentChapter = chapters.find(ch => ch.number === selectedChapter);
+  const currentRule = currentChapter?.rules.find(rule => rule.number === selectedRule);
+
 
   const handleDownloadChapter = () => {
     if (!currentChapter) return;
@@ -165,6 +238,91 @@ const UsersView = () => {
     }
   };
 
+  const handleFileUpload = (res: { name: string; size: number; url: string }[]) => {
+    console.log("Files: ", res);
+    setUploadedFiles(res);
+    if (res && res.length > 0) {
+      setUploadedFile(res[0]);
+      setSupportingDoc(res[0].url);
+      toast.success(`File uploaded: ${res[0].name}`);
+    }
+  };
+
+  const handleUploadError = (error: Error) => {
+    console.error("Upload Error:", error);
+    toast.error(`Upload failed: ${error.message}`);
+    setIsUploading(false);
+  };
+
+  const handleUploadBegin = (name: string) => {
+    console.log("Uploading:", name);
+    setIsUploading(true);
+  };
+
+  const handleSaveRule = async () => {
+    if (!editingRule) return;
+    
+    try {
+      // Find the rule being edited
+      const ruleToUpdate = chapters
+        .find(ch => ch.rules.some(r => r.number === editingRule))
+        ?.rules.find(r => r.number === editingRule);
+      
+      if (!ruleToUpdate) {
+        toast.error('Rule not found');
+        return;
+      }
+
+      // Update rule in database
+      const response = await fetch(`/api/rules/${ruleToUpdate.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editedTitle,
+          content: editedContent,
+          supportingDoc,
+          changeReason,
+          docType,
+          uploadedFile: uploadedFile ? { name: uploadedFile.name } : null,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        throw new Error(`Failed to update rule: ${errorData.error || 'Unknown error'}`);
+      }
+
+      // Update local state
+      setChapters(prevChapters => 
+        prevChapters.map(chapter => ({
+          ...chapter,
+          rules: chapter.rules.map(rule => 
+            rule.id === ruleToUpdate.id 
+              ? { ...rule, title: editedTitle, content: editedContent }
+              : rule
+          )
+        }))
+      );
+
+      // Reset edit state
+      setEditingRule(null);
+      setHasUnsavedChanges(false);
+      setSupportingDoc("");
+      setChangeReason("");
+      setUploadedFile(null);
+      setDocType("upload");
+      
+      toast.success('Rule updated successfully');
+    } catch (error) {
+      console.error('Error updating rule:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to update rule: ${errorMessage}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -181,8 +339,21 @@ const UsersView = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <style jsx global>{`
+        .select-text::selection {
+          background-color: #3b82f6;
+          color: white;
+        }
+        .select-text {
+          user-select: text;
+          -webkit-user-select: text;
+          -moz-user-select: text;
+          -ms-user-select: text;
+        }
+      `}</style>
       <Header />
       
+      {/* Chapter Info */}
       <div className="bg-slate-100 border-b border-slate-200 px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -208,6 +379,7 @@ const UsersView = () => {
       </div>
 
       <div className="flex h-[calc(100vh-120px)]">
+        {/* Sidebar */}
         <div className="w-80 bg-slate-50 border-r border-slate-200 overflow-y-auto">
           <div className="p-4">
             <h2 className="text-lg font-semibold text-slate-800 mb-4">Chapters</h2>
@@ -251,7 +423,11 @@ const UsersView = () => {
                           key={rule.id}
                           variant="ghost"
                           size="sm"
-                          className="w-full justify-start text-left text-xs p-2 text-blue-600 hover:bg-blue-50"
+                          className={`w-full justify-start text-left text-xs p-2 ${
+                            selectedRule === rule.number && selectedChapter === chapter.number
+                              ? "bg-blue-600 text-white"
+                              : "text-blue-600 hover:bg-blue-50"
+                          }`}
                           onClick={() => {
                             selectChapter(chapter.number);
                             setTimeout(() => scrollToRule(rule.number), 100);
@@ -270,6 +446,7 @@ const UsersView = () => {
           </div>
         </div>
 
+        {/* Main Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-8">
             <div className="text-center mb-8">
@@ -297,14 +474,103 @@ const UsersView = () => {
                       <span className="text-blue-600 font-bold text-lg">{rule.number}.</span>
                       <div className="flex-1">
                         <div className="mb-4">
-                          <h4 className="text-lg font-semibold text-slate-800">{rule.title}:-</h4>
+                          {editingRule === rule.number ? (
+                            <div className="space-y-4">
+                              {/* Action Buttons at Top */}
+                              <div className="flex justify-between items-center mb-4">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (selectedText) {
+                                      setShowLinkDialog(true);
+                                    } else {
+                                      toast.error("Please select text first to add a link");
+                                    }
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800"
+                                  disabled={!selectedText}
+                                >
+                                  <Link className="h-4 w-4 mr-2" />
+                                  Add Link
+                                </Button>
+                                <div className="flex space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (hasUnsavedChanges) {
+                                      setShowSaveDialog(true);
+                                    } else {
+                                      toast.error("No changes to save");
+                                    }
+                                  }}
+                                  className="text-green-600 hover:text-green-800"
+                                  disabled={!hasUnsavedChanges}
+                                >
+                                  Save
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    toast.info(`Cancelled editing rule ${rule.number}`);
+                                    setEditingRule(null);
+                                  }}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  Cancel
+                                </Button>
+                                </div>
+                              </div>
+                              
+                              {/* Edit Form */}
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-slate-700 mb-1">Rule Title</label>
+                                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600">
+                                    {editedTitle}
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-slate-700 mb-1">Rule Content</label>
+                                  <div 
+                                    className="border rounded-md p-4 bg-gray-50 min-h-[200px] prose prose-sm max-w-none select-text"
+                                    onMouseUp={() => {
+                                      const selection = window.getSelection();
+                                      if (selection && selection.toString().trim()) {
+                                        setSelectedText(selection.toString());
+                                      }
+                                    }}
+                                    style={{ userSelect: 'text' }}
+                                    dangerouslySetInnerHTML={{ __html: editedContent }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <h4 className="text-lg font-semibold text-slate-800">{rule.title}:-</h4>
+                          )}
                         </div>
-                        <div className="space-y-4 text-slate-700 leading-relaxed">
-                          <div 
-                            className="prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{ __html: rule.content }}
-                          />
-                        </div>
+                        {editingRule !== rule.number && (
+                          <div className="space-y-4">
+
+                            <div ref={contentRef} className="text-slate-700 leading-relaxed select-text" 
+                              onMouseUp={() => {
+                                const selection = window.getSelection();
+                                if (selection && selection.toString().trim()) {
+                                  setSelectedText(selection.toString());
+                                }
+                              }}
+                              style={{ userSelect: 'text' }}
+                            >
+                              <div 
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: rule.content }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -314,8 +580,163 @@ const UsersView = () => {
           </div>
         </div>
       </div>
+
+      {/* Save Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save Changes</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Supporting Document</label>
+              <Tabs value={docType} onValueChange={(value) => setDocType(value as "upload" | "text")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="upload" className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    Upload File
+                  </TabsTrigger>
+                  <TabsTrigger value="text" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Write Text
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upload" className="mt-4">
+                  <div className="space-y-4">
+                    {uploadedFiles.length === 0 ? (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <div className="space-y-4">
+                          <FileText className="h-12 w-12 text-gray-400 mx-auto" />
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                              Upload Supporting Document
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-4">
+                              Select a file to upload as supporting documentation
+                            </p>
+                            <UploadButton<OurFileRouter, "pdfUploader">
+                              endpoint="pdfUploader"
+                              onClientUploadComplete={handleFileUpload}
+                              onUploadError={handleUploadError}
+                              onUploadBegin={handleUploadBegin}
+                              appearance={{
+                                button: "bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium",
+                                allowedContent: "text-xs text-muted-foreground mt-2"
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {uploadedFiles.map((file, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-green-600" />
+                              <span className="text-sm font-medium text-green-800">{file.name}</span>
+                              <span className="text-xs text-green-600">({(file.size / 1024).toFixed(1)} KB)</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setUploadedFiles([]);
+                                setUploadedFile(null);
+                                setSupportingDoc("");
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="text" className="mt-4">
+                  <Input
+                    value={supportingDoc}
+                    onChange={(e) => setSupportingDoc(e.target.value)}
+                    placeholder="Enter document reference (e.g., Circular No. 2024/01)"
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Reason for Change</label>
+              <Textarea
+                value={changeReason}
+                onChange={(e) => setChangeReason(e.target.value)}
+                placeholder="Describe the reason for this change..."
+                className="min-h-[100px]"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={async () => {
+                  if (supportingDoc && changeReason) {
+                    await handleSaveRule();
+                    setShowSaveDialog(false);
+                  } else {
+                    toast.error("Please provide both supporting document and reason");
+                  }
+                }}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Dialog */}
+      <LinkDialog
+        isOpen={showLinkDialog}
+        onClose={() => {
+          setShowLinkDialog(false);
+          setSelectedText("");
+        }}
+        onAddLink={(url) => {
+          const linkHtml = `<a href="${url}" class="text-blue-600 underline hover:text-blue-800" target="_blank">${selectedText}</a>`;
+          
+          if (editingRule) {
+            // Update edited content if in edit mode
+            const updatedContent = editedContent.replace(selectedText, linkHtml);
+            setEditedContent(updatedContent);
+            setHasUnsavedChanges(true);
+          } else {
+            const currentRule = currentChapter?.rules.find(r => r.number === selectedRule);
+            if (currentRule) {
+              const updatedContent = currentRule.content.replace(selectedText, linkHtml);
+              
+              setChapters(prevChapters => 
+                prevChapters.map(chapter => ({
+                  ...chapter,
+                  rules: chapter.rules.map(rule => 
+                    rule.id === currentRule.id 
+                      ? { ...rule, content: updatedContent }
+                      : rule
+                  )
+                }))
+              );
+            }
+          }
+          
+          toast.success(`Linked "${selectedText}" to ${url}`);
+          setSelectedText("");
+        }}
+        selectedText={selectedText}
+      />
     </div>
   );
 };
 
-export default UsersView;
+export default Home;

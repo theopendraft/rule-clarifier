@@ -89,6 +89,7 @@
     "pdf2md": "^1.0.2",
     "pdfjs-dist": "^5.4.149",
     "prisma": "^6.16.1",
+    "puppeteer": "^24.22.2",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",

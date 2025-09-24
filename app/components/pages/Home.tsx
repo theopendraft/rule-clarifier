@@ -47,14 +47,18 @@ interface Circular {
   number?: string;
 }
 
-const Home = () => {
+interface HomeProps {
+  initialChapter?: number;
+}
+
+const Home = ({ initialChapter }: HomeProps = {}) => {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [manuals, setManuals] = useState<Manual[]>([]);
   const [circulars, setCirculars] = useState<Circular[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedChapter, setSelectedChapter] = useState(4);
+  const [selectedChapter, setSelectedChapter] = useState(initialChapter || 4);
   const [selectedRule, setSelectedRule] = useState("4.01");
-  const [expandedChapters, setExpandedChapters] = useState<number[]>([4]);
+  const [expandedChapters, setExpandedChapters] = useState<number[]>([initialChapter || 4]);
   const [editingRule, setEditingRule] = useState<string | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedContent, setEditedContent] = useState("");
@@ -79,13 +83,22 @@ const Home = () => {
       try {
         setLoading(true);
         
-        // Fetch chapters with rules
+        // Fetch chapters with rules from all rule books
         const chaptersResponse = await fetch('/api/rule-books');
         const chaptersData = await chaptersResponse.json();
         
         if (chaptersData && chaptersData.length > 0) {
-          const book = chaptersData[0];
-          setChapters(book.chapters || []);
+          // Combine all chapters from all rule books, remove duplicates (keep one with most rules), and sort
+          const allChapters = chaptersData.flatMap(book => book.chapters || []);
+          const uniqueChapters = allChapters.reduce((acc, chapter) => {
+            const existing = acc.find(c => c.number === chapter.number);
+            if (!existing || chapter.rules.length > existing.rules.length) {
+              acc = acc.filter(c => c.number !== chapter.number);
+              acc.push(chapter);
+            }
+            return acc;
+          }, [] as Chapter[]);
+          setChapters(uniqueChapters.sort((a, b) => a.number - b.number));
         }
 
         // Fetch manuals
@@ -118,93 +131,125 @@ const Home = () => {
   const currentRule = currentChapter?.rules.find(rule => rule.number === selectedRule);
 
 
-  const handleDownloadChapter = () => {
+  const handleDownloadChapter = async () => {
     if (!currentChapter) return;
     
-    const content = `
-      <html>
+    try {
+      // Create HTML content for PDF generation
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
         <head>
+          <meta charset="utf-8">
           <title>Chapter ${selectedChapter}: ${currentChapter.title}</title>
           <style>
-            body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; margin: 0; padding: 2rem; background: white; }
-            .text-center { text-align: center; }
-            .mb-8 { margin-bottom: 2rem; }
-            .mb-2 { margin-bottom: 0.5rem; }
-            .mb-4 { margin-bottom: 1rem; }
-            .mb-6 { margin-bottom: 1.5rem; }
-            .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-            .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
-            .text-2xl { font-size: 1.5rem; line-height: 2rem; }
-            .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-            .text-blue-600 { color: rgb(37 99 235); }
-            .text-slate-800 { color: rgb(30 41 59); }
-            .text-slate-700 { color: rgb(51 65 85); }
-            .text-slate-600 { color: rgb(71 85 105); }
-            .font-medium { font-weight: 500; }
-            .font-bold { font-weight: 700; }
-            .font-semibold { font-weight: 600; }
-            .max-w-4xl { max-width: 56rem; }
-            .mx-auto { margin-left: auto; margin-right: auto; }
-            .space-y-12 > * + * { margin-top: 3rem; }
-            .space-y-4 > * + * { margin-top: 1rem; }
-            .flex { display: flex; }
-            .items-start { align-items: flex-start; }
-            .space-x-4 > * + * { margin-left: 1rem; }
-            .flex-1 { flex: 1 1 0%; }
-            .leading-relaxed { line-height: 1.625; }
-            .prose { color: rgb(51 65 85); line-height: 1.625; }
-            .prose p { margin-bottom: 1rem; }
-            .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
-            .prose li { margin-bottom: 0.5rem; }
-            .scroll-mt-8 { scroll-margin-top: 2rem; }
+            body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+            .header { text-align: center; margin-bottom: 40px; }
+            .chapter-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+            .chapter-subtitle { font-size: 18px; color: #666; }
+            .rule { margin-bottom: 30px; page-break-inside: avoid; }
+            .rule-number { color: #2563eb; font-weight: bold; }
+            .rule-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+            .rule-content { margin-left: 20px; }
+            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            th { background-color: #f5f5f5; }
           </style>
         </head>
         <body>
-          <div class="text-center mb-8">
-            <p class="text-sm text-blue-600 font-medium mb-2">
-              ${currentChapter.title.toUpperCase()}
-            </p>
-            <h1 class="text-4xl font-bold text-slate-800 mb-4">
-              CHAPTER ${selectedChapter}
-            </h1>
-            <h2 class="text-2xl font-semibold text-slate-700 mb-6">
-              ${currentChapter.title.toUpperCase()}
-            </h2>
-            ${currentChapter.section ? `<h3 class="text-lg text-slate-600">${currentChapter.section}</h3>` : ''}
+          <div class="header">
+            <div class="chapter-title">CHAPTER ${selectedChapter}</div>
+            <div class="chapter-subtitle">${currentChapter.title.toUpperCase()}</div>
+            ${currentChapter.section ? `<div>${currentChapter.section}</div>` : ''}
           </div>
-          <div class="max-w-4xl mx-auto">
-            <div class="space-y-12">
-              ${currentChapter.rules.map(rule => `
-                <div class="scroll-mt-8">
-                  <div class="flex items-start space-x-4">
-                    <div class="flex-1">
-                      <div class="mb-4">
-                        <h4 class="text-lg font-semibold text-slate-800"><span class="text-blue-600 font-bold">${rule.number}.</span> ${rule.title}:-</h4>
-                      </div>
-                      <div class="space-y-4 text-slate-700 leading-relaxed">
-                        <div class="prose prose-sm max-w-none">${rule.content}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              `).join('')}
+          ${currentChapter.rules.map(rule => `
+            <div class="rule">
+              <div class="rule-title">
+                <span class="rule-number">${rule.number}.</span> ${rule.title}:-
+              </div>
+              <div class="rule-content">${rule.content}</div>
             </div>
-          </div>
+          `).join('')}
         </body>
-      </html>
-    `;
-    
-    const blob = new Blob([content], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Chapter_${selectedChapter}_${currentChapter.title.replace(/\s+/g, '_')}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    toast.success(`Downloaded Chapter ${selectedChapter}: ${currentChapter.title}`);
+        </html>
+      `;
+      
+      // Send to API for PDF generation
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          html: htmlContent,
+          filename: `Chapter_${selectedChapter}_${currentChapter.title.replace(/\s+/g, '_')}.pdf`
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+      
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Chapter_${selectedChapter}_${currentChapter.title.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success(`Downloaded Chapter ${selectedChapter}: ${currentChapter.title} as PDF`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('PDF generation failed. Downloading as HTML instead.');
+      
+      // Fallback to HTML download
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Chapter ${selectedChapter}: ${currentChapter.title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+            .header { text-align: center; margin-bottom: 40px; }
+            .chapter-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+            .chapter-subtitle { font-size: 18px; color: #666; }
+            .rule { margin-bottom: 30px; }
+            .rule-number { color: #2563eb; font-weight: bold; }
+            .rule-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+            .rule-content { margin-left: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="chapter-title">CHAPTER ${selectedChapter}</div>
+            <div class="chapter-subtitle">${currentChapter.title.toUpperCase()}</div>
+          </div>
+          ${currentChapter.rules.map(rule => `
+            <div class="rule">
+              <div class="rule-title">
+                <span class="rule-number">${rule.number}.</span> ${rule.title}:-
+              </div>
+              <div class="rule-content">${rule.content}</div>
+            </div>
+          `).join('')}
+        </body>
+        </html>
+      `;
+      
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Chapter_${selectedChapter}_${currentChapter.title.replace(/\s+/g, '_')}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   const toggleChapter = (chapterId: number) => {
