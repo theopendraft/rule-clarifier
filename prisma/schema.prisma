@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,87 +7,201 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  EDITOR
-  USER
-}
-
-// Main rule book model
 model RuleBook {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
-  version     String   @default("1.0.0")
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  version     String    @default("1.0.0")
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   createdBy   String
-
-  // Relations
-  creator     User      @relation(fields: [createdBy], references: [id])
   chapters    Chapter[]
+  creator     User      @relation(fields: [createdBy], references: [id])
 
   @@map("rule_books")
 }
 
-// Chapter model - matches the exact structure from Home component
 model Chapter {
   id          String   @id @default(cuid())
   bookId      String
-  number      Int      // Chapter number (1, 2, 3, etc.)
-  title       String   // Chapter title
-  subtitle    String?  // Optional subtitle
-  section     String?  // Optional section (like "A. Timing and Running of Trains")
+  number      Float
+  title       String
+  subtitle    String?
+  section     String?
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  book        RuleBook    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  htmlContent String?
+  book        RuleBook @relation(fields: [bookId], references: [id], onDelete: Cascade)
   rules       Rule[]
 
   @@unique([bookId, number])
   @@map("chapters")
 }
 
-// Rule model - matches the exact structure from Home component
 model Rule {
-  id           String   @id @default(cuid())
-  chapterId    String
-  number       String   // Rule number (e.g., "4.01", "1.02")
-  title        String   // Rule title
-  content      String   @db.Text // Full rule content
-  order        Int      @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relations
-  chapter      Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  id            String         @id @default(cuid())
+  chapterId     String
+  number        String
+  title         String
+  content       String
+  order         Int            @default(0)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   contentBlocks ContentBlock[]
-  links        RuleLink[]
-  images       RuleImage[]
+  images        RuleImage[]
+  links         RuleLink[]
+  chapter       Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@map("rules")
 }
 
-// Content blocks for rich text formatting (for future images and tables)
 model ContentBlock {
-  id        String        @id @default(cuid())
+  id        String      @id @default(cuid())
   ruleId    String
   type      ContentType
-  content   String        @db.Text
-  metadata  Json?         // For storing additional formatting data (table structure, image info, etc.)
-  order     Int           @default(0)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  // Relations
-  rule      Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  content   String
+  metadata  Json?
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  rule      Rule        @relation(fields: [ruleId], references: [id], onDelete: Cascade)
 
   @@map("content_blocks")
+}
+
+model RuleLink {
+  id           String   @id @default(cuid())
+  ruleId       String
+  linkType     LinkType
+  title        String
+  url          String?
+  targetRuleId String?
+  description  String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  rule         Rule     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@map("rule_links")
+}
+
+model Image {
+  id           String      @id @default(cuid())
+  filename     String
+  originalName String
+  url          String
+  size         Int
+  mimeType     String
+  uploadedBy   String
+  createdAt    DateTime    @default(now())
+  uploader     User        @relation(fields: [uploadedBy], references: [id])
+  ruleImages   RuleImage[]
+
+  @@map("images")
+}
+
+model RuleImage {
+  id        String   @id @default(cuid())
+  ruleId    String
+  imageId   String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  image     Image    @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  rule      Rule     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleId, imageId])
+  @@map("rule_images")
+}
+
+model Manual {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  title       String
+  description String?
+  version     String?
+  pdfUrl      String?
+  pdfFileName String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("manuals")
+}
+
+model Circular {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  title       String
+  description String?
+  number      String?
+  date        DateTime?
+  pdfUrl      String?
+  pdfFileName String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("circulars")
+}
+
+model ChangeLog {
+  id            String         @id @default(cuid())
+  entityType    EntityType
+  entityId      String
+  action        ChangeAction
+  changes       Json
+  reason        String?
+  supportingDoc String?
+  userId        String
+  createdAt     DateTime       @default(now())
+  user          User           @relation(fields: [userId], references: [id])
+  notifications Notification[]
+
+  @@map("change_logs")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  role          UserRole       @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  changeLogs    ChangeLog[]
+  images        Image[]
+  notifications Notification[]
+  books         RuleBook[]
+
+  @@map("users")
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  title       String
+  message     String
+  type        NotificationType @default(INFO)
+  isRead      Boolean          @default(false)
+  entityType  EntityType?
+  entityId    String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  changelogId String?
+  changelog   ChangeLog?       @relation(fields: [changelogId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  USER
 }
 
 enum ContentType {
@@ -106,117 +217,12 @@ enum ContentType {
   REFERENCE
 }
 
-// Rule links to other rules, manuals, or external resources
-model RuleLink {
-  id          String     @id @default(cuid())
-  ruleId      String
-  linkType    LinkType
-  title       String
-  url         String?
-  targetRuleId String?   // For internal rule links
-  description String?
-  order       Int        @default(0)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  // Relations
-  rule        Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
-
-  @@map("rule_links")
-}
-
 enum LinkType {
   INTERNAL_RULE
   MANUAL
   CIRCULAR
   EXTERNAL_URL
   DOCUMENT
-}
-
-// Image uploads - enhanced for rule images
-model Image {
-  id          String   @id @default(cuid())
-  filename    String
-  originalName String
-  url         String
-  size        Int
-  mimeType    String
-  uploadedBy  String
-  createdAt   DateTime @default(now())
-
-  // Relations
-  uploader    User @relation(fields: [uploadedBy], references: [id])
-  ruleImages  RuleImage[]
-
-  @@map("images")
-}
-
-// Junction table for rule images
-model RuleImage {
-  id        String   @id @default(cuid())
-  ruleId    String
-  imageId   String
-  caption   String?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-
-  // Relations
-  rule      Rule  @relation(fields: [ruleId], references: [id], onDelete: Cascade)
-  image     Image @relation(fields: [imageId], references: [id], onDelete: Cascade)
-
-  @@unique([ruleId, imageId])
-  @@map("rule_images")
-}
-
-// Manuals and Circulars for linking
-model Manual {
-  id          String   @id @default(cuid())
-  code        String   @unique // e.g., "M001"
-  title       String
-  description String?
-  version     String?
-  pdfUrl      String?  // URL to the uploaded PDF file
-  pdfFileName String?  // Original PDF filename with timestamp
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("manuals")
-}
-
-model Circular {
-  id          String   @id @default(cuid())
-  code        String   @unique // e.g., "C001"
-  title       String
-  description String?
-  number      String?  // e.g., "2024/01"
-  date        DateTime?
-  pdfUrl      String?  // URL to the uploaded PDF file
-  pdfFileName String?  // Original PDF filename with timestamp
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("circulars")
-}
-
-// Change log for tracking all modifications
-model ChangeLog {
-  id          String      @id @default(cuid())
-  entityType  EntityType
-  entityId    String
-  action      ChangeAction
-  changes     Json        // Store the actual changes made
-  reason      String?
-  supportingDoc String?   // Reference to supporting document
-  userId      String
-  createdAt   DateTime    @default(now())
-
-  // Relations
-  user         User           @relation(fields: [userId], references: [id])
-  notifications Notification[]
-
-  @@map("change_logs")
 }
 
 enum EntityType {
@@ -235,45 +241,6 @@ enum ChangeAction {
   DELETE
   ARCHIVE
   RESTORE
-}
-
-// User model for authentication and tracking changes
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      UserRole @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  changeLogs    ChangeLog[]
-  books         RuleBook[]
-  images        Image[]
-  notifications Notification[]
-
-  @@map("users")
-}
-
-// Notification model for user-specific notifications
-model Notification {
-  id          String   @id @default(cuid())
-  userId      String
-  changelogId String?  // Reference to the changelog that triggered this notification
-  title       String
-  message     String
-  type        NotificationType @default(INFO)
-  isRead      Boolean  @default(false)
-  entityType  EntityType?
-  entityId    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  changelog   ChangeLog? @relation(fields: [changelogId], references: [id], onDelete: Cascade)
-
-  @@map("notifications")
 }
 
 enum NotificationType {

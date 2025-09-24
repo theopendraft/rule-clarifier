@@ -50,12 +50,23 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/notifications?userId=${userId}&limit=50`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      const response = await fetch(`/api/notifications?userId=${userId}&limit=50`, {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (response.ok) {
         const text = await response.text();
         try {
           const data = JSON.parse(text);
-          setNotifications(data);
+          setNotifications(Array.isArray(data) ? data : []);
         } catch (jsonError) {
           console.error('Invalid JSON response from notifications API:', text);
           setNotifications([]);
@@ -65,7 +76,11 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         setNotifications([]);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      if (error.name === 'AbortError') {
+        console.warn('Notification fetch request timed out');
+      } else {
+        console.error('Error fetching notifications:', error);
+      }
       setNotifications([]);
     } finally {
       setLoading(false);
@@ -173,16 +188,19 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isAuthenticated, userId]);
 
-  // Auto-refresh notifications every 30 seconds
+  // Auto-refresh notifications every 30 seconds (only if initial fetch was successful)
   useEffect(() => {
     if (typeof window === 'undefined' || !isAuthenticated || !userId) return;
 
     const interval = setInterval(() => {
-      fetchNotifications();
+      // Only auto-refresh if we're not currently loading and have successfully loaded before
+      if (!loading) {
+        fetchNotifications();
+      }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, userId]);
+  }, [isAuthenticated, userId, loading]);
 
   return (
     <NotificationContext.Provider

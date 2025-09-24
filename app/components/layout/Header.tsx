@@ -106,6 +106,15 @@ export function Header() {
           </Button>
         </Link>
       )}
+      <Link href="/chapter" onClick={onClick}>
+        <Button
+          variant={pathname === "/chapter" || pathname.startsWith("/chapter/") ? "default" : "ghost"}
+          size="sm"
+          className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+        >
+          Chapters
+        </Button>
+      </Link>
       <Link href="/manuals" onClick={onClick}>
         <Button
           variant={pathname === "/manuals" ? "default" : "ghost"}

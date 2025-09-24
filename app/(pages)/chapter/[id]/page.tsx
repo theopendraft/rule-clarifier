@@ -13,7 +13,7 @@ import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, Fi
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { UploadButton } from "@uploadthing/react";
-import type { OurFileRouter } from "../../../lib/uploadthing";
+import type { OurFileRouter } from "@/lib/uploadthing";
 
 // Types for database data
 interface Rule {

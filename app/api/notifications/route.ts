@@ -17,6 +17,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Test database connection first
+    try {
+      await prisma.$connect()
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError)
+      return NextResponse.json([], { status: 200 }) // Return empty array instead of error
+    }
+
     const notifications = await prisma.notification.findMany({
       where: {
         userId,
@@ -36,13 +44,11 @@ export async function GET(request: NextRequest) {
       take: limit,
     })
 
-    return NextResponse.json(notifications)
+    return NextResponse.json(notifications || [])
   } catch (error) {
     console.error('Error fetching notifications:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch notifications' },
-      { status: 500 }
-    )
+    // Return empty array instead of error to prevent frontend crashes
+    return NextResponse.json([], { status: 200 })
   }
 }
 
