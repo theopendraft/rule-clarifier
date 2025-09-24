@@ -45,9 +45,10 @@ interface RichTextEditorProps {
   onChange: (content: string) => void;
   placeholder?: string;
   className?: string;
+  readOnly?: boolean;
 }
 
-export function RichTextEditor({ content, onChange, placeholder, className }: RichTextEditorProps) {
+export function RichTextEditor({ content, onChange, placeholder, className, readOnly = false }: RichTextEditorProps) {
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkType, setLinkType] = useState<'manual' | 'circular' | null>(null);
@@ -74,12 +75,15 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     ],
     content,
     immediatelyRender: false,
+    editable: !readOnly,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      if (!readOnly) {
+        onChange(editor.getHTML());
+      }
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 border rounded-md text-sm',
+        class: `prose prose-sm max-w-none ${readOnly ? '' : 'focus:outline-none'} min-h-[200px] p-4 border rounded-md text-sm ${readOnly ? 'bg-gray-50' : ''}`,
         style: 'font-size: 14px;',
       },
     },
@@ -220,6 +224,7 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
   return (
     <div className={className}>
       {/* Toolbar */}
+      {!readOnly && (
       <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1">
         {/* Text Formatting */}
 
@@ -244,11 +249,12 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
           )}
         </div>
       </div>
+      )}
 
       {/* Editor Content */}
       <EditorContent 
         editor={editor} 
-        className="border rounded-b-md"
+        className={`border ${readOnly ? 'rounded-md' : 'rounded-b-md'}`}
         placeholder={placeholder}
       />
 

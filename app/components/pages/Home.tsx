@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { LinkDialog } from "@/components/ui/link-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, FileText, Upload } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
@@ -455,7 +456,24 @@ const Home = () => {
                           {editingRule === rule.number ? (
                             <div className="space-y-4">
                               {/* Action Buttons at Top */}
-                              <div className="flex justify-end space-x-2 mb-4">
+                              <div className="flex justify-between items-center mb-4">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (selectedText) {
+                                      setShowLinkDialog(true);
+                                    } else {
+                                      toast.error("Please select text first to add a link");
+                                    }
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800"
+                                  disabled={!selectedText}
+                                >
+                                  <Link className="h-4 w-4 mr-2" />
+                                  Add Link
+                                </Button>
+                                <div className="flex space-x-2">
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -482,7 +500,7 @@ const Home = () => {
                                 >
                                   Cancel
                                 </Button>
-
+                                </div>
                               </div>
                               
                               {/* Edit Form */}
@@ -501,15 +519,19 @@ const Home = () => {
                                 </div>
                                 <div>
                                   <label className="block text-sm font-medium text-slate-700 mb-1">Rule Content</label>
-                                  <RichTextEditor
-                                    content={editedContent}
-                                    onChange={(content) => {
-                                      setEditedContent(content);
-                                      setHasUnsavedChanges(true);
+                                  <div 
+                                    className="border rounded-md p-4 bg-gray-50 min-h-[200px] prose prose-sm max-w-none"
+                                    onMouseUp={() => {
+                                      const selection = window.getSelection()?.toString();
+                                      if (selection) {
+                                        setSelectedText(selection);
+                                      }
                                     }}
-                                    placeholder="Edit rule content with rich formatting..."
-                                    className="w-full"
+                                    dangerouslySetInnerHTML={{ __html: editedContent }}
                                   />
+                                  {selectedText && (
+                                    <p className="text-xs text-blue-600 mt-1">Selected: "{selectedText}"</p>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -676,162 +698,43 @@ const Home = () => {
       </Dialog>
 
       {/* Link Dialog */}
-      <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add Link</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">URL</label>
-              <Input
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://example.com"
-                className="w-full"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-2">Or choose from suggestions:</label>
-              <div className="flex space-x-2 mb-3">
-                <Button
-                  variant={linkType === "manual" ? "default" : "outline"}
-                  onClick={() => setLinkType("manual")}
-                  className="flex-1"
-                >
-                  Manual
-                </Button>
-                <Button
-                  variant={linkType === "circular" ? "default" : "outline"}
-                  onClick={() => setLinkType("circular")}
-                  className="flex-1"
-                >
-                  Circular
-                </Button>
-              </div>
-            </div>
-
-            {linkType === "manual" && (
-              <div>
-                <label className="block text-sm font-medium mb-2">Available Manuals</label>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {manuals.map((manual) => (
-                    <div key={manual.id} className="p-3 border rounded hover:bg-slate-50 cursor-pointer"
-                         onClick={() => {
-                           const linkHtml = `<a href="/manual/${manual.id}" class="text-blue-600 underline hover:text-blue-800" title="${manual.description || manual.title}">${selectedText}</a>`;
-                           
-                           // Find current rule and update its content
-                           const currentRule = currentChapter?.rules.find(r => r.id === editingRule || (!editingRule && r.number));
-                           if (currentRule) {
-                             const updatedContent = currentRule.content.replace(selectedText, linkHtml);
-                             
-                             setChapters(prevChapters => 
-                               prevChapters.map(chapter => ({
-                                 ...chapter,
-                                 rules: chapter.rules.map(rule => 
-                                   rule.id === currentRule.id 
-                                     ? { ...rule, content: updatedContent }
-                                     : rule
-                                 )
-                               }))
-                             );
-                           }
-                           
-                           toast.success(`Linked "${selectedText}" to ${manual.title}`);
-                           setShowLinkDialog(false);
-                           setLinkType(null);
-                           setSelectedText("");
-                         }}>
-                      <p className="font-medium text-sm">{manual.title}</p>
-                      <p className="text-xs text-slate-600">{manual.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {linkType === "circular" && (
-              <div>
-                <label className="block text-sm font-medium mb-2">Available Circulars</label>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {circulars.map((circular) => (
-                    <div key={circular.id} className="p-3 border rounded hover:bg-slate-50 cursor-pointer"
-                         onClick={() => {
-                           const linkHtml = `<a href="/circular/${circular.id}" class="text-blue-600 underline hover:text-blue-800" title="${circular.description || circular.title}">${selectedText}</a>`;
-                           
-                           // Find current rule and update its content
-                           const currentRule = currentChapter?.rules.find(r => r.id === editingRule || (!editingRule && r.number));
-                           if (currentRule) {
-                             const updatedContent = currentRule.content.replace(selectedText, linkHtml);
-                             
-                             setChapters(prevChapters => 
-                               prevChapters.map(chapter => ({
-                                 ...chapter,
-                                 rules: chapter.rules.map(rule => 
-                                   rule.id === currentRule.id 
-                                     ? { ...rule, content: updatedContent }
-                                     : rule
-                                 )
-                               }))
-                             );
-                           }
-                           
-                           toast.success(`Linked "${selectedText}" to ${circular.title}`);
-                           setShowLinkDialog(false);
-                           setLinkType(null);
-                           setSelectedText("");
-                         }}>
-                      <p className="font-medium text-sm">{circular.title}</p>
-                      <p className="text-xs text-slate-600">{circular.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => {
-                setShowLinkDialog(false);
-                setLinkType(null);
-                setLinkUrl("");
-              }}>
-                Cancel
-              </Button>
-              <Button onClick={() => {
-                if (linkUrl) {
-                  const linkHtml = `<a href="${linkUrl}" class="text-blue-600 underline hover:text-blue-800" target="_blank">${selectedText}</a>`;
-                  
-                  const currentRule = currentChapter?.rules.find(r => r.id === editingRule || (!editingRule && r.number));
-                  if (currentRule) {
-                    const updatedContent = currentRule.content.replace(selectedText, linkHtml);
-                    
-                    setChapters(prevChapters => 
-                      prevChapters.map(chapter => ({
-                        ...chapter,
-                        rules: chapter.rules.map(rule => 
-                          rule.id === currentRule.id 
-                            ? { ...rule, content: updatedContent }
-                            : rule
-                        )
-                      }))
-                    );
-                  }
-                  
-                  toast.success(`Linked "${selectedText}" to ${linkUrl}`);
-                  setShowLinkDialog(false);
-                  setLinkType(null);
-                  setSelectedText("");
-                  setLinkUrl("");
-                }
-              }} disabled={!linkUrl}>
-                Add Link
-              </Button>
-            </div>
+      <LinkDialog
+        isOpen={showLinkDialog}
+        onClose={() => {
+          setShowLinkDialog(false);
+          setSelectedText("");
+        }}
+        onAddLink={(url) => {
+          const linkHtml = `<a href="${url}" class="text-blue-600 underline hover:text-blue-800" target="_blank">${selectedText}</a>`;
           
-          </div>
-        </DialogContent>
-      </Dialog>
+          if (editingRule) {
+            // Update edited content if in edit mode
+            const updatedContent = editedContent.replace(selectedText, linkHtml);
+            setEditedContent(updatedContent);
+            setHasUnsavedChanges(true);
+          } else {
+            const currentRule = currentChapter?.rules.find(r => r.number === selectedRule);
+            if (currentRule) {
+              const updatedContent = currentRule.content.replace(selectedText, linkHtml);
+              
+              setChapters(prevChapters => 
+                prevChapters.map(chapter => ({
+                  ...chapter,
+                  rules: chapter.rules.map(rule => 
+                    rule.id === currentRule.id 
+                      ? { ...rule, content: updatedContent }
+                      : rule
+                  )
+                }))
+              );
+            }
+          }
+          
+          toast.success(`Linked "${selectedText}" to ${url}`);
+          setSelectedText("");
+        }}
+        selectedText={selectedText}
+      />
     </div>
   );
 };
