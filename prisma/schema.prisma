@@ -79,7 +79,9 @@ model Rule {
 // Content blocks for rich text formatting (for future images and tables)
 model ContentBlock {
   id        String        @id @default(cuid())
-  ruleId    String
+  ruleId    String?
+  manualId  String?
+  circularId String?
   type      ContentType
   content   String        @db.Text
   metadata  Json?         // For storing additional formatting data (table structure, image info, etc.)
@@ -88,7 +90,9 @@ model ContentBlock {
   updatedAt DateTime      @updatedAt
 
   // Relations
-  rule      Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  rule      Rule?     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  manual    Manual?   @relation(fields: [manualId], references: [id], onDelete: Cascade)
+  circular  Circular? @relation(fields: [circularId], references: [id], onDelete: Cascade)
 
   @@map("content_blocks")
 }
@@ -181,6 +185,9 @@ model Manual {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Relations
+  contentBlocks ContentBlock[]
+
   @@map("manuals")
 }
 
@@ -196,6 +203,9 @@ model Circular {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relations
+  contentBlocks ContentBlock[]
 
   @@map("circulars")
 }

@@ -171,7 +171,7 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
     
     if (res && res[0]) {
       const file = res[0];
-      const pdfUrl = file.url || file.ufsUrl || file.appUrl;
+      const pdfUrl = file.ufsUrl || file.url || file.appUrl;
       const newFile = {
         name: file.name,
         url: pdfUrl,
@@ -179,7 +179,8 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
         type: file.type || 'application/pdf'
       };
       
-      setUploadedFiles(prev => [...prev, newFile]);
+      setUploadedFiles([newFile]);
+      setDocumentTitle(file.name.replace('.pdf', ''));
       
       // Start AI processing loader
       setIsAiProcessing(true);
@@ -215,7 +216,7 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
   };
 
   const handleSave = async () => {
-    if (extractedContent && uploadedFiles.length > 0 && documentTitle.trim()) {
+    if (documentTitle.trim() && editingContent.trim()) {
       setIsSaving(true);
       try {
         const response = await fetch('/api/save-extracted-content', {
@@ -226,9 +227,9 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
           body: JSON.stringify({
             content: editingContent,
             uploadType,
-            fileName: uploadedFiles[0].name,
-            fileUrl: uploadedFiles[0].url,
-            metadata: extractedContent.metadata,
+            fileName: uploadedFiles[0]?.name || 'document.pdf',
+            fileUrl: uploadedFiles[0]?.url || null,
+            metadata: extractedContent?.metadata || {},
             title: documentTitle.trim()
           }),
         });
@@ -240,10 +241,6 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
 
         const result = await response.json();
         
-        setExtractedContent({
-          ...extractedContent,
-          text: editingContent
-        });
         setSuccessMessage(`${result.message || 'Content saved successfully!'} Redirecting to ${uploadType}s page...`);
         
         // Show success message and redirect
