@@ -124,7 +124,7 @@ const RichTextEditor = ({ content, onChange, readOnly = false }: RichTextEditorP
                 onClick={insertLink}
                 title="Insert Link"
               >
-                <Link className="h-4 w-4" />
+                <Link className="h-4 w-4" /> 
               </Button>
               <Button
                 variant="outline"

@@ -51,9 +51,11 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   readOnly?: boolean;
+  onSelectionChange?: (selection: string) => void;
+  link?: boolean;
 }
 
-export function RichTextEditor({ content, onChange, placeholder, className, readOnly = false }: RichTextEditorProps) {
+export function RichTextEditor({ content, onChange, placeholder, className, readOnly = false, onSelectionChange, link = false }: RichTextEditorProps) {
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkType, setLinkType] = useState<'manual' | 'circular' | null>(null);
@@ -93,8 +95,15 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
     immediatelyRender: false,
     editable: !readOnly,
     onUpdate: ({ editor }) => {
-      if (!readOnly) {
+      if (!readOnly || link) {
         onChange(editor.getHTML());
+      }
+    },
+    onSelectionUpdate: ({ editor }) => {
+      const { from, to } = editor.state.selection;
+      if (from !== to && onSelectionChange) {
+        const selectedText = editor.state.doc.textBetween(from, to);
+        onSelectionChange(selectedText);
       }
     },
     editorProps: {
@@ -296,30 +305,34 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
         }
       `}</style>
       {/* Toolbar */}
-      {!readOnly && (
+      {(!readOnly || link) && (
       <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1">
         {/* Text Formatting */}
 
         {/* Links */}
-        <div className="flex gap-1">
-          {editor.isActive('link') ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={removeLink}
-            >
-              <Unlink className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowLinkDialog(true)}
-            >
-              <LinkIcon className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        {(link || !readOnly) && (
+          <div className="flex gap-1">
+            {editor.isActive('link') ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={removeLink}
+              >
+                <Unlink className="h-4 w-4" />
+                Unlink
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowLinkDialog(true)}
+              >
+                <LinkIcon className="h-4 w-4" />
+                Link
+              </Button>
+            )}
+          </div>
+        )}
       </div>
       )}
 

@@ -513,23 +513,8 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                           {editingRule === rule.number ? (
                             <div className="space-y-4">
                               {/* Action Buttons at Top */}
-                              <div className="flex justify-between items-center mb-4">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    if (selectedText) {
-                                      setShowLinkDialog(true);
-                                    } else {
-                                      toast.error("Please select text first to add a link");
-                                    }
-                                  }}
-                                  className="text-blue-600 hover:text-blue-800"
-                                  disabled={!selectedText}
-                                >
-                                  <Link className="h-4 w-4 mr-2" />
-                                  Add Link
-                                </Button>
+                              <div className="flex justify-end items-center mb-4">
+                                
                                 <div className="flex space-x-2">
                                 <Button
                                   variant="outline"
@@ -570,16 +555,21 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                                 </div>
                                 <div>
                                   <label className="block text-sm font-medium text-slate-700 mb-1">Rule Content</label>
-                                  <div 
-                                    className="border rounded-md p-4 bg-gray-50 min-h-[200px] prose prose-sm max-w-none select-text"
-                                    onMouseUp={() => {
-                                      const selection = window.getSelection();
-                                      if (selection && selection.toString().trim()) {
-                                        setSelectedText(selection.toString());
+                                  <RichTextEditor
+                                    key={`editor-${rule.id}`}
+                                    content={editedContent}
+                                    onChange={(content) => {
+                                      setEditedContent(content);
+                                      setHasUnsavedChanges(true);
+                                    }}
+                                    onSelectionChange={(selection) => {
+                                      if (selection) {
+                                        setSelectedText(selection);
                                       }
                                     }}
-                                    style={{ userSelect: 'text' }}
-                                    dangerouslySetInnerHTML={{ __html: editedContent }}
+                                    className="min-h-[200px]"
+                                    readOnly={true}
+                                    link={true}
                                   />
                                 </div>
                               </div>
