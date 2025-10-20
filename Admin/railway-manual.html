@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Railways Manual</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .navigation {
+            margin-bottom: 20px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .nav-btn:hover {
+            background: #555;
+        }
+        
+        .document-container {
+            background-color: white;
+            width: 600px;
+            height: 800px;
+            padding: 60px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .header-section {
+            margin-bottom: 40px;
+        }
+        
+        .emblem {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/><text x="50" y="55" text-anchor="middle" font-size="12">EMBLEM</text></svg>') no-repeat center;
+            background-size: contain;
+        }
+        
+        .hindi-text {
+            font-size: 16px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        
+        .govt-text {
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1.4;
+            margin-bottom: 80px;
+        }
+        
+        .main-title {
+            font-size: 48px;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            margin-bottom: 80px;
+        }
+        
+        .year {
+            font-size: 72px;
+            font-weight: bold;
+            margin-top: auto;
+        }
+        
+        .preface-page {
+            display: none;
+            padding: 40px;
+            text-align: left;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .preface-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .committee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .committee-table th,
+        .committee-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .committee-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .page-number {
+            text-align: center;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <button class="nav-btn" onclick="showCover()">Cover Page</button>
+        <button class="nav-btn" onclick="showPreface()">Preface</button>
+        <button class="nav-btn" onclick="showPreface2()">Preface Page 2</button>
+        <button class="nav-btn" onclick="showChapters()">Chapters</button>
+        <button class="nav-btn" onclick="showContents()">Contents</button>
+        <button class="nav-btn" onclick="showContents2()">Contents Page 2</button>
+        <button class="nav-btn" onclick="showContents3()">Contents Page 3</button>
+        <button class="nav-btn" onclick="showContents4()">Contents Page 4</button>
+        <button class="nav-btn" onclick="showTerminologyDefinitions()">Terminology Definitions</button>
+        <button class="nav-btn" onclick="showTerminologyDefinitions2()">Terminology Page 2</button>
+        <button class="nav-btn" onclick="showTerminologyDefinitions3()">Terminology Page 3</button>
+    </div>
+    
+    <div class="document-container" id="coverPage">
+        <div class="header-section">
+            <div class="emblem"></div>
+            <div class="hindi-text">सत्यमेव जयते</div>
+            <div class="govt-text">
+                GOVERNMENT OF INDIA<br>
+                MINISTRY OF RAILWAYS<br>
+                (RAILWAY BOARD)
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="main-title">
+                INDIAN RAILWAYS<br>
+                PERMANENT WAY<br>
+                MANUAL
+            </div>
+            <div class="subtitle">(Corrected up to ACS - 3)</div>
+        </div>
+        
+        <div class="year">2024</div>
+    </div>
+    
+    <div class="document-container preface-page">
+        <div class="preface-title">PREFACE TO THE REDRAFTED IRPWM (2020)</div>
+        
+        <p>The "Indian Railways Permanent Way Manual (IRPWM)" was first published in the year 1986 after recommendation of 49th TSC. It has been reprinted later in the years 1999 and 2008 to incorporate Advance Correction Slips issued from time to time. The third and the last reprint of this Manual in July 2019 was inclusive of the Correction Slips up to No. 149.</p>
+        
+        <p>Railway Board vide letter No. 2013/CE-II/TK/IRPWM dated 24/09/2019 asked IRICEN to redraft IRPWM with a view to remove obsolete topics and material components which are not in use now and make it for only Broad Gauge by adding recent developments in P. Way for the guidance of field officials. Accordingly, Shri Ajay Goyal, the then Director, IRICEN along with a team of faculty members finalised the first draft of IRPWM keeping in view the mandate given by Railway Board. Thereafter Rly Bd vide letter No. 2013/CEII/TK/IRPWM dated 02/12/2019 nominated two members committee as under:</p>
+        
+        <table class="committee-table">
+            <tr>
+                <th>S. No</th>
+                <th>Faculty from IRICEN Shri.</th>
+                <th>2nd Member Shri.</th>
+                <th>Chapter(s) assigned.</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>C.S Sharma, SPT-1</td>
+                <td>S. C. Srivastava, PED/TM/RDSO</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>R K Bajpai, SPT-2</td>
+                <td>B P Awasthi, ED/TM/Rly Bd and Manoj Arora, CTE/WR</td>
+                <td>3 (welding), 4 and 6</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Anil Choudhary, SPTM</td>
+                <td>P K Garg, CTE/CR and Submoy Mitra, CTE/SER</td>
+                <td>7 & 8</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>S K Agarwal, PB-1</td>
+                <td>J. Parida, CTE/ECoR and P S Gupta, ED/CE/G/Rly Bd</td>
+                <td>11 & 12</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>G S Yadav, PB-2</td>
+                <td>A K Jha, CTE/SCR</td>
+                <td>9, 10</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>P. Upadhyaya, PT-2</td>
+                <td>P K Garg, CTE/CR</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>N K Mishra, PT-1</td>
+                <td>P S Gupta, EDCE/G/Rly Bd</td>
+                <td>14</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td>A. Siva Kumar, PW</td>
+                <td>A M Rizvi, ED/TR-2/RDSO and D. K Pandey, CE/TMS</td>
+                <td>2,13 & Part 3 LWR portion</td>
+            </tr>
+        </table>
+        
+        <p>Each committee then finalised the nominated chapters which were compiled by IRICEN and presented to TSC meeting held in Jan, 2020 at PURI. On recommendation of TSC, Rly Bd nominated a sub Committee comprising of Shri R. K. Bajpai, Sr Professor Track-1/IRICEN (Member and Convenor), Shri P K Garg, CTE/CR, Shri A K Jha, CTE/SCR, Shri Ashish Bansal, CTE/NR, Shri S. Mitra, CTE/SER, and Shri A M Rizvi, ED Track-2/RDSO as members to examine and submit the final draft. The final draft after initial vetting by RDSO was sent to Railway Board. Rly Bd suggested certain changes which were examined and incorporated by IRICEN. After final vetting by RDSO the redrafted IRPWM is approved by Railway Board (Member Engineering). The provisions of the LWR manual have also been amalgamated herein to make this Manual, a one stop source for all P. Way related matters. The Chapters have been logically re-arranged so as to cater for the day-to-day needs of the field officials. For Metre Gauge and Narrow Gauge track one can refer old IRPWM which was reprinted on July 2019.</p>
+        
+        <p>While revising the Manual, the provisions in the Indian Railway General Rules 1976, Indian Railways Code for the Engineering Department and Indian Railway schedule of Dimensions have been taken in to account. This redrafted edition incorporates all Advance Correction Slips up to No. 155 of the earlier Manual. The hitherto obsolete designations have been done away with and current designations of officials have been incorporated, viz. Gangman as Track Maintainer, Permanent Way Supervisor / Permanent Mistry (PWS/PWM) as JE(P.Way), PWI/PWI (In-charge) as JE/SSE(P.Way) Sectional or SSE(P.Way) In-charge. In a volume of this type, it is not possible to provide for every contingency that may arise during the course of the working, though every effort has been made to make the instructions comprehensive. The Principal Chief Engineers of Zonal</p>
+        
+        <div class="page-number">(ix)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="prefacePage2">
+        <p>Railways may therefore supplement, where necessary, the practices and procedures contained herein with such further instructions/orders, as would suit local circumstances on their Railway. Such instructions must not of course contravene any of the provision in this manual, the codes of the various departments of the Railways, General Rules, or any of the statutory regulations in force.</p>
+        
+        <p>It is expected that this updated Manual will be of immense use to the Permanent Way Personnel in easily accessing latest instructions related to track and thereby helping them in maintaining and upkeep of the track more effectively and efficiently. IRICEN will be glad to consider any comments and suggestion from Railway Administrations. Any errors or omissions found in this Edition may be brought to the notice of IRICEN.</p>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 100px;">
+            <div>
+                <strong>Pune</strong><br>
+                <strong>June, 2020</strong>
+            </div>
+            <div style="text-align: right;">
+                <strong>(Santosh Kumar Agrawal)</strong><br>
+                <strong>Director General</strong><br>
+                <strong>IRICEN</strong>
+            </div>
+        </div>
+        
+        <div class="page-number">(x)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="chaptersPage">
+        <div style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 30px;">CHAPTERS</div>
+        <div style="text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 30px;">
+            <u>ABBREVIATIONS</u> AND <u>TERMINOLOGY</u>
+        </div>
+        
+        <div style="line-height: 2; font-size: 14px;">
+            <div><u>CHAPTER 1</u> - <u>DUTIES OF PERMANENT WAY OFFICIALS</u></div>
+            <div><u>CHAPTER 2</u> - <u>TRACK STRUCTURE AND COMPONENTS</u></div>
+            <div><u>CHAPTER 3</u> - <u>INSTALLATION AND MAINTENANCE OF WELDED RAILS</u></div>
+            <div><u>CHAPTER 4</u> - <u>CURVES & TURNOUTS</u></div>
+            <div><u>CHAPTER 5</u> - <u>TRACK MONITORING& TOLERANCES</u></div>
+            <div><u>CHAPTER 6</u> - <u>MAINTENANCE OF PERMANENT WAY</u></div>
+            <div><u>CHAPTER 7</u> - <u>PERMANENT WAY RENEWALS</u></div>
+            <div><u>CHAPTER 8</u> - <u>ENGINEERING RESTRICTIONS & INDICATORS, WORKING OF TROLLIES, LORRIES & MATERIAL TRAINS ETC.</u></div>
+            <div><u>CHAPTER 9</u> - <u>LEVEL CROSSINGS AND GATEMAN</u></div>
+            <div><u>CHAPTER 10</u> - <u>PATROLLING OF THE RAILWAY LINE</u></div>
+            <div><u>CHAPTER 11</u> - <u>ACTION DURING ACCIDENTS INCLUDING BREACHES AND PRE-MONSOON PRECAUTIONARY MEASURES</u></div>
+            <div><u>CHAPTER 12</u> - <u>CRS SANCTION</u></div>
+            <div><u>CHAPTER 13</u> - <u>TRACK MANAGEMENT SYSTEM</u></div>
+            <div><u>CHAPTER 14</u> - <u>TRAINING, COMPETENCY & REFERENCES</u></div>
+            <div><u>CHAPTER 15</u> - <u>EMERGING TRACK TECHNOLOGY ITEMS</u></div>
+        </div>
+        
+        <div class="page-number">(xi)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage">
+        <div style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 20px;">CONTENTS</div>
+        <div style="text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 30px;">ABBREVIATIONS AND TERMINOLOGY</div>
+        
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 1</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">DUTIES OF PERMANENT WAY OFFICIALS</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – A</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Duties of Assistant Divisional Engineer (ADEN)</div>
+            <div><u>101</u> General. <u>102</u> Knowledge of Rules and Regulations. <u>103</u> Duties of ADEN.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Duties of Senior Section Engineer/P.Way in Overall Charge</div>
+            <div><u>104</u> General. <u>105</u> Knowledge of Rules and Regulations. <u>106</u> Duties of SSE/P.Way (In-charge).</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – C</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Duties of Junior Engineer/Senior Section Engineer/P.Way (Sectional)</div>
+            <div><u>107</u> General Responsibilities. <u>108</u> Knowledge of Rules and Regulations. <u>109</u> Duties of JE/ SSE/ P.Way (sectional).</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – D</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Duties of JE/SSE/P.Way (Other Than Sectional or In-Charge)</div>
+            <div><u>110</u> General responsibilities. <u>111</u> Knowledge of Rules and regulations.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – E</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Duties of Gang Mates, Keymen, Patrolmen, Gateman and Track Maintainer</div>
+            <div><u>112</u> General. <u>113</u> Knowledge of Rules and Signals. <u>114</u> Important Duties of Gang Mate. <u>115</u> Responsibilities of a Keyman. <u>116</u> Important Duties of Keyman. <u>117</u> Duties of Patrolmen / Stationary Watchmen. <u>118</u> Duties of Gateman. <u>119</u> Duties of Track Maintainer.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 2</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">TRACK STRUCTURE AND COMPONENTS</div>
+            <div><u>201</u> Classification of Lines. <u>202</u>. Track Structure.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – A</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Rail and Rail Fastenings</div>
+            <div><u>203</u> Standard Sections of Rails. <u>204</u> Identification of Different Qualities of Rails in the Field. <u>205</u> Recommended Rail Section. <u>206</u>. Rail Fastenings</div>
+        </div>
+        
+        <div class="page-number">(xiii)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage2">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Sleepers & Fastenings</div>
+            <div><u>207</u> General. <u>208</u> Concrete Sleepers. <u>209</u> Sleeper Density. <u>210</u> Fastenings on PSC sleepers. <u>210A</u> Modern Fastenings.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – C</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Ballast</div>
+            <div><u>211</u> Ballast Specifications. <u>211A</u> Ballastless Track. <u>212</u> Ballast Profile/Section/ Depth of Cushion. <u>213</u> Assessment of Ballast Requirements <u>214</u> Collection and Training out of Ballast. <u>215</u> Handing over Charge by Assistant Divisional Engineer. <u>216</u> Unloading Ballast along the Line. <u>217</u> Surplus Ballast along the Line.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – D</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Formation</div>
+            <div><u>218</u> Classification of Formation Requiring Treatment. <u>219</u> Nature of Formation Problems. <u>220</u> Site Investigation. <u>221</u> Soil Investigation and Testing. <u>222</u> Remedial Measures Suggested.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – E</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Insulated Joints & Switch Expansion Joints</div>
+            <div><u>223</u> Insulated Joints. <u>224</u> Glued Insulated Joints. <u>225</u> Switch Expansion Joint.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – F</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Track Structure on Bridges</div>
+            <div><u>226</u> Rail and Rail joints on Bridges. <u>227</u> Steel Sleepers on Bridges <u>228</u> Provision of Guard Rails on Bridges and Tunnels. <u>229</u> Provision of side Pathways and Walkways.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 3</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">INSTALLATION AND MAINTENANCE OF WELDED RAILS</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – A</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Alumino-Thermit Welding of Rails</div>
+            <div><u>301</u> General. <u>302</u> Alumino Thermit Welding of Rails. <u>303</u> Selection of Rails to be welded. <u>304</u> Portion for welding. <u>305</u> Storage and transportation of Portions. <u>306</u> Equipment, staff and Traffic block for welding. <u>307</u> Execution of Welding and other Precautions. <u>308</u> Tolerances on Finished Welds. <u>309</u> Record of Joint Geometry. <u>310</u> Painting of Thermit welds. <u>311</u> Acceptance Tests.</div>
+        </div>
+        
+        <div class="page-number">(xiv)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage3">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Flash-Butt Welding of Rails</div>
+            <div><u>312</u> General <u>313</u> Rail Welding by Stationary Flash Butt Welding plant. <u>314</u> Rail Welding by Mobile flash butt welding plant. <u>315</u> Suitability of rails for welding. <u>316</u> Acceptance Tests.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – C</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Short Welded Rails</div>
+            <div><u>317</u> General. <u>318</u> Condition of Laying. <u>319</u> Laying of Short Welded Rails. <u>320</u> Gap Survey and Adjustment of Gap. <u>321</u> Counteraction and Adjustment of creep. <u>322</u> Buckling of Track (other than LWR). <u>323</u> Conversion of SWR into LWR. <u>324</u> Maintenance of Short Welded Rails.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – D</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Long Welded Rails</div>
+            <div><u>325</u> Long welded Rail. <u>326</u> Permitted Locations for LWR/CWR. <u>327</u> Provision of Digital Axle Counters and Glued Joints. <u>328</u> Location of SEJ. <u>329</u> Bridges with ballasted deck (without bearing). <u>330</u> Bridges with ballasted deck (with bearing). <u>331</u> Bridges with un-ballasted deck. <u>332</u> Measurement of Rail Temperature. <u>333</u> Temperature Measurements. <u>334</u> Temperature Records. <u>335</u> Thermal Forces in LWR/CWR. <u>336</u> Laying of LWR / CWR. <u>337</u> Welding of Rails to form LWR. <u>338</u> Gaps at SEJ. <u>339</u> De-stressing operation of LWR. <u>340</u> De-stressing without Rail Tensors. <u>341</u> De-stressing with Rail Tensors. <u>342</u> Joining of LWRs. <u>343</u> Reference Marks. <u>344</u> Maintenance of LWR/CWR. <u>345</u> Regular Track Maintenance. <u>346</u> Special Track Maintenance. <u>347</u> Destressing during Maintenance <u>348</u> Unusual Occurrences. <u>349</u> Rectification of Rail Fractures. <u>350</u> Damage to Switch Expansion Joint. <u>351</u> Buckling of Track. <u>352</u> Breaches, Temporary Girders and Diversions. <u>353</u> Hot and Cold Weather Patrolling. <u>354</u> Inspections and Records.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 4</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">CURVES & TURNOUTS</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 15px 0;">PART – A - Curves</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 10px;">SECTION – I: General</div>
+            <div><u>401</u> Determination of Radius. <u>402</u> The Reference Rail for level. <u>403</u> Safe Speed on Curves. <u>404</u> Super-elevation, Cant Deficiency and Cant Excess. <u>405</u> Length of Transition Curve and Setting-out Transitions. <u>406</u> Running out Super-elevation. <u>407</u> Indicators/Boards Provided in Curves. <u>408</u> Speed over Turnout on Curves. <u>409</u> Permissible Speed over Curved Main Line at Turnouts. <u>410</u> No Change of Super-</div>
+        </div>
+        
+        <div class="page-number">(xv)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage4">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div>elevation over Turnouts. <u>411</u> Curves of Contrary Flexure. <u>412</u> Curves of Similar Flexure. <u>413</u> Curves with Cross Overs. <u>414</u> Curves with Diamond Crossing. <u>415</u> Extra Clearance on Curves. <u>416</u> Compensation for Curvature on Gradient. <u>417</u> Vertical Curve.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 15px 0;">SECTION – II: Re-Alignment of Curves</div>
+            <div><u>418</u> Running on Curves. <u>419</u> String lining Operations. <u>420</u> Realigning Curves on Double or Multiple Lines. <u>421</u> Cuttings of Rails on Curves. <u>422</u> Joints on Curves. <u>423</u> Check Rails on Curves. <u>424</u> Wear on Outer Rail of Curves. <u>425</u> Measurement of Rail Wear on Sharp Curves.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Points & Crossings</div>
+            <div><u>426</u> (1) Turnout. (2) Turn in Curve. <u>427</u> Assembly Drawings. <u>428</u> LWR through Points and Crossings <u>429</u> Inspection and Maintenance of Points and Crossings. <u>430</u> Reconditioning of Switches and Crossing. <u>431</u> Periodical Inspection of Reconditioned Points and Crossing. <u>432</u> Robotic Reconditioning. <u>433</u> Switch Rail Grinding Machine (SRGM).</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 5</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">TRACK MONITORING & TOLERANCES</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – A</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Track Monitoring</div>
+            <div><u>501</u> General. <u>502</u> Track Recording Cars. <u>503</u> Quick Calibration, Recording and Speed. <u>504</u> Arrangements for Running Track Recording Car. <u>505</u> Officials to Accompany the TRC run. <u>506</u> Frequency of Track Recording. <u>507</u> Track Geometry Parameters Recorded by TRC <u>508</u> Chords for Measurements/Report. <u>509</u> Reporting of TRC Results. <u>510</u> Action to be taken after Track Recording by TRC <u>511</u> Parameter Indices. <u>512</u> Track Quality Index (TQI). <u>513</u> Oscillation Monitoring System. <u>514</u> Frequency of OMS Recording. <u>515</u> Recording of Defects. <u>516</u> Classification of Track Quality. <u>517</u> Oscillograph Car. <u>518</u> Use of Oscillograph Car Recordings.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Track Tolerances</div>
+            <div><u>519</u> General. <u>520</u> New Track Tolerances. <u>521</u> Planning of Maintenance. <u>522</u> Maintenance Limits for Different Speed Bands. <u>523</u> Action to be taken based on TRC Results <u>524</u> Realignment Criteria for Curves. <u>525</u> Track Parameters in floating Conditions. <u>526</u> Track Parameters for Low Speeds. <u>527</u> Stability of Trains against Derailments.</div>
+        </div>
+        
+        <div class="page-number">(xvi)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage5">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 6</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">MAINTENANCE OF PERMANENT WAY</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – A</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Regular Track Maintenance</div>
+            <div><u>601</u> Track Maintenance. <u>602</u> Annual Programme of Track Maintenance. <u>603</u> Rolling Block Programme and Maintenance Planning. <u>604</u> Mechanised Track Maintenance System. <u>604A</u> Modified Three Tier System of Track Maintenance. <u>605</u> Systematic Tamping of Plain Track and Points & Crossings. <u>606</u> Picking Up Slacks. <u>607</u> Through Packing by Conventional Manual Method <u>608</u> Observance of Sleepers under Passage of Traffic. <u>609</u> Systematic Overhauling.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Handling and Maintenance of Rails, Sleepers, Fastenings & Other Misc. Items</div>
+            <div><u>610</u> Handling and Stacking of Rails. <u>611</u> Inspection of Rails in Service. <u>612</u> Causes of Rail Deterioration. <u>613</u> Rail Maintenance to Reduce Rail Deterioration. <u>614</u> Rail Closures on other than LWR track. <u>615</u> Attention to Defective Rails and Welds Detected by USFD. <u>616</u> Casual Renewal of Rails. <u>617</u> Rail Failures. <u>618</u> Action to be taken in the case of Rail Fractures/Weld Failures. <u>619</u> Lubrication of Rail Joints. <u>620</u> Maintenance of Rail Joints. <u>621</u> Fish-plate Failures. <u>622</u> Inspection and Maintenance of Insulated Rail Joints/Glued Joints. <u>623</u> Laying of PSC Plain track Sleepers. <u>624</u> Laying of Fan Shaped Turnout Sleeper. <u>625</u> Casual Renewal of Concrete Sleepers. <u>626</u> Corrosion of Steel in Concrete Sleepers. <u>627</u> Maintenance of Concrete Sleeper Fastenings. <u>628</u> Renewal of Fastenings. <u>629</u> Steel sleepers for Bridges. <u>630</u> Inspection and Maintenance of Track on Approaches of Bridges. <u>631</u> Inspection and Maintenance of Track on Bridge Proper. <u>632</u> Maintenance of Yard Lines. <u>633</u> Sand Hump/Dead End. <u>634</u> Sample of Standard Section of Track. <u>635</u> Checking work of Gangs by JE/SSE/P.Way</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – C</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Works Incidental to Regular Track Maintenance</div>
+            <div><u>636</u> Deep Screening of Ballast. <u>637</u> Procedure for Systematic Deep Screening. <u>638</u> Lifting of Track. <u>639</u> Lowering of Track. <u>640</u> Side and Catch Water Drains and Waterways. <u>641</u> Drainage in Station Yards. <u>642</u> Section Limit Boards. <u>643</u> Kilometre and Gradient Posts. <u>644</u> OHE Mast/Hectometre Post Numbers. <u>645</u> Verification of Land Boundaries. <u>646</u> Trolley Refuges. <u>647</u> Standard Dimensions. <u>648</u> Felling of Trees Obstructing View. <u>649</u> Distance Pieces to Platform Lines. <u>650</u> Fouling Marks. <u>651</u> Maintenance of P.Way Store. <u>652</u> Action in case of Derailments.</div>
+        </div>
+        
+        <div class="page-number">(xvii)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage6">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="font-weight: bold; margin: 15px 0;">PART – D</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Record Keeping</div>
+            <div><u>653</u> Record of Gang Work. <u>654</u> Record of Work of Artisans and Other Workmen Employed. <u>655</u> Half-Yearly Report on the Condition of Permanent Way. <u>656</u> SSE/ P.Way (In-Charge)'s Section Register. <u>657</u> Permanent Way Plans and Diagrams. <u>658</u> Musters. <u>659</u> Strength and Jurisdiction of Gangs. <u>660</u> Custody of Gang Tools. <u>661</u> Records of Material under Trial.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – E</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Maintenance Of Track In Track Circuited Areas</div>
+            <div><u>662</u> Provision and Maintenance of Signalling Fixtures in Track.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – F</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Maintenance of Track in Electrified Areas</div>
+            <div><u>663</u> General Instructions to Staff <u>664</u> Special Instructions to Staff Working in Traction Area. <u>665</u> Maintaining Continuity of Track. <u>666</u> Additional Precautions in A.C. Traction Area. <u>667</u> Fire in Electrified Areas. <u>668</u> Catch Sidings. <u>669</u> Permanent Way Tools. <u>670</u> Treatment of Persons Suffering from Electric Shock. <u>671</u> Accident to Power Lines of Outside Bodies.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 7</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">PERMANENT WAY RENEWALS</div>
+            <div><u>701</u> Classification of Renewals. <u>702</u> Factors Governing Permanent Way Renewal. <u>703</u> Planning of Renewals. <u>704</u> Track Renewal Programme. <u>705</u> Track Standards for Renewals. <u>706</u> Planning for Posting of Staff and Other Facilities. <u>707</u> Traffic Facilities for Renewals. <u>708</u> Speed Restrictions. <u>709</u> Project Report for Track Renewal Works. <u>710</u> Preliminary Works. <u>711</u> Unloading of Rails, Sleepers and Fastenings. <u>712</u> Methods of Carrying Out Renewal. <u>713</u> Relaying with Mechanical Equipment. <u>714</u> Manual Method of Relaying. <u>715</u> Essential Points to be Observed During Linking. <u>716</u> Track Laying Standards. <u>717</u> Renewal of Points and Crossing. <u>718</u> Renewal of Track Fittings and Other Track Components. <u>719</u> Sleepers in Yards and Running Lines. <u>720</u> Rails in Station Yards. <u>721</u> Classification and Use of Released Material. <u>722</u> Marking of Permanent Way Material. <u>723</u> Works to be Attended After Completion of Relaying.</div>
+        </div>
+        
+        <div class="page-number">(xviii)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage7">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 8</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">ENGINEERING RESTRICTIONS & INDICATORS, WORKING OF TROLLIES, LORRIES & MATERIAL TRAINS</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – A</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Engineering Restrictions & Indicators</div>
+            <div><u>801</u> Work Involving Danger to Train or Traffic. <u>802</u> Carrying Out of Works, in case of Emergency. <u>803</u> Responsibility of the Railway Servant In-charge of the Work. <u>804</u> Works, which Obstruct the Line. <u>805</u> Categories of Engineering Works. <u>806</u> Works of Short Duration. <u>807</u> Works of Long Duration. <u>808</u> Temporary Engineering Fixed Signals – Location and Details. <u>809</u> Procedure for Passing Trains at Stop Dead Restrictions. <u>810</u> Procedure for Blocking Line for Engineering Purposes. <u>811</u> Works at Times of Poor Visibility. <u>812</u> Temporary Signals in Emergency. <u>813</u> Periodical Notice of Engineering Restrictions. <u>814</u> Permanent Speed Restriction Indicators <u>815</u> Indicators (General) <u>816</u> Detonating Signals. <u>817</u> Warning Signal-Descriptions. <u>818</u> Use of Warning Signals. <u>819</u> Safe Working of Contractors.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">The Working of Trollies, Motor Trollies And Lorries</div>
+            <div><u>820</u> Rules for Working Trollies, Motor Trollies and Lorries. <u>821</u> Distinction between Trolley, Motor Trolley and Lorry. <u>822</u> Certificate of Competency. <u>823</u> Officials Permitted to use Trollies, Motor Trollies and Lorries. <u>824</u> Responsibility for Safe Working. <u>825</u> Efficient Brakes. <u>826</u> Attachment to Trains Prohibited. <u>827</u> Working on Track Circuited Sections and Sections Provided with Axle Counters <u>828</u> Numbering of Trollies/Motor Trollies/ Lorries <u>829</u> Conveyance of Trollies/Motor Trollies/ Lorries by Trains. <u>830</u> Trollies, Motor Trollies and Lorries not in use. <u>831</u> Conveyance of Non-Railway Officials. <u>832</u> Trolley-Permits for Private Sidings. <u>833</u> Military Officers Using Trollies in Ordnance Depots. <u>834</u> Trolley Refuges and Observation Posts. <u>835</u> Equipment for Trolley/Motor Trolley/ Lorry. <u>836</u> Signals for Trolley/Motor Trolley/Lorry. <u>837</u> Working of Trollies. <u>838</u> Working of Motor Trollies. <u>839</u> Working of Lorries. <u>840</u> Working of Moped Trollies. <u>841</u> Rail Dolleys.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – C</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Working of Material Trains & Track Machines</div>
+            <div><u>842</u> The Rules for the Working of Material Trains. <u>843</u> Material Train. <u>844</u> Economical Working. <u>845</u> Restrictions in Running. <u>846</u> Brake-Vans and Shelter Wagons. <u>847</u> Ordering of Material Trains. <u>848</u> Issue of "Fit-to-Run" Certificate. <u>849</u> Official – in – charge of Material Train. <u>850</u> Equipment. <u>851</u> Testing of Brake Power.</div>
+        </div>
+        
+        <div class="page-number">(xix)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage8">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div><u>852</u> Working in Block Section. <u>853</u> Pushing of Material Trains. <u>854</u> Procedure to be followed while Pushing Back. <u>855</u> Running on Ghat Section and Descending Grade. <u>856</u> Passage over Points. <u>857</u> Speed of Material Train. <u>858</u> Stabling of a Material Train. <u>859</u> Reporting Deficiencies and Damages. <u>860</u> Warning to Workers on Material Trains. <u>861</u> Engine Crew's Hours of Duty.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – D</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Loading and Unloading from Hopper Ballast Wagons</div>
+            <div><u>862</u> Staff Responsible. <u>863</u> Working Trip. <u>864</u> Operation of Hoppers. <u>865</u> Training Out Material and Daily Reports of Working. <u>866</u> Charges for Material Train Working. <u>867</u> Register of Engineering Vehicles. <u>868</u> Working of Track Maintenance Machines.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 9</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">LEVEL CROSSINGS AND GATEMAN</div>
+            <div><u>901</u> General Location. <u>902</u> Classification of Level Crossings. <u>903</u> Categories of Roads. <u>904</u> Standards for Different Classes of Level Crossings. <u>905</u> Gates and Locking Arrangements. <u>906</u> Skew Level Crossings. <u>907</u> Normal Position of Gates. <u>908</u> Signals for Road Users. <u>909</u> Traffic and Engineering Gates. <u>910</u> Equipment at Level Crossings. <u>911</u> Location of Gate-Lodge <u>912</u> Appointment of Gatemen, Rosters and Medical Fitness Certificates. <u>913</u> Maintenance of Level Crossing, Examination of Gate Equipment and Gateman in Rules. <u>914</u> Level Crossing Registers <u>915</u> Level Crossing Indicators. <u>916</u> Provision of Speed Breakers on the Approaches of Level Crossing. <u>917</u> Census of Traffic at Level Crossings. <u>918</u> Track Structure at Level Crossings. <u>919</u> Level Crossings on National Highways/State Highways and Other Important Roads. <u>920</u> Elimination Level Crossing. <u>921</u> Criteria for Replacement of Existing Level Crossings.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 10</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">PATROLLING OF THE RAILWAY LINE</div>
+            <div><u>1001</u> Types of Patrolling. <u>1002</u> Keyman's Daily Patrol. <u>1003</u> Gang Patrol during Abnormal Rainfall or Storm. <u>1004</u> Monsoon Patrolling. <u>1005</u> Hot and Cold Weather Patrolling for LWR/CWR. <u>1006</u> Watchmen at Vulnerable Locations. <u>1007</u> Security Patrolling During Civil Disturbance and on Special Occasions.</div>
+        </div>
+        
+        <div class="page-number">(xx)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage9">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 11</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">ACTION DURING ACCIDENTS INCLUDING BREACHES AND PRE-MONSOON PRECAUTIONARY MEASURES</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – A</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Action During Accidents Including Breaches</div>
+            <div><u>1101</u> Observance of Rules. <u>1102</u> Report of Accident to the Station Master/Railway Servant In-charge of Block Hut. <u>1103</u> Accidents Impairing Through Traffic. <u>1104</u> Action at Site. <u>1105</u> Report to the Principal Chief Engineer. <u>1106</u> Attendance of Police at Site. <u>1107</u> Examination of Site and Preparation of Sketches. <u>1108</u> Recording Particulars at Site of Accident. <u>1109</u> Use of Recorded Data.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – B</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Restoration of Through Running</div>
+            <div><u>1110</u> Repairs to Damaged Track. <u>1111</u> Procurement and Arrangement of Labour. <u>1112</u> Diversion. <u>1113</u> Transhipment. <u>1114</u> Funds Required During Emergencies. <u>1115</u> Obstructions Found on Track. <u>1116</u> Flooded Causeways/Dips. <u>1117</u> Special Precautions when Track is Submerged. <u>1118</u> Driver's Report on Defects in Track. <u>1119</u> Abnormal Occurrences Attributable to Locomotives and other Rolling Stock. <u>1120</u> Accident not Affecting Through Traffic. <u>1121</u> Conducting Accident Enquiry. <u>1122</u> Records of Accidents. <u>1123</u> Accident Statements to the Railway Board.</div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">PART – C</div>
+            <div style="font-weight: bold; margin-bottom: 10px;">Pre-Monsoon Precautionary Measures</div>
+            <div><u>1124</u> General Precautions to be Taken Before Monsoon. <u>1125</u> Materials for Emergencies. <u>1126</u> Service Spans and Rail Clusters. <u>1127</u> Railway Affecting Works (Including Railway Affecting Tanks). <u>1128</u> Vigilance over Railway Affecting Tanks during Heavy Rains. <u>1129</u> Weather Warnings and Action to be taken.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 12</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">CRS SANCTION FOR WORKS AFFECTING PASSENGER RUNNING LINES</div>
+            <div><u>1201</u> References to Act/Rules. <u>1202</u> Works Requiring Sanction of Commissioner of Railway Safety and Notice thereof. <u>1203</u> Application for Sanction of Works. <u>1204</u> Documents to Accompany Applications. <u>1205</u> Submission of Safety Certificate. <u>1206</u> Deviations from Plans Approved by Commissioner of Railway Safety. <u>1207</u> Applications for Running of New Types of Locomotives and/or Rolling Stock or for Increasing Speed of Existing locomotives and/or Rolling Stock. <u>1208</u> Notification to Railway Officials When Opening Works. <u>1209</u> Works Arising Out of Accidents Including Breaches. <u>1210</u> Opening of New Lines.</div>
+        </div>
+        
+        <div class="page-number">(xxi)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="contentsPage10">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 13</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">TRACK MANAGEMENT SYSTEM</div>
+            <div><u>1301</u> General. <u>1302</u> Modular Structure. <u>1303</u> Integration with TRC and OMS. <u>1304</u> Security features of TMS. <u>1305</u> Single Source of Information Management. <u>1306</u> Utilization of TMS. <u>1307</u> Withdrawal of Registers. <u>1308</u> Administrators in TMS.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 14</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">TRAINING, COMPETENCY & REFERENCES</div>
+            <div><u>1401</u> Types of Training Courses. <u>1402</u> Initial/Induction Courses. <u>1403</u> Promotional Courses. <u>1404</u> Refresher Courses. <u>1405</u> Special Courses. <u>1406</u> Certificate of Competency. <u>1407</u> Training and Certification of Welders. <u>1408</u> Category of Medical Examination. <u>1409</u> Books of Reference.</div>
+            
+            <div style="text-align: center; font-weight: bold; margin: 20px 0;">CHAPTER – 15</div>
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px;">EMERGING TRACK TECHNOLOGY ITEMS</div>
+            <div><u>1501</u> Canted Turnouts. <u>1502</u> Modern Sleeper & Fastening System. <u>1503</u> Ballastless Track System (BLT). <u>1504</u> In-sleeper Point Machine. <u>1505</u> Composite Sleeper. <u>1506</u> Phased Array Ultrasonic Testing (PAUT). <u>1507</u> High Performance Rail Clamp. <u>1508</u> Rail Inspection Vehicle (RIV). <u>1509</u> Milling of Rail. <u>1510</u> Replacement of Existing System of Inspection. <u>1511</u> Advancement in Rails. <u>1512</u> Portable Track Geometry Measurement System for Points & Crossing. <u>1513</u> Ground Penetration Radar (GPR). <u>1514</u> Unattended Track Inspection System (UTIS) on Smart Loco. <u>1515</u> Vehicular Ultrasonic System for Rail Testing.</div>
+        </div>
+        
+        <div class="page-number">(xxii)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="abbreviationsPage">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="text-align: center; font-weight: bold; margin: 20px 0; text-decoration: underline;">ABBREVIATIONS</div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>ADEN</span><span>–</span><span>Assistant Divisional Engineer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>ART</span><span>–</span><span>Accident Relief Train</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>AT</span><span>–</span><span>Alumino Thermit</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>ATS</span><span>–</span><span>Actual Toe of Switch</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>BCM</span><span>–</span><span>Ballast Cleaning Machine</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>BFR</span><span>–</span><span>Bogie Flat for Rail</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>CAO(C)</span><span>–</span><span>Chief Administrative Officer (Construction)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>CMS</span><span>–</span><span>Cast Manganese Steel</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>CMT</span><span>–</span><span>Chemical & Metallurgical Testing</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>CRS</span><span>–</span><span>Commissioner of Railway Safety</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>CTE</span><span>–</span><span>Chief Track Engineer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>CWR</span><span>–</span><span>Continuous Welded Rail</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>DEN</span><span>–</span><span>Divisional Engineer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>DRM</span><span>–</span><span>Divisional Railway Manager</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>DTS</span><span>–</span><span>Dynamic Track Stabilizer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>ERC</span><span>–</span><span>Elastic Rail Clip</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>ETKM</span><span>–</span><span>Equated Track Kilometre</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>FBW</span><span>–</span><span>Flash Butt Weld / Flash Butt Welding</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>FWP</span><span>–</span><span>Final Works Programme</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>G&SR</span><span>–</span><span>General and Subsidiary Rules</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>GFN</span><span>–</span><span>Glass Filled Nylon</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>GK</span><span>–</span><span>Gate Keeper</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>GMT</span><span>–</span><span>Gross Million Tonne</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>GRSP</span><span>–</span><span>Grooved Rubber Sole Plate</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>HH</span><span>–</span><span>Head Hardened</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IMR</span><span>–</span><span>Immediate Removal</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRBM</span><span>–</span><span>Indian Railways Bridge Manual</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRCA</span><span>–</span><span>Indian Railway Conference Association</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRPSM</span><span>–</span><span>Indian Railways Proposals & Sanction Management</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRPWM</span><span>–</span><span>Indian Railways Permanent Way Manual</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRS</span><span>–</span><span>Indian Railway Standards</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRSEM</span><span>–</span><span>Indian railways Signal Engineering Manual</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRSOD</span><span>–</span><span>Indian Railways Schedule of Dimensions</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>IRTMM</span><span>–</span><span>Indian Railway Track Machine Manual</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>JE</span><span>–</span><span>Junior Engineer</span>
+            </div>
+        </div>
+        
+        <div class="page-number">(xxiii)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="abbreviationsPage2">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>JOH</span><span>–</span><span>Junction of Heads</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>LL</span><span>–</span><span>Liquid Limit</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>LVDT</span><span>–</span><span>Linear Variable Differential Transducer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>M&C</span><span>–</span><span>Metallurgical and Chemical (Directorate of RDSO)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>MCI</span><span>–</span><span>Malleable Cast Iron</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>MCNTM</span><span>–</span><span>Manpower and Cost Norms for Track Maintenance</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>MM</span><span>–</span><span>Medium Manganese</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>MMG</span><span>–</span><span>Mobile Maintenance Gang</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>NBML</span><span>–</span><span>Need Based Maintenance Limit</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>OHE</span><span>–</span><span>Over Head Equipment</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>OMS</span><span>–</span><span>Oscillations Monitoring System</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>P&C</span><span>–</span><span>Points & Crossings</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>P.Way</span><span>–</span><span>Permanent Way</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>PCE</span><span>–</span><span>Principal Chief Engineer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>PL</span><span>–</span><span>Plastic Limit</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>PRC</span><span>–</span><span>Pre-stressed Reinforced Concrete</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>PSC</span><span>–</span><span>Pre-stressed Concrete Sleeper</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>RAW</span><span>–</span><span>Railway Affecting Works</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>RBMV</span><span>–</span><span>Rail Borne Maintenance Vehicle</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>RDSO</span><span>–</span><span>Research Design & Standards Organization</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>ROB</span><span>–</span><span>Road Over Bridge</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>RUB</span><span>–</span><span>Road Under Bridge</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>RVNL</span><span>–</span><span>Rail Vikas Nigam Limited</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>S&T</span><span>–</span><span>Signal & Telecommunication</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>SD</span><span>–</span><span>Standard Deviation (Statistics)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>SKV</span><span>–</span><span>Short Preheat Welding</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>SL</span><span>–</span><span>Shrinkage Limit</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>SM</span><span>–</span><span>Station Master</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>SR</span><span>–</span><span>Speed Restriction</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Sr. DEN (Co)–</span><span></span><span>Senior Divisional Engineer (Co-ordination)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Sr. DOM</span><span>–</span><span>Senior Divisional Operating Manager</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Sr. DSTE</span><span>–</span><span>Senior Divisional Signal & Telecommunication Engineer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>SSE</span><span>–</span><span>Senior Section Engineer</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>SWR/SWP</span><span>–</span><span>Short Welded Rail/ Short Welded Panel</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>TMS</span><span>–</span><span>Track Management System</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>TQI</span><span>–</span><span>Track Quality Index</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Track Manual –</span><span></span><span>Indian Railways Standard Track Manual (Volume I and II)</span>
+            </div>
+        </div>
+        
+        <div class="page-number">(xxiv)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="abbreviationsPage3">
+        <div style="line-height: 1.8; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>TRC</span><span>–</span><span>Track Recording Car</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>TRD</span><span>–</span><span>Traction Distribution Department</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>TTM</span><span>–</span><span>Tie Tamping Machine</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>TVU</span><span>–</span><span>Train Vehicle Unit</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>TWS</span><span>–</span><span>Thick Web Switch</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>UIC</span><span>–</span><span>International Union of Railways</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>UML</span><span>–</span><span>Urgent Maintenance Limit</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>USFD</span><span>–</span><span>Ultrasonic Flaw Detection</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>UTS</span><span>–</span><span>Ultimate Tensile Strength</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>WCMS</span><span>–</span><span>Weldable Cast Manganese Steel</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>WILD</span><span>–</span><span>Wheel Impact Load Detector</span>
+            </div>
+        </div>
+        
+        <div class="page-number">(xxv)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="terminologyPage">
+        <div style="line-height: 1.6; font-size: 14px;">
+            <div style="text-align: center; font-weight: bold; margin: 20px 0; text-decoration: underline; color: blue;">TERMINOLOGY</div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(1) <em>Alignment (AL) (of rails)</em> –</div>
+                <div style="margin-left: 20px;">It refers to deviation of rails in horizontal plane, from its original/intended position, measured individually for each of the rail with reference to a chord of specified length.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(2) <em>Anchor Length (l<sub>a</sub>)</em> –</div>
+                <div style="margin-left: 20px;">The length of track required to resist the pull exerted on rails by the rail tensor at temperature (t<sub>z</sub>). For practical purposes, it is taken as equal to 2.5 metre per degree Celsius of (t<sub>z</sub> – t<sub>n</sub>). If t<sub>0</sub> is not known, t<sub>z</sub> can be assumed as t<sub>0</sub>.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(3) <em>Blanket</em> –</div>
+                <div style="margin-left: 20px;">The layer of granular material provided between ballast and sub grade/ Formation on full width of Formation.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(4) <em>Breathing Length</em> –</div>
+                <div style="margin-left: 20px;">The length at each end of LWR/CWR, which is subjected to expansion/contraction on account of temperature variations.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(5) <em>Buckling of Track</em> –</div>
+                <div style="margin-left: 20px;">Sudden or Gradual shifting of Track in lateral or vertical direction due to unbalanced thermal stress in rail/track is called Buckling.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(6) <em>Cant deficiency</em> –</div>
+                <div style="margin-left: 20px;">Cant deficiency occurs when a train travels around a curve at a speed higher than the equilibrium speed. It is the difference between the theoretical Cant required for such higher speed and actual Cant provided.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(7) <em>Cant excess</em> –</div>
+                <div style="margin-left: 20px;">Cant excess occurs when a train travels around a curve at a speed lower than the equilibrium speed. It is the difference between the actual Cant and the theoretical Cant required for such a lower speed.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(8) <em>Cant gradient and Cant deficiency gradient</em> –</div>
+                <div style="margin-left: 20px;">It indicates the amount by which Cant or deficiency of Cant is increased or reduced in a given length of transition e.g., 1 in 1000 means that Cant or deficiency of Cant of 1 mm is gained or lost in every 1000 mm of transition length.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(9) <em>Catch Sidings</em> –</div>
+                <div style="margin-left: 20px;">Catch Siding is a safety siding, taking off from the main line and of a suitable length, provided with devices such as rising variable grades and sand drags to fully absorb the Velocity Head attained by an inefficiently controlled train or part of train being pulled up therein, without being wrecked. It is essentially a gravity catch siding provided on long steep grades between stations, where curves are designed for a lower speed than may conceivably be attained by a train or part of a train, which for one cause or another, may have got out of control and when it is necessary to protect a station from uncontrolled trains or parts of trains liable to enter it.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">At any station situated in the immediate neighborhood of an incline steeper than 1 in 80 falling towards the station, a Catch Siding should be provided, if necessary. The takeoff points to a catch siding should normally be set and locked for the siding, except where required to the trailed through.</div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(10) <em>Centrifugal force</em> –</div>
+                <div style="margin-left: 20px;">The outward force acting on a vehicle while moving on a curved track. Its magnitude depends upon the velocity of vehicle, mass and radius of curvature.</div>
+            </div>
+        </div>
+        
+        <div class="page-number">(xxvi)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="terminologyPage2">
+        <div style="line-height: 1.6; font-size: 14px;">
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(11) <em>Cold Weather Patrol</em> –</div>
+                <div style="margin-left: 20px;">The patrolling of track carried out during the period (in winter) when rail temperature is significantly lower than stress-free/de-stressing temperature.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(12) <em>Consolidation of Track</em> –</div>
+                <div style="margin-left: 20px;">The process of building up ballast resistance to the tendency of movement of sleeper either initially before laying LWR/CWR or making up subsequent loss of resistance.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(13) <em>Cross level</em> –</div>
+                <div style="margin-left: 20px;">It is the level difference between two rails, on a sleeper, of a track. For the measurement of cross level, one of the rails is taken as reference to define the level of other rail.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(14) <em>Crossing angle</em> –</div>
+                <div style="margin-left: 20px;">It is the angle contained between the gauge lines of the crossing. Usually defined by the number of crossing, which is cotangent of angle of crossing.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(15) <em>Cross Over</em> –</div>
+                <div style="margin-left: 20px;">A device to connect two lines by using two turnouts and straight or curved track in between.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(16) <em>Degree of curvature</em> –</div>
+                <div style="margin-left: 20px;">The angle subtended at the centre, of the circular curve, by a chord of 30.5 metres.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(17) <em>De-stressing</em> –</div>
+                <div style="margin-left: 20px;">An operation undertaken with or without rail tensor to secure stress free conditions in the LWR/CWR at the desired/specified rail temperature.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(18) <em>Equilibrium speed</em> –</div>
+                <div style="margin-left: 20px;">The speed at which the centrifugal force developed during the movement of the vehicle on a curved track is exactly balanced by the Cant provided.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(19) <em>Gauge</em> –</div>
+                <div style="margin-left: 20px;">It is the shortest distance between the gauge faces of rails of a track between two rails. It is usually measured at a level between 13 to 15 mm below the rail top.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(20) <em>GMT</em> –</div>
+                <div style="margin-left: 20px;">The total traffic carried on a line, expressed as the Gross Million Tonnes of Traffic (GMT), recorded and advised by the Statistical branch of each Zonal Railway as on 31<sup>st</sup> March of every year is called the GMT of the line.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(21) <em>Hot Weather Patrol</em> –</div>
+                <div style="margin-left: 20px;">The patrolling of track carried out during the period (in summer) when rail temperature is significantly higher than stress-free/de-stressing temperature.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(22) <em>Lead curve or the turn out curve</em> –</div>
+                <div style="margin-left: 20px;">The curve beginning (usually from the toe of curved switch) and extending up to toe of crossing.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(23) <em>Machined Joint</em> –</div>
+                <div style="margin-left: 20px;">These joints are fish plated joints, which are provided where zero gap is required between rail ends.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(24) <em>Maximum permissible speed of the curve</em> –</div>
+                <div style="margin-left: 20px;">The highest speed which may be permitted on a curve taking into consideration the radius of the curvature, actual cant, Cant deficiency, Cant excess and the length of</div>
+            </div>
+        </div>
+        
+        <div class="page-number">(xxvii)</div>
+    </div>
+    
+    <div class="document-container preface-page" id="terminologyDefinitionsPage">
+        <div style="line-height: 1.6; font-size: 14px;">
+            <div style="margin-bottom: 15px;">
+                <div>transition.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(25) <em>Rail Failure</em> –</div>
+                <div style="margin-left: 20px;">A rail is said to have failed if it has fractured in track or it is considered necessary to remove it from track on account of defects other than those due to accidental damages due to buckling, kinking, derailments, abnormal wheel burns etc.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(26) <em>Rail Temperature</em> –</div>
+                <div style="margin-left: 20px;">Temperature of the rail as recorded by an approved type of rail thermometer at site. It differs from the ambient temperature, which is the temperature of air in shade at that place, as reported by the Meteorological Department.</div>
+                <div style="margin-left: 20px; margin-top: 10px;">Indian Railways have been divided into four rail temperature zones. <span style="color: blue; text-decoration: underline;">Fig. 3.7</span> of <strong>Chapter 3</strong> is a map showing the four temperature zones and the annual mean rail temperatures at all important places are shown in the map.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(a) <em>Destressing Temperature (t<sub>d</sub>)</em> –</div>
+                <div style="margin-left: 20px;">The average rail temperature during the period of fastening the rails to the sleepers after de-stressing LWR/CWR without the use of rail tensor. If rail tensor is used, t<sub>d</sub> for all practical purposes is equal to t<sub>0</sub>. The Range of t<sub>d</sub> or t<sub>0</sub> shall be within the limits of rail temperature shown below:</div>
+                
+                <table style="margin: 15px 20px; border-collapse: collapse; width: 80%;">
+                    <tr style="border: 1px solid black;">
+                        <th style="border: 1px solid black; padding: 8px; text-align: center;">Temperature Zone</th>
+                        <th style="border: 1px solid black; padding: 8px; text-align: center;">Rail Section</th>
+                        <th style="border: 1px solid black; padding: 8px; text-align: center;">Range</th>
+                    </tr>
+                    <tr style="border: 1px solid black;">
+                        <td style="border: 1px solid black; padding: 8px; text-align: center;">I, II, III</td>
+                        <td style="border: 1px solid black; padding: 8px; text-align: center;">All Sections</td>
+                        <td style="border: 1px solid black; padding: 8px; text-align: center;">t<sub>m</sub> to t<sub>m</sub>+ 5° C</td>
+                    </tr>
+                    <tr style="border: 1px solid black;">
+                        <td style="border: 1px solid black; padding: 8px; text-align: center;">IV</td>
+                        <td style="border: 1px solid black; padding: 8px; text-align: center;">52 kg/m & heavier</td>
+                        <td style="border: 1px solid black; padding: 8px; text-align: center;">t<sub>m</sub>+5° C to t<sub>m</sub>+10° C</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(b) <em>Installation Temperature (t<sub>i</sub>)</em> –</div>
+                <div style="margin-left: 20px;">The average rail temperature, during the process of fastening the rails to the sleepers, at the time of installation of SWR/LWR/CWR.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(c) <em>Mean Annual Rail Temperature (t<sub>m</sub>)</em> –</div>
+                <div style="margin-left: 20px;">The average of the maximum and minimum rail temperature recorded during the year. t<sub>m</sub> is fixed locally wherever rail temperature records are available for a reasonable period of five years.</div>
+                <div style="margin-left: 20px; margin-top: 10px;">Where rail temperature records are not available, t<sub>m</sub> can be read from the rail temperature map (<strong>Fig. 3.7</strong> of <strong>Chapter 3</strong>)</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(d) <em>Prevailing Rail Temperature (t<sub>p</sub>)</em> –</div>
+                <div style="margin-left: 20px;">The rail temperature prevailing at the time when any operation connected with LWR such as de-stressing etc., is carried out.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(e) <em>Stress-Free Temperature (t<sub>0</sub>)</em> –</div>
+                <div style="margin-left: 20px;">The temperature of Rail in LWR/CWR at which the rail is free of thermal stresses.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(27) <em>Rail Tensor</em> –</div>
+                <div style="margin-left: 20px;">A hydraulic or mechanical device used for stretching the rail physically.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(28) <em>Rate of change of Cant or rate of change of Cant deficiency</em> –</div>
+                <div style="margin-left: 20px;">It is the rate at which Cant or Cant deficiency is increased or reduced per second, at the maximum permissible speed of the vehicle passing over the transition curve, e.g., 35 mm. per second means that a vehicle when traveling at a maximum speed permitted will experience a change in Cant or deficiency of Cant of 35 mm in each second of travel over the transition.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(29) <em>Sand Hump</em> –</div>
+                <div style="margin-left: 20px;">A sanded track, which works as an isolation, provided after loop lines to avert collision with main line vehicles.</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; font-weight: bold;">(xxviii)</div>
+        </div>
+    </div>
+    
+    <div class="document-container preface-page" id="terminologyDefinitionsPage2">
+        <div style="line-height: 1.6; font-size: 14px;">
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(30) <em>Shift</em> –</div>
+                <div style="margin-left: 20px;">An introduction of transition curve, laid out as a cubic Parabola, causes main circular arc to move inwards by an amount called the "Shift".</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(31) <em>Slip Siding</em> –</div>
+                <div style="margin-left: 20px;">These are shorter length sidings located on the lower side of a station on steep grade, where there is a risk, whether owing to gradients or due to high wind velocity, of uncontrolled vehicles running out of stations from stand still or during shunting, fouling the main line. These sidings take off from the main line, outside all points, to prevent wagons breaking away from the station, entering into the block section.</div>
+                <div style="margin-left: 20px; margin-top: 10px;">At any station situated in the immediate neighbourhood of an incline steeper than 1 in 100 falling away from the station, a Slip siding should be provided, if necessary, in a suitable position. The takeoff points to a slip siding should normally be set and locked for the siding, except where required to the trailed through.</div>
+                <div style="margin-left: 20px; margin-top: 10px;">Whenever, for any cause, it is found necessary to lay a slip siding off the main line or off the through loop line, so that there is risk of whole trains getting trapped, the design of such a slip siding must be identical with that of catch sidings as already defined.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(32) <em>Stock Rail Joint (SRJ)</em> –</div>
+                <div style="margin-left: 20px;">The joint of stock rail with the running rail at the approach.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(33) <em>Super-Elevation (SE)</em> –</div>
+                <div style="margin-left: 20px;">Super-elevation is the amount by which one of the rail is raised with reference to the other rail of a track.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(34) <em>Switch Expansion Joint (SEJ)</em> –</div>
+                <div style="margin-left: 20px;">An expansion joint installed at each end of LWR/CWR to permit expansion/contraction of the adjoining breathing lengths due to temperature variations.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(35) <em>Symmetrical Split</em> –</div>
+                <div style="margin-left: 20px;">These are the turnouts where centre line of track coincides with bisector of crossing angle. The radius of lead curve of Symmetrical split turnout is twice the radius of ordinary turnout.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(36) <em>Transition Curve</em> –</div>
+                <div style="margin-left: 20px;">An easement curve which has curvature change throughout its length</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(37) <em>Turn-in Curve</em> –</div>
+                <div style="margin-left: 20px;">The connecting curve starting after the heel of the crossing leading up to the adjacent track.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(38) <em>Turnout</em> –</div>
+                <div style="margin-left: 20px;">It is a device to allow movement of train from one track to another track. The turnout consists of sub-assemblies of Switch, Crossing and Lead. Depending on the side to which the train gets diverted, a turnout may be called left or right hand.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(39) <em>Twist</em> –</div>
+                <div style="margin-left: 20px;">Twist is Parameter, calculated by using cross level values at two locations separated by a specific distance (base). It is also defined as the rate of change of cross levels (in mm/m) over a given base.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(40) <em>Unevenness (UN) (of Rails)</em> –</div>
+                <div style="margin-left: 20px;">It refers to deviation of rails in vertical plane, from its original/intended position, measured individually for each of the rail with reference to a chord of specified length.</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; font-weight: bold;">(xxix)</div>
+        </div>
+    </div>
+    
+    <div class="document-container preface-page" id="terminologyDefinitionsPage3">
+        <div style="line-height: 1.6; font-size: 14px;">
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(41) <em>Versine</em> –</div>
+                <div style="margin-left: 20px;">Versine is the perpendicular distance measured at the midpoint of a chord from the arc of curved track.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(42) <em>Vertical curve</em> –</div>
+                <div style="margin-left: 20px;">A circular curve in vertical plane.</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">(43) <em>Welded Rails</em> –</div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div style="font-weight: bold; margin-left: 20px;">(a) <em>Continuous Welded Rail (CWR)</em> –</div>
+                    <div style="margin-left: 40px;">A LWR, which continues through station yards including points and crossings.</div>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div style="font-weight: bold; margin-left: 20px;">(b) <em>Long Welded Rail (LWR)</em> –</div>
+                    <div style="margin-left: 40px;">A welded rail, the central part of which does not undergo any longitudinal movement due to temperature variations.</div>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div style="font-weight: bold; margin-left: 20px;">(c) <em>Short Welded Rail (SWR)</em> –</div>
+                    <div style="margin-left: 40px;">A welded rail that contracts and expands, throughout its length, due to temperature variations.</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 200px; font-weight: bold;">(xxx)</div>
+        </div>
+    </div>
+    
+    <script>
+        function showCover() {
+            document.getElementById('coverPage').style.display = 'flex';
+            document.querySelector('.preface-page').style.display = 'none';
+        }
+        
+        function showPreface() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'block';
+            document.getElementById('prefacePage2').style.display = 'none';
+        }
+        
+        function showPreface2() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'block';
+            document.getElementById('chaptersPage').style.display = 'none';
+        }
+        
+        function showChapters() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'block';
+            document.getElementById('contentsPage').style.display = 'none';
+        }
+        
+        function showContents() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'block';
+            document.getElementById('contentsPage2').style.display = 'none';
+        }
+        
+        function showContents2() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'block';
+            document.getElementById('contentsPage3').style.display = 'none';
+        }
+        
+        function showContents3() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'block';
+            document.getElementById('contentsPage4').style.display = 'none';
+        }
+        
+        function showContents4() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'block';
+            document.getElementById('contentsPage5').style.display = 'none';
+        }
+        
+        function showContents5() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'block';
+            document.getElementById('contentsPage6').style.display = 'none';
+        }
+        
+        function showContents6() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'block';
+            document.getElementById('contentsPage7').style.display = 'none';
+        }
+        
+        function showContents7() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'block';
+            document.getElementById('contentsPage8').style.display = 'none';
+        }
+        
+        function showContents8() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'block';
+            document.getElementById('contentsPage9').style.display = 'none';
+        }
+        
+        function showContents9() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'none';
+            document.getElementById('contentsPage9').style.display = 'block';
+            document.getElementById('contentsPage10').style.display = 'none';
+        }
+        
+        function showContents10() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'none';
+            document.getElementById('contentsPage9').style.display = 'none';
+            document.getElementById('contentsPage10').style.display = 'block';
+            document.getElementById('abbreviationsPage').style.display = 'none';
+        }
+        
+        function showAbbreviations() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'none';
+            document.getElementById('contentsPage9').style.display = 'none';
+            document.getElementById('contentsPage10').style.display = 'none';
+            document.getElementById('abbreviationsPage').style.display = 'block';
+            document.getElementById('abbreviationsPage2').style.display = 'none';
+        }
+        
+        function showAbbreviations2() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'none';
+            document.getElementById('contentsPage9').style.display = 'none';
+            document.getElementById('contentsPage10').style.display = 'none';
+            document.getElementById('abbreviationsPage').style.display = 'none';
+            document.getElementById('abbreviationsPage2').style.display = 'block';
+            document.getElementById('abbreviationsPage3').style.display = 'none';
+        }
+        
+        function showAbbreviations3() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'none';
+            document.getElementById('contentsPage9').style.display = 'none';
+            document.getElementById('contentsPage10').style.display = 'none';
+            document.getElementById('abbreviationsPage').style.display = 'none';
+            document.getElementById('abbreviationsPage2').style.display = 'none';
+            document.getElementById('abbreviationsPage3').style.display = 'block';
+            document.getElementById('terminologyPage').style.display = 'none';
+        }
+        
+        function showTerminology() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'none';
+            document.getElementById('contentsPage9').style.display = 'none';
+            document.getElementById('contentsPage10').style.display = 'none';
+            document.getElementById('abbreviationsPage').style.display = 'none';
+            document.getElementById('abbreviationsPage2').style.display = 'none';
+            document.getElementById('abbreviationsPage3').style.display = 'none';
+            document.getElementById('terminologyPage').style.display = 'block';
+            document.getElementById('terminologyPage2').style.display = 'none';
+        }
+        
+        function showTerminology2() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('contentsPage5').style.display = 'none';
+            document.getElementById('contentsPage6').style.display = 'none';
+            document.getElementById('contentsPage7').style.display = 'none';
+            document.getElementById('contentsPage8').style.display = 'none';
+            document.getElementById('contentsPage9').style.display = 'none';
+            document.getElementById('contentsPage10').style.display = 'none';
+            document.getElementById('abbreviationsPage').style.display = 'none';
+            document.getElementById('abbreviationsPage2').style.display = 'none';
+            document.getElementById('abbreviationsPage3').style.display = 'none';
+            document.getElementById('terminologyPage').style.display = 'none';
+            document.getElementById('terminologyPage2').style.display = 'block';
+        }
+        
+        function showContents3() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'block';
+            document.getElementById('contentsPage4').style.display = 'none';
+        }
+        
+        function showContents4() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'block';
+            document.getElementById('terminologyDefinitionsPage').style.display = 'none';
+        }
+        
+        function showTerminologyDefinitions() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('terminologyDefinitionsPage').style.display = 'block';
+            document.getElementById('terminologyDefinitionsPage2').style.display = 'none';
+        }
+        
+        function showTerminologyDefinitions2() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('terminologyDefinitionsPage').style.display = 'none';
+            document.getElementById('terminologyDefinitionsPage2').style.display = 'block';
+            document.getElementById('terminologyDefinitionsPage3').style.display = 'none';
+        }
+        
+        function showTerminologyDefinitions3() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.querySelector('.preface-page').style.display = 'none';
+            document.getElementById('prefacePage2').style.display = 'none';
+            document.getElementById('chaptersPage').style.display = 'none';
+            document.getElementById('contentsPage').style.display = 'none';
+            document.getElementById('contentsPage2').style.display = 'none';
+            document.getElementById('contentsPage3').style.display = 'none';
+            document.getElementById('contentsPage4').style.display = 'none';
+            document.getElementById('terminologyDefinitionsPage').style.display = 'none';
+            document.getElementById('terminologyDefinitionsPage2').style.display = 'none';
+            document.getElementById('terminologyDefinitionsPage3').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

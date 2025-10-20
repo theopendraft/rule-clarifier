@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { BookOpen, Search, Tag, Filter, FileText, ArrowRight, Clock } from 'lucide-react'
+import { BookOpen, Search, Filter, FileText, MoreVertical, Table } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 
 interface Manual {
@@ -128,7 +128,7 @@ export default function ManualsPage() {
 
         
 
-        {/* Manuals List */}
+        {/* Manuals Grid */}
         {filteredManuals.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
@@ -145,57 +145,62 @@ export default function ManualsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredManuals.map((manual) => (
               <Link key={manual.id} href={`/manuals/${manual.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
+                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group border border-slate-200 hover:border-blue-300">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
-                            {manual.title}
-                          </CardTitle>
-                          <Badge variant={manual.isActive ? "default" : "secondary"}>
-                            {manual.isActive ? 'Active' : 'Inactive'}
-                          </Badge>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 mb-2">
-                          <span className="flex items-center gap-1">
-                            <Tag className="h-3 w-3" />
-                            {manual.code}
-                          </span>
-                          {manual.version && (
-                            <span className="flex items-center gap-1">
-                              <FileText className="h-3 w-3" />
-                              v{manual.version}
-                            </span>
+                        {/* Document Icon */}
+                        <div className="mb-3">
+                          {manual.code.toLowerCase().includes('rule') ? (
+                            <div className="w-12 h-16 bg-green-100 rounded border border-green-200 flex items-center justify-center">
+                              <Table className="h-6 w-6 text-green-600" />
+                            </div>
+                          ) : manual.code.toLowerCase().includes('doc') ? (
+                            <div className="w-12 h-16 bg-blue-100 rounded border border-blue-200 flex items-center justify-center">
+                              <FileText className="h-6 w-6 text-blue-600" />
+                            </div>
+                          ) : (
+                            <div className="w-12 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                              <BookOpen className="h-6 w-6 text-gray-600" />
+                            </div>
                           )}
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            Updated {manual.updatedAt ? formatDate(manual.updatedAt) : 'Unknown'}
-                          </span>
                         </div>
+                        
+                        {/* Document Title */}
+                        <h3 className="font-medium text-sm text-slate-900 group-hover:text-blue-600 transition-colors mb-1 h-8 overflow-hidden">
+                          <span className="block truncate">{manual.title}</span>
+                        </h3>
+                        
+                        {/* Document Code */}
+                        <p className="text-xs text-slate-500 mb-2">
+                          {manual.code}
+                        </p>
                       </div>
-                      <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                      
+                      {/* More Options */}
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </CardHeader>
-                  {manual.description && (
-                    <CardContent>
-                      <CardDescription 
-                        className="text-slate-700 prose prose-sm max-w-none"
-                        style={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}
-                        dangerouslySetInnerHTML={{ 
-                          __html: manual.description
-                        }}
-                      />
-                    </CardContent>
-                  )}
+                    
+                    {/* Status Badge */}
+                    <div className="flex items-center justify-between">
+                      <Badge 
+                        variant={manual.isActive ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {manual.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                      {manual.version && (
+                        <span className="text-xs text-slate-500">
+                          v{manual.version}
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
                 </Card>
               </Link>
             ))}

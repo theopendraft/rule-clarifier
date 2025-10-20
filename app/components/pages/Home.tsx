@@ -633,16 +633,6 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
             <div>
               <label className="block text-sm font-medium mb-2">Supporting Document</label>
               <Tabs value={docType} onValueChange={(value) => setDocType(value as "upload" | "text")} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="upload" className="flex items-center gap-2">
-                    <Upload className="h-4 w-4" />
-                    Upload File
-                  </TabsTrigger>
-                  <TabsTrigger value="text" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Write Text
-                  </TabsTrigger>
-                </TabsList>
                 
                 <TabsContent value="upload" className="mt-4">
                   <div className="space-y-4">

@@ -35,9 +35,11 @@ interface ExtractedContent {
 
 interface PDFUploadDropzoneProps {
   uploadType: string;
+  useHardcodedDescription?: boolean;
+  hardcodedContent?: string;
 }
 
-export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
+export function PDFUploadDropzone({ uploadType, useHardcodedDescription = false, hardcodedContent = '' }: PDFUploadDropzoneProps) {
   const router = useRouter();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -182,28 +184,45 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
       setUploadedFiles([newFile]);
       setDocumentTitle(file.name.replace('.pdf', ''));
       
-      // Start AI processing loader
-      setIsAiProcessing(true);
-      setAiProcessingStep(0);
-      
-      // Wait for minimum 10 seconds
-      const minProcessingTime = 10000; // 10 seconds
-      const startTime = Date.now();
-      
-      // Extract text from PDF
-      await extractTextFromPDF(pdfUrl);
-      
-      // Calculate remaining time to reach 10 seconds minimum
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = Math.max(0, minProcessingTime - elapsedTime);
-      
-      // Wait for remaining time if needed
-      if (remainingTime > 0) {
-        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      if (useHardcodedDescription && hardcodedContent) {
+        // Use hardcoded content instead of OCR
+        const mockExtractedContent = {
+          text: hardcodedContent,
+          pages: 1,
+          metadata: {
+            title: file.name.replace('.pdf', ''),
+            author: 'System Generated',
+            subject: 'Hardcoded Content'
+          }
+        };
+        
+        setExtractedContent(mockExtractedContent);
+        setEditingContent(hardcodedContent);
+        setSuccessMessage('Hardcoded content loaded successfully! You can edit the content below before saving.');
+      } else {
+        // Start AI processing loader
+        setIsAiProcessing(true);
+        setAiProcessingStep(0);
+        
+        // Wait for minimum 10 seconds
+        const minProcessingTime = 10000; // 10 seconds
+        const startTime = Date.now();
+        
+        // Extract text from PDF
+        await extractTextFromPDF(pdfUrl);
+        
+        // Calculate remaining time to reach 10 seconds minimum
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, minProcessingTime - elapsedTime);
+        
+        // Wait for remaining time if needed
+        if (remainingTime > 0) {
+          await new Promise(resolve => setTimeout(resolve, remainingTime));
+        }
+        
+        // Stop AI processing
+        setIsAiProcessing(false);
       }
-      
-      // Stop AI processing
-      setIsAiProcessing(false);
     } else {
       setUploadError('No file was uploaded. Please try again.');
     }
@@ -257,9 +276,19 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
   };
 
   const handleCancel = () => {
-    if (extractedContent) {
-      setEditingContent(extractedContent.text);
-    }
+    // Reset all states to initial values
+    setUploadedFiles([]);
+    setExtractedContent(null);
+    setEditingContent('');
+    setDocumentTitle('');
+    setExtractionError(null);
+    setUploadError(null);
+    setSuccessMessage(null);
+    setIsUploading(false);
+    setIsExtracting(false);
+    setIsSaving(false);
+    setIsAiProcessing(false);
+    setAiProcessingStep(0);
   };
 
 
@@ -319,7 +348,10 @@ export function PDFUploadDropzone({ uploadType }: PDFUploadDropzoneProps) {
                     Upload PDF Document
                   </h3>
                   <p className="text-sm text-gray-500 mb-4">
-                    Select a PDF file to extract text and create a {uploadType}
+                    {useHardcodedDescription 
+                      ? `Upload a PDF file to use hardcoded content for your ${uploadType}`
+                      : `Select a PDF file to extract text and create a ${uploadType}`
+                    }
                   </p>
                   {uploadButtonReady && (
                     <UploadButton<OurFileRouter, "pdfUploader">
