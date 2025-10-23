@@ -13,7 +13,13 @@ export default function HomePage() {
     if (!loading && !isAuthenticated) {
       router.push('/login')
     } else if (!loading && isAuthenticated && userRole === 'user') {
-      router.push('/users')
+      // Check if department is selected
+      const department = localStorage.getItem('userDepartment')
+      if (!department) {
+        router.push('/department-select')
+      } else {
+        router.push('/users')
+      }
     }
   }, [isAuthenticated, loading, userRole, router])
 

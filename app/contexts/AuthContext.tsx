@@ -12,6 +12,7 @@ interface AuthContextType {
   loginAsAdmin: () => boolean;
   loginAsUser: () => boolean;
   logout: () => void;
+  setUserDepartment: (department: 'admin' | 'engineering' | 'safety' | 'snt') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -134,8 +135,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const handleSetUserDepartment = (department: 'admin' | 'engineering' | 'safety' | 'snt') => {
+    setUserDepartment(department);
+    try {
+      localStorage.setItem('userDepartment', department);
+    } catch (error) {
+      console.error('Error saving department:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, userRole, userId, login, loginAsAdmin, loginAsUser, logout }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      loading, 
+      userRole, 
+      userDepartment,
+      userId, 
+      login, 
+      loginAsAdmin, 
+      loginAsUser, 
+      logout,
+      setUserDepartment: handleSetUserDepartment
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -56,7 +56,8 @@ export default function LoginPage() {
     try {
       const success = loginAsUser()
       if (success) {
-        router.push('/')
+        // Redirect to department selection page instead of home
+        router.push('/department-select')
       }
     } catch (error) {
       console.error('Login failed:', error)
