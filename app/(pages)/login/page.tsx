@@ -22,11 +22,17 @@ export default function LoginPage() {
     setError('')
     setIsLoading(true)
     
-    // Hardcoded admin credentials
-    const adminEmail = 'admin@adrig.co.in'
-    const adminPassword = 'admin123'
+    // Admin credentials for main admin and department admins
+    const adminCredentials = [
+      { email: 'admin@adrig.co.in', password: 'admin123' },
+      { email: 'snt-admin@adrig.co.in', password: 'sntadmin123' },
+      { email: 'eng-admin@adrig.co.in', password: 'engadmin123' },
+      { email: 'safety-admin@adrig.co.in', password: 'safetyadmin123' }
+    ]
     
-    if (email === adminEmail && password === adminPassword) {
+    const validCredential = adminCredentials.find(cred => cred.email === email && cred.password === password)
+    
+    if (validCredential) {
       try {
         const success = loginAsAdmin()
         if (success) {
@@ -61,7 +67,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50" suppressHydrationWarning>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Railway Rule Clarifier AI</CardTitle>

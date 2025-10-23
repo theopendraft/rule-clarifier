@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, BookOpen, Calendar, Tag, Clock, User, FileText, Download, ExternalLink } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
+import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
 
 interface Manual {
@@ -25,10 +26,19 @@ interface Manual {
 export default function ManualDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { userDepartment } = useAuth()
   const [manual, setManual] = useState<Manual | null>(null)
   const [loading, setLoading] = useState(true)
   const [divSections, setDivSections] = useState<string[]>([])
   const contentRef = useRef<HTMLDivElement>(null)
+
+  const canEditManual = (manual: Manual) => {
+    if (userDepartment === 'admin') return true
+    if (userDepartment === 'engineering' && !manual.code.toLowerCase().startsWith('snt-') && !manual.code.toLowerCase().startsWith('safety-')) return true
+    if (userDepartment === 'safety' && manual.code.toLowerCase().startsWith('safety-')) return true
+    if (userDepartment === 'snt' && manual.code.toLowerCase().startsWith('snt-')) return true
+    return false
+  }
 
   useEffect(() => {
     if (params.id) {
@@ -359,8 +369,18 @@ export default function ManualDetailPage() {
 
           {/* Actions */}
           <div className="flex gap-4">
+            {canEditManual(manual) && (
+              <Button 
+                onClick={() => router.push(`/manuals/${manual.id}/edit`)}
+                className="flex items-center gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Edit Manual
+              </Button>
+            )}
             <Button 
               onClick={() => window.print()} 
+              variant="outline"
               className="flex items-center gap-2"
             >
               <FileText className="h-4 w-4" />
