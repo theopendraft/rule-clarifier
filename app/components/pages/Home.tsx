@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { LinkDialog } from "@/components/ui/link-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Chatbot } from "@/components/ui/chatbot";
 import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, FileText, Upload } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
@@ -390,7 +391,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
       <Header />
       
       {/* Chapter Info */}
-      <div className="bg-slate-100 border-b border-slate-200 px-6 py-3">
+      <div className="bg-orange-50 border-b border-orange-200 px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <h3 className="text-sm font-medium text-slate-700">
@@ -416,9 +417,9 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
 
       <div className="flex h-[calc(100vh-120px)]">
         {/* Sidebar */}
-        <div className="w-80 bg-slate-50 border-r border-slate-200 overflow-y-auto">
+        <div className="w-80 bg-orange-50 border-r border-orange-200 overflow-y-auto">
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4">Chapters</h2>
+            <h2 className="text-lg font-semibold text-orange-800 mb-4">Chapters</h2>
             <div className="space-y-1">
               {chapters.map((chapter) => (
                 <div key={chapter.id}>
@@ -426,7 +427,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                     variant="ghost"
                     className={`w-full justify-start text-left h-auto p-3 ${
                       selectedChapter === chapter.number 
-                        ? "bg-blue-50 text-blue-700" 
+                        ? "bg-orange-50 text-orange-700" 
                         : "hover:bg-slate-100"
                     }`}
                     onClick={() => {
@@ -461,8 +462,8 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                           size="sm"
                           className={`w-full justify-start text-left text-xs p-2 ${
                             selectedRule === rule.number && selectedChapter === chapter.number
-                              ? "bg-blue-600 text-white"
-                              : "text-blue-600 hover:bg-blue-50"
+                              ? "bg-orange-500 text-white"
+                              : "text-orange-600 hover:bg-orange-50"
                           }`}
                           onClick={() => {
                             selectChapter(chapter.number);
@@ -486,7 +487,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
         <div className="flex-1 overflow-y-auto">
           <div className="p-8">
             <div className="text-center mb-8">
-              <p className="text-sm text-blue-600 font-medium mb-2">
+              <p className="text-sm text-orange-600 font-medium mb-2">
                 {currentChapter?.title.toUpperCase()}
               </p>
               <h1 className="text-4xl font-bold text-slate-800 mb-4">
@@ -507,7 +508,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                 {currentChapter?.rules.map((rule) => (
                   <div key={rule.id} id={`rule-${rule.number}`} className="scroll-mt-8">
                     <div className="flex items-start space-x-4">
-                      <span className="text-blue-600 font-bold text-lg">{rule.number}.</span>
+                      <span className="text-orange-600 font-bold text-lg">{rule.number}.</span>
                       <div className="flex-1">
                         <div className="mb-4">
                           {editingRule === rule.number ? (
@@ -767,6 +768,9 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
         }}
         selectedText={selectedText}
       />
+
+      {/* Chatbot */}
+      <Chatbot />
     </div>
   );
 };

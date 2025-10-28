@@ -169,19 +169,19 @@ export function Header() {
   );
   
   return (
-    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm sticky top-0 z-50" suppressHydrationWarning>
+    <header className="bg-gradient-to-r from-[#FF9933] to-orange-600 border-b-4 border-orange-700 shadow-lg sticky top-0 z-50" suppressHydrationWarning>
       <div className="flex items-center justify-between px-4 sm:px-6 py-4">
         <div className="flex items-center space-x-4 sm:space-x-8">
           <Link href="/" className="flex items-center space-x-2 sm:space-x-4 group">
-            <div className="bg-gradient-to-br from-slate-800 to-slate-600 p-2 sm:p-3 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <Train className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
+            <div className="bg-white p-2 sm:p-3 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <Train className="h-5 w-5 sm:h-7 sm:w-7 text-[#FF9933]" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight">Railway Portal</h1>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">Rules Management System</p>
+              <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">Railway Portal</h1>
+              <p className="text-xs sm:text-sm text-orange-100 font-medium">Rules Management System</p>
             </div>
             <div className="sm:hidden">
-              <h1 className="text-lg font-bold text-slate-800 tracking-tight">Railway Portal</h1>
+              <h1 className="text-lg font-bold text-white tracking-tight">Railway Portal</h1>
             </div>
           </Link>
           
@@ -192,10 +192,10 @@ export function Header() {
 
         <div className="flex items-center space-x-2 sm:space-x-4">
           <form onSubmit={handleSearch} className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-600" />
             <Input
               placeholder="Search rules..."
-              className="pl-10 w-48 lg:w-72 bg-slate-50/80 border-slate-200 focus:bg-white focus:border-slate-300 transition-all duration-200 rounded-lg"
+              className="pl-10 w-48 lg:w-72 bg-white border-orange-300 focus:border-orange-500 transition-all duration-200 rounded-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -203,8 +203,8 @@ export function Header() {
           
           <Popover open={isNotificationOpen} onOpenChange={handleNotificationOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600" />
+              <Button variant="ghost" size="sm" className="relative p-2 rounded-lg hover:bg-orange-700 transition-colors">
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full border-2 border-white">
                     {unreadCount}
@@ -280,28 +280,28 @@ export function Header() {
             </PopoverContent>
           </Popover>
           
-          <Button variant="ghost" size="sm" onClick={handleSettings} className="hidden sm:flex p-2 rounded-lg hover:bg-slate-100 transition-colors">
-            <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600" />
+          <Button variant="ghost" size="sm" onClick={handleSettings} className="hidden sm:flex p-2 rounded-lg hover:bg-orange-700 transition-colors">
+            <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </Button>
           
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden sm:flex p-2 rounded-lg hover:bg-slate-100 transition-colors">
-            <LogOut className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600" />
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden sm:flex p-2 rounded-lg hover:bg-orange-700 transition-colors">
+            <LogOut className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </Button>
           
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-orange-700 transition-colors"
           >
-            {isMobileMenuOpen ? <X className="h-5 w-5 text-slate-600" /> : <Menu className="h-5 w-5 text-slate-600" />}
+            {isMobileMenuOpen ? <X className="h-5 w-5 text-white" /> : <Menu className="h-5 w-5 text-white" />}
           </Button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md">
+        <div className="lg:hidden border-t border-orange-700 bg-orange-600">
           <div className="px-4 py-4 space-y-2">
             <NavigationLinks isMobile={true} onClick={closeMobileMenu} />
             <div className="pt-4 border-t border-slate-200 space-y-2">
