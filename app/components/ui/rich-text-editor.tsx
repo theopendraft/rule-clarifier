@@ -394,16 +394,10 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
                         className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
                         onClick={() => showDocumentPreview(manual)}
                       >
-                        <div className="flex justify-between items-start mb-1">
+                        <div className="flex justify-between items-start">
                           <p className="font-medium text-sm">{manual.title}</p>
                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{manual.code}</span>
                         </div>
-                        {manual.description && (
-                          <p className="text-xs text-gray-600">{manual.description}</p>
-                        )}
-                        {manual.version && (
-                          <p className="text-xs text-gray-500 mt-1">Version: {manual.version}</p>
-                        )}
                       </div>
                     ))}
                     {manuals.filter(manual => manual.isActive).length === 0 && (
@@ -423,22 +417,9 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
                         className="p-3 border rounded hover:bg-gray-50 cursor-pointer transition-colors"
                         onClick={() => showDocumentPreview(circular)}
                       >
-                        <div className="flex justify-between items-start mb-1">
+                        <div className="flex justify-between items-start">
                           <p className="font-medium text-sm">{circular.title}</p>
                           <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">{circular.code}</span>
-                        </div>
-                        {circular.description && (
-                          <p className="text-xs text-gray-600">{circular.description}</p>
-                        )}
-                        <div className="flex justify-between items-center mt-1">
-                          {circular.number && (
-                            <span className="text-xs text-gray-500">No: {circular.number}</span>
-                          )}
-                          {circular.date && (
-                            <span className="text-xs text-gray-500">
-                              {new Date(circular.date).toLocaleDateString()}
-                            </span>
-                          )}
                         </div>
                       </div>
                     ))}
