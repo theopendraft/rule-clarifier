@@ -68,7 +68,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50" suppressHydrationWarning>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4" suppressHydrationWarning>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Railway Rule Clarifier AI</CardTitle>

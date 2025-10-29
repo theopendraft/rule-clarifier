@@ -183,22 +183,24 @@ const AdminRuleBook = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto py-6 px-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="container mx-auto py-4 sm:py-6 px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Rule Book Management</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold">Rule Book Management</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Manage chapters, rules, and track changes
             </p>
           </div>
-          <div className="flex space-x-2">
-            <Button onClick={() => setShowCreateDialog(true)}>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button onClick={() => setShowCreateDialog(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
-              Add Chapter
+              <span className="hidden sm:inline">Add Chapter</span>
+              <span className="sm:hidden">Chapter</span>
             </Button>
-            <Button variant="outline" onClick={() => setShowEditDialog(true)}>
+            <Button variant="outline" onClick={() => setShowEditDialog(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
-              Add Rule
+              <span className="hidden sm:inline">Add Rule</span>
+              <span className="sm:hidden">Rule</span>
             </Button>
           </div>
         </div>
@@ -220,7 +222,7 @@ const AdminRuleBook = () => {
               </CardHeader>
               <CardContent>
                 {ruleBook ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="p-4 border rounded-lg">
                       <h3 className="font-semibold text-lg">{ruleBook.title}</h3>
                       <p className="text-sm text-muted-foreground mb-2">{ruleBook.description}</p>
@@ -252,12 +254,13 @@ const AdminRuleBook = () => {
               <CardContent>
                 {ruleBook?.chapters.map((chapter) => (
                   <div key={chapter.id} className="mb-6">
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 border rounded-lg">
+                      <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => toggleChapter(chapter.number)}
+                          className="flex-shrink-0"
                         >
                           {expandedChapters.includes(chapter.number) ? (
                             <ChevronDown className="h-4 w-4" />
@@ -265,14 +268,14 @@ const AdminRuleBook = () => {
                             <ChevronRight className="h-4 w-4" />
                           )}
                         </Button>
-                        <div>
-                          <h3 className="font-semibold">Chapter {chapter.number}: {chapter.title}</h3>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm sm:text-base font-semibold break-words">Chapter {chapter.number}: {chapter.title}</h3>
                           {chapter.subtitle && (
-                            <p className="text-sm text-muted-foreground">{chapter.subtitle}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground break-words">{chapter.subtitle}</p>
                           )}
                         </div>
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2 flex-shrink-0">
                         <Button variant="outline" size="sm">
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -283,16 +286,16 @@ const AdminRuleBook = () => {
                     </div>
                     
                     {expandedChapters.includes(chapter.number) && (
-                      <div className="ml-8 mt-4 space-y-2">
+                      <div className="ml-4 sm:ml-8 mt-4 space-y-2">
                         {chapter.rules.map((rule) => (
-                          <div key={rule.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <div>
-                              <h4 className="font-medium">{rule.number}: {rule.title}</h4>
-                              <p className="text-sm text-muted-foreground truncate max-w-md">
+                          <div key={rule.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 bg-muted/50 rounded-lg">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm sm:text-base font-medium break-words">{rule.number}: {rule.title}</h4>
+                              <p className="text-xs sm:text-sm text-muted-foreground truncate">
                                 {rule.content.substring(0, 100)}...
                               </p>
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex space-x-2 flex-shrink-0">
                               <Button variant="ghost" size="sm">
                                 <Edit className="h-4 w-4" />
                               </Button>
@@ -348,7 +351,7 @@ const AdminRuleBook = () => {
 
       {/* Create Chapter Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Chapter</DialogTitle>
           </DialogHeader>
@@ -400,7 +403,7 @@ const AdminRuleBook = () => {
 
       {/* Create Rule Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Rule</DialogTitle>
           </DialogHeader>

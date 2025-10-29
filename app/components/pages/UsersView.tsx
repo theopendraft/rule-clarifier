@@ -355,10 +355,10 @@ const Home = () => {
       <Header />
       
       {/* Chapter Info */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h3 className="text-sm font-medium text-slate-700">
+      <div className="bg-white border-b border-slate-200 px-3 md:px-6 py-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+            <h3 className="text-xs sm:text-sm font-medium text-slate-700">
               Chapter {selectedChapter}: {currentChapter?.title}
             </h3>
             <span className="text-xs text-slate-500">
@@ -373,15 +373,15 @@ const Home = () => {
               className="flex items-center space-x-2"
             >
               <Download className="h-4 w-4" />
-              <span>Download</span>
+              <span className="hidden sm:inline">Download</span>
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-120px)]">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-120px)]">
         {/* Sidebar */}
-        <div className="w-80 bg-white border-r border-slate-200 overflow-y-auto">
+        <div className="w-full md:w-80 bg-white border-r border-slate-200 overflow-y-auto max-h-48 md:max-h-none">
           <div className="p-4">
             <h2 className="text-lg font-semibold text-orange-600 mb-4">Chapters</h2>
             <div className="space-y-1">
@@ -449,31 +449,31 @@ const Home = () => {
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-8">
-            <div className="text-center mb-8">
-              <p className="text-sm text-orange-600 font-medium mb-2">
+          <div className="p-4 md:p-8">
+            <div className="text-center mb-6 md:mb-8">
+              <p className="text-xs sm:text-sm text-orange-600 font-medium mb-2">
                 {currentChapter?.title.toUpperCase()}
               </p>
-              <h1 className="text-4xl font-bold text-slate-800 mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-3 md:mb-4">
                 CHAPTER {selectedChapter}
               </h1>
-              <h2 className="text-2xl font-semibold text-slate-700 mb-6">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-700 mb-4 md:mb-6">
                 {currentChapter?.title.toUpperCase()}
               </h2>
               {currentChapter?.section && (
-                <h3 className="text-lg text-slate-600">
+                <h3 className="text-base md:text-lg text-slate-600">
                   {currentChapter.section}
                 </h3>
               )}
             </div>
 
-            <div className="max-w-4xl mx-auto">
-              <div className="space-y-12">
+            <div className="max-w-4xl mx-auto px-2 sm:px-0">
+              <div className="space-y-8 md:space-y-12">
                 {currentChapter?.rules.map((rule) => (
                   <div key={rule.id} id={`rule-${rule.number}`} className="scroll-mt-8">
-                    <div className="flex items-start space-x-4">
-                      <span className="text-orange-600 font-bold text-lg">{rule.number}.</span>
-                      <div className="flex-1">
+                    <div className="flex items-start space-x-2 sm:space-x-4">
+                      <span className="text-orange-600 font-bold text-base sm:text-lg flex-shrink-0">{rule.number}.</span>
+                      <div className="flex-1 min-w-0">
                         <div className="mb-4">
                           {editingRule === rule.number ? (
                             <div className="space-y-4">
@@ -550,7 +550,7 @@ const Home = () => {
                               </div>
                             </div>
                           ) : (
-                            <h4 className="text-lg font-semibold text-slate-800">{rule.title}:-</h4>
+                            <h4 className="text-base sm:text-lg font-semibold text-slate-800">{rule.title}:-</h4>
                           )}
                         </div>
                         {editingRule !== rule.number && (
@@ -584,7 +584,7 @@ const Home = () => {
 
       {/* Save Dialog */}
       <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Save Changes</DialogTitle>
           </DialogHeader>

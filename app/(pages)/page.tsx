@@ -37,12 +37,12 @@ export default function HomePage() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-6">Railway Rule Clarifier AI</h1>
-          <p className="text-muted-foreground">Please log in to access the railway operating manual system.</p>
+        <div className="container mx-auto px-4 sm:px-6 py-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6">Railway Rule Clarifier AI</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Please log in to access the railway operating manual system.</p>
           <div className="mt-8">
-            <p>Authentication required. Please go to the login page.</p>
-            <a href="/login" className="text-blue-600 hover:underline">Go to Login</a>
+            <p className="text-sm sm:text-base">Authentication required. Please go to the login page.</p>
+            <a href="/login" className="text-blue-600 hover:underline text-sm sm:text-base">Go to Login</a>
           </div>
         </div>
       </div>
