@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { BookOpen, Search, Filter, FileText, MoreVertical, Table } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { useAuth } from '@/contexts/AuthContext'
@@ -21,11 +22,20 @@ interface Manual {
   updatedAt: string
 }
 
+const DEPARTMENTS = ['Engineering', 'SNT', 'Safety', 'Mechanical', 'Electrical', 'Commercial', 'Security', 'Medical', 'TRD', 'Operations']
+
+const getDepartmentFromCode = (code: string): string => {
+  const prefix = code.split('-')[0].toLowerCase()
+  const dept = DEPARTMENTS.find(d => d.toLowerCase() === prefix)
+  return dept || 'Engineering'
+}
+
 export default function ManualsPage() {
   const [manuals, setManuals] = useState<Manual[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterActive, setFilterActive] = useState(true)
+  const [activeTab, setActiveTab] = useState('Engineering')
 
   useEffect(() => {
     fetchManuals()
@@ -74,16 +84,11 @@ export default function ManualsPage() {
     return matchesSearch && matchesFilter
   })
 
-  const engineeringManuals = filteredManuals.filter(manual => 
-    !manual.code.toLowerCase().startsWith('snt-') && 
-    !manual.code.toLowerCase().startsWith('safety-')
-  )
-  const sntManuals = filteredManuals.filter(manual => 
-    manual.code.toLowerCase().startsWith('snt-')
-  )
-  const safetyManuals = filteredManuals.filter(manual => 
-    manual.code.toLowerCase().startsWith('safety-')
-  )
+  const getManualsByDepartment = (department: string) => {
+    return filteredManuals.filter(manual => 
+      manual.code.toLowerCase().startsWith(department.toLowerCase() + '-')
+    )
+  }
 
   if (loading) {
     return (
@@ -138,139 +143,65 @@ export default function ManualsPage() {
           </Button>
         </div>
 
-        
+        {/* Department Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 mb-6">
+            {DEPARTMENTS.map((dept) => (
+              <TabsTrigger key={dept} value={dept} className="text-xs sm:text-sm">
+                {dept}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* Department Sections */}
-        <div className="space-y-8">
-          {/* Engineering Section */}
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">Engineering</h2>
-            {engineeringManuals.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <BookOpen className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-600">No engineering manuals available</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {engineeringManuals.map((manual) => (
-                  <Link key={manual.id} href={`/manuals/${manual.id}`}>
-                    <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group border border-slate-200 hover:border-blue-300">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="mb-3">
-                              <div className="w-12 h-16 bg-blue-100 rounded border border-blue-200 flex items-center justify-center">
-                                <FileText className="h-6 w-6 text-blue-600" />
+          {DEPARTMENTS.map((dept) => {
+            const departmentManuals = getManualsByDepartment(dept)
+            return (
+              <TabsContent key={dept} value={dept}>
+                {departmentManuals.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <BookOpen className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                      <p className="text-slate-600">No {dept} manuals available</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {departmentManuals.map((manual) => {
+                      const department = getDepartmentFromCode(manual.code)
+                      return (
+                        <Link key={manual.id} href={`/manuals/${department.toLowerCase()}/${manual.id}`}>
+                          <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group border border-slate-200 hover:border-blue-300">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <div className="mb-3">
+                                    <div className="w-12 h-16 bg-blue-100 rounded border border-blue-200 flex items-center justify-center">
+                                      <FileText className="h-6 w-6 text-blue-600" />
+                                    </div>
+                                  </div>
+                                  <h3 className="font-medium text-sm text-slate-900 group-hover:text-blue-600 transition-colors mb-1 h-8 overflow-hidden">
+                                    <span className="block truncate">{manual.title}</span>
+                                  </h3>
+                                  <p className="text-xs text-slate-500 mb-2">{manual.code}</p>
+                                </div>
                               </div>
-                            </div>
-                            <h3 className="font-medium text-sm text-slate-900 group-hover:text-blue-600 transition-colors mb-1 h-8 overflow-hidden">
-                              <span className="block truncate">{manual.title}</span>
-                            </h3>
-                            <p className="text-xs text-slate-500 mb-2">{manual.code}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Badge variant={manual.isActive ? "default" : "secondary"} className="text-xs">
-                            {manual.isActive ? 'Active' : 'Inactive'}
-                          </Badge>
-                          {manual.version && <span className="text-xs text-slate-500">v{manual.version}</span>}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Safety Section */}
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">Safety</h2>
-            {safetyManuals.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <BookOpen className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-600">No safety manuals available</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {safetyManuals.map((manual) => (
-                  <Link key={manual.id} href={`/manuals/${manual.id}`}>
-                    <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group border border-slate-200 hover:border-red-300">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="mb-3">
-                              <div className="w-12 h-16 bg-red-100 rounded border border-red-200 flex items-center justify-center">
-                                <FileText className="h-6 w-6 text-red-600" />
+                              <div className="flex items-center justify-between">
+                                <Badge variant={manual.isActive ? "default" : "secondary"} className="text-xs">
+                                  {manual.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                                {manual.version && <span className="text-xs text-slate-500">v{manual.version}</span>}
                               </div>
-                            </div>
-                            <h3 className="font-medium text-sm text-slate-900 group-hover:text-red-600 transition-colors mb-1 h-8 overflow-hidden">
-                              <span className="block truncate">{manual.title}</span>
-                            </h3>
-                            <p className="text-xs text-slate-500 mb-2">{manual.code}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Badge variant={manual.isActive ? "default" : "secondary"} className="text-xs">
-                            {manual.isActive ? 'Active' : 'Inactive'}
-                          </Badge>
-                          {manual.version && <span className="text-xs text-slate-500">v{manual.version}</span>}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* SNT Section */}
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">SNT</h2>
-            {sntManuals.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <BookOpen className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-600">No SNT manuals available</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {sntManuals.map((manual) => (
-                  <Link key={manual.id} href={`/manuals/${manual.id}`}>
-                    <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group border border-slate-200 hover:border-green-300">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="mb-3">
-                              <div className="w-12 h-16 bg-green-100 rounded border border-green-200 flex items-center justify-center">
-                                <FileText className="h-6 w-6 text-green-600" />
-                              </div>
-                            </div>
-                            <h3 className="font-medium text-sm text-slate-900 group-hover:text-green-600 transition-colors mb-1 h-8 overflow-hidden">
-                              <span className="block truncate">{manual.title}</span>
-                            </h3>
-                            <p className="text-xs text-slate-500 mb-2">{manual.code}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Badge variant={manual.isActive ? "default" : "secondary"} className="text-xs">
-                            {manual.isActive ? 'Active' : 'Inactive'}
-                          </Badge>
-                          {manual.version && <span className="text-xs text-slate-500">v{manual.version}</span>}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </TabsContent>
+            )
+          })}
+        </Tabs>
       </div>
     </div>
   )

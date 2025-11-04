@@ -86,33 +86,14 @@ export function Header() {
 
   const NavigationLinks = ({ isMobile = false, onClick }: { isMobile?: boolean; onClick?: () => void }) => (
     <>
-      <Link href={userRole === 'user' ? "/users" : "/"} onClick={onClick}>
-        <Button
-          variant={(pathname === "/" || pathname === "/users") ? "default" : "ghost"}
-          size="sm"
-          className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
-        >
-          Home
-        </Button>
-      </Link>
-      {userRole === 'admin' && (
-        <Link href="/admin" onClick={onClick}>
-          <Button
-            variant={pathname === "/admin" ? "default" : "ghost"}
-            size="sm"
-            className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
-          >
-            Admin
-          </Button>
-        </Link>
-      )}
       <Link href="/chapter" onClick={onClick}>
         <Button
           variant={pathname === "/chapter" || pathname.startsWith("/chapter/") ? "default" : "ghost"}
           size="sm"
           className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+          suppressHydrationWarning
         >
-          Chapters
+          GR &amp; SR
         </Button>
       </Link>
       <Link href="/manuals" onClick={onClick}>
@@ -120,6 +101,7 @@ export function Header() {
           variant={pathname === "/manuals" ? "default" : "ghost"}
           size="sm"
           className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+          suppressHydrationWarning
         >
           Manuals
         </Button>
@@ -129,8 +111,29 @@ export function Header() {
           variant={pathname === "/circulars" ? "default" : "ghost"}
           size="sm"
           className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+          suppressHydrationWarning
         >
           Circulars
+        </Button>
+      </Link>
+      <Link href="/scenarios" onClick={onClick}>
+        <Button
+          variant={pathname === "/scenarios" ? "default" : "ghost"}
+          size="sm"
+          className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+          suppressHydrationWarning
+        >
+          Scenarios
+        </Button>
+      </Link>
+      <Link href="/jpo" onClick={onClick}>
+        <Button
+          variant={pathname === "/jpo" ? "default" : "ghost"}
+          size="sm"
+          className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+          suppressHydrationWarning
+        >
+          JPO
         </Button>
       </Link>
       {userRole === 'user' ? (
@@ -139,6 +142,7 @@ export function Header() {
             variant={pathname === "/changelog" ? "default" : "ghost"}
             size="sm"
             className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+            suppressHydrationWarning
           >
             Changelog
           </Button>
@@ -150,6 +154,7 @@ export function Header() {
               variant={pathname === "/upload" ? "default" : "ghost"}
               size="sm"
               className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+              suppressHydrationWarning
             >
               Upload Files
             </Button>
@@ -159,6 +164,7 @@ export function Header() {
               variant={pathname === "/changelog" ? "default" : "ghost"}
               size="sm"
               className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${isMobile ? 'w-full justify-start' : ''}`}
+              suppressHydrationWarning
             >
               Change Log
             </Button>
@@ -198,12 +204,13 @@ export function Header() {
               className="pl-10 w-48 lg:w-72 bg-white border-orange-300 focus:border-orange-500 transition-all duration-200 rounded-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              suppressHydrationWarning
             />
           </form>
           
           <Popover open={isNotificationOpen} onOpenChange={handleNotificationOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="relative p-2 rounded-lg hover:bg-orange-700 transition-colors">
+              <Button variant="ghost" size="sm" className="relative p-2 rounded-lg hover:bg-orange-700 transition-colors" suppressHydrationWarning>
                 <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full border-2 border-white">
@@ -271,7 +278,7 @@ export function Header() {
                     )}
                   </div>
                   <div className="p-4 border-t border-slate-100">
-                    <Button variant="outline" size="sm" className="w-full rounded-lg font-medium" onClick={() => router.push('/changelog')}>
+                    <Button variant="outline" size="sm" className="w-full rounded-lg font-medium" onClick={() => router.push('/changelog')} suppressHydrationWarning>
                       View All Changes
                     </Button>
                   </div>
@@ -280,11 +287,11 @@ export function Header() {
             </PopoverContent>
           </Popover>
           
-          <Button variant="ghost" size="sm" onClick={handleSettings} className="hidden sm:flex p-2 rounded-lg hover:bg-orange-700 transition-colors">
+          <Button variant="ghost" size="sm" onClick={handleSettings} className="hidden sm:flex p-2 rounded-lg hover:bg-orange-700 transition-colors" suppressHydrationWarning>
             <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </Button>
           
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden sm:flex p-2 rounded-lg hover:bg-orange-700 transition-colors">
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden sm:flex p-2 rounded-lg hover:bg-orange-700 transition-colors" suppressHydrationWarning>
             <LogOut className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </Button>
           
@@ -293,6 +300,7 @@ export function Header() {
             size="sm" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="lg:hidden p-2 rounded-lg hover:bg-orange-700 transition-colors"
+            suppressHydrationWarning
           >
             {isMobileMenuOpen ? <X className="h-5 w-5 text-white" /> : <Menu className="h-5 w-5 text-white" />}
           </Button>
@@ -305,11 +313,11 @@ export function Header() {
           <div className="px-4 py-4 space-y-2">
             <NavigationLinks isMobile={true} onClick={closeMobileMenu} />
             <div className="pt-4 border-t border-slate-200 space-y-2">
-              <Button variant="ghost" size="sm" onClick={handleSettings} className="w-full justify-start">
+              <Button variant="ghost" size="sm" onClick={handleSettings} className="w-full justify-start" suppressHydrationWarning>
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start">
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start" suppressHydrationWarning>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
