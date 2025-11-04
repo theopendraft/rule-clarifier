@@ -70,9 +70,9 @@ export function Chatbot() {
     <>
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-20 sm:bottom-32 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] sm:w-full max-w-3xl h-[60vh] sm:h-[500px] bg-white rounded-lg shadow-2xl border border-slate-200 flex flex-col z-50">
+        <div className="fixed bottom-10 sm:bottom-24 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] sm:w-full max-w-3xl h-[60vh] sm:h-[700px] bg-white rounded-lg shadow-2xl border border-slate-200 flex flex-col z-50 rounded-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 sm:p-4 rounded-t-lg flex items-center justify-between">
+          {/* <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 sm:p-4 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="text-sm sm:text-base font-semibold">Railway Assistant</span>
@@ -85,10 +85,10 @@ export function Chatbot() {
             >
               <X className="h-4 w-4" />
             </Button>
-          </div>
+          </div> */}
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-slate-50">
+          {/* <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-slate-50">
             {messages.length === 0 && (
               <div className="text-center text-slate-500 mt-4 sm:mt-8">
                 <MessageCircle className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2 text-orange-500" />
@@ -129,15 +129,32 @@ export function Chatbot() {
               </div>
             ))}
             <div ref={messagesEndRef} />
-          </div>
-
+          </div> */}
+          <iframe
+              src="https://widget.aladdyn.io/01a98303-32bd-4e33-af59-3b6531028ae0"
+              className="w-full h-full border-0 rounded-lg"
+              title="Chatbot Preview"
+              allow="microphone; clipboard-read; clipboard-write"
+            />
 
         </div>
       )}
 
       {/* Floating Search Bar */}
-      <div className="fixed bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-40 w-[calc(100%-2rem)] sm:w-full max-w-3xl">
-        <div className="bg-white rounded-full shadow-2xl border-2 border-orange-200 flex items-center px-4 sm:px-6 py-3 sm:py-4 hover:shadow-3xl transition-all hover:border-orange-300">
+      <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-40 w-[calc(100%-2rem)] sm:w-full max-w-3xl">
+        {/* Toggle button: opens/closes the chatbot. No input required. */}
+        <div className="flex items-center justify-center">
+          <Button
+            onClick={() => setIsOpen((s) => !s)}
+            aria-label={isOpen ? 'Close chatbot' : 'Open chatbot'}
+            className="bg-orange-500 hover:bg-orange-600 text-white rounded-full h-16 w-16 flex items-center justify-center shadow-lg"
+          >
+            {isOpen ? <X className="h-5 w-5" /> : <MessageCircle className="h-12 w-12" />}
+          </Button>
+        </div>
+
+
+         {/* <div className="bg-white rounded-full shadow-2xl border-2 border-orange-200 flex items-center px-4 sm:px-6 py-3 sm:py-4 hover:shadow-3xl transition-all hover:border-orange-300">
           <input
             type="text"
             value={input}
@@ -154,7 +171,7 @@ export function Chatbot() {
           >
             <Send className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-        </div>
+        </div> */}
       </div>
     </>
   );
