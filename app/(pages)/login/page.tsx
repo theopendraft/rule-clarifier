@@ -95,6 +95,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  suppressHydrationWarning
                 />
               </div>
               <div className="space-y-2">
@@ -106,6 +107,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  suppressHydrationWarning
                 />
               </div>
               <Button 
@@ -116,24 +118,6 @@ export default function LoginPage() {
                 {isLoading ? 'Signing in...' : 'Login as Admin'}
               </Button>
             </div>
-            
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">or</span>
-              </div>
-            </div>
-            
-            <Button 
-              onClick={handleUserLogin} 
-              variant="outline" 
-              className="w-full" 
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Login as User'}
-            </Button>
           </div>
         </CardContent>
       </Card>

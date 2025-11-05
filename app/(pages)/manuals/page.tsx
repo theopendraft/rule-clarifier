@@ -110,7 +110,7 @@ export default function ManualsPage() {
     <div className="min-h-screen bg-slate-50" suppressHydrationWarning>
       <Header />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
@@ -169,7 +169,7 @@ export default function ManualsPage() {
                     {departmentManuals.map((manual) => {
                       const department = getDepartmentFromCode(manual.code)
                       return (
-                        <Link key={manual.id} href={`/manuals/${department.toLowerCase()}/${manual.id}`}>
+                        <Link key={manual.id} href={`/manuals/${manual.id}`}>
                           <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group border border-slate-200 hover:border-blue-300">
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between mb-3">

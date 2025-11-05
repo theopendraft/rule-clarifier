@@ -104,7 +104,7 @@ export default function ManualDetailPage() {
     style.textContent = `
       [id]:target {
         background-color: #dbeafe !important;
-        border-left: 4px solid #3b82f6 !important;
+        border-left: 4px solid #1e40af !important;
         padding: 12px !important;
         border-radius: 6px !important;
         margin: 8px 0 !important;
@@ -169,7 +169,7 @@ export default function ManualDetailPage() {
           <Button 
             variant="ghost" 
             onClick={() => router.push('/manuals')}
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-900"
+            className="flex items-center gap-2 text-blue-700 hover:text-blue-900 hover:bg-blue-50"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Manuals
@@ -181,12 +181,12 @@ export default function ManualDetailPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <BookOpen className="h-8 w-8 text-blue-600" />
-                  <h1 className="text-3xl font-bold text-slate-900">{manual.title}</h1>
+                  <h1 className="text-3xl font-bold text-blue-900">{manual.title}</h1>
                   <Badge variant={manual.isActive ? "default" : "secondary"}>
                     {manual.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-6 text-sm text-slate-600">
+                <div className="flex items-center gap-6 text-sm text-blue-700">
                   <span className="flex items-center gap-1">
                     <Tag className="h-4 w-4" />
                     {manual.code}

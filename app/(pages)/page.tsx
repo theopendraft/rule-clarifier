@@ -4,24 +4,15 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Home from '@/components/pages/Home'
+import UsersView from '@/components/pages/UsersView'
 
 export default function HomePage() {
-  const { isAuthenticated, loading, userRole } = useAuth()
+  const { userRole, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login')
-    } else if (!loading && isAuthenticated && userRole === 'user') {
-      // Check if department is selected
-      const department = localStorage.getItem('userDepartment')
-      if (!department) {
-        router.push('/department-select')
-      } else {
-        router.push('/users')
-      }
-    }
-  }, [isAuthenticated, loading, userRole, router])
+    // No redirect needed
+  }, [router])
 
   if (loading) {
     return (
@@ -34,20 +25,6 @@ export default function HomePage() {
     )
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 sm:px-6 py-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-6">Railway Rule Clarifier AI</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Please log in to access the railway operating manual system.</p>
-          <div className="mt-8">
-            <p className="text-sm sm:text-base">Authentication required. Please go to the login page.</p>
-            <a href="/login" className="text-blue-600 hover:underline text-sm sm:text-base">Go to Login</a>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  return <Home />
+  // Show admin view (editable GR) for admins, user view for everyone else
+  return userRole === 'admin' ? <Home /> : <UsersView />
 }

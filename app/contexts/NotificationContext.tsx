@@ -72,7 +72,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           setNotifications([]);
         }
       } else {
-        console.error('Failed to fetch notifications:', response.status, response.statusText);
+        // Silently handle 404 - notifications API may not be available
         setNotifications([]);
       }
     } catch (error) {

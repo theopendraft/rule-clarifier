@@ -391,7 +391,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
       <Header />
       
       {/* Chapter Info */}
-      <div className="bg-orange-50 border-b border-orange-200 px-3 md:px-6 py-3">
+      <div className="bg-blue-50 border-b border-blue-200 px-3 md:px-6 py-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
             <h3 className="text-xs sm:text-sm font-medium text-slate-700">
@@ -417,9 +417,9 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
 
       <div className="flex flex-col md:flex-row h-[calc(100vh-120px)]">
         {/* Sidebar */}
-        <div className="w-full md:w-80 bg-orange-50 border-r border-orange-200 overflow-y-auto max-h-48 md:max-h-none">
+        <div className="w-full md:w-80 bg-blue-50 border-r border-blue-200 overflow-y-auto max-h-48 md:max-h-none">
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-orange-800 mb-4">Chapters</h2>
+            <h2 className="text-lg font-semibold text-blue-900 mb-4">Chapters</h2>
             <div className="space-y-1">
               {chapters.map((chapter) => (
                 <div key={chapter.id}>
@@ -427,7 +427,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                     variant="ghost"
                     className={`w-full justify-start text-left h-auto p-3 ${
                       selectedChapter === chapter.number 
-                        ? "bg-orange-50 text-orange-700" 
+                        ? "bg-blue-100 text-blue-700" 
                         : "hover:bg-slate-100"
                     }`}
                     onClick={() => {
@@ -462,8 +462,8 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                           size="sm"
                           className={`w-full justify-start text-left text-xs p-2 ${
                             selectedRule === rule.number && selectedChapter === chapter.number
-                              ? "bg-orange-500 text-white"
-                              : "text-orange-600 hover:bg-orange-50"
+                              ? "bg-blue-600 text-white"
+                              : "text-blue-600 hover:bg-blue-50"
                           }`}
                           onClick={() => {
                             selectChapter(chapter.number);
@@ -487,7 +487,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 md:p-8">
             <div className="text-center mb-6 md:mb-8">
-              <p className="text-xs sm:text-sm text-orange-600 font-medium mb-2">
+              <p className="text-xs sm:text-sm text-blue-600 font-medium mb-2">
                 {currentChapter?.title.toUpperCase()}
               </p>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-3 md:mb-4">
@@ -508,7 +508,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                 {currentChapter?.rules.map((rule) => (
                   <div key={rule.id} id={`rule-${rule.number}`} className="scroll-mt-8">
                     <div className="flex items-start space-x-2 sm:space-x-4">
-                      <span className="text-orange-600 font-bold text-base sm:text-lg flex-shrink-0">{rule.number}.</span>
+                      <span className="text-blue-600 font-bold text-base sm:text-lg flex-shrink-0">{rule.number}.</span>
                       <div className="flex-1 min-w-0">
                         <div className="mb-4">
                           {editingRule === rule.number ? (
