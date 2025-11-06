@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, ArrowLeft } from 'lucide-react'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -71,6 +71,18 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4" suppressHydrationWarning>
       <Card className="w-full max-w-md">
         <CardHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/')}
+              className="p-2"
+              suppressHydrationWarning
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">Back</span>
+          </div>
           <CardTitle>Railway Rule Clarifier AI</CardTitle>
           <CardDescription>
             Sign in to access the railway operating manual
@@ -114,6 +126,7 @@ export default function LoginPage() {
                 onClick={handleAdminLogin} 
                 className="w-full" 
                 disabled={isLoading || !email || !password}
+                suppressHydrationWarning
               >
                 {isLoading ? 'Signing in...' : 'Login as Admin'}
               </Button>

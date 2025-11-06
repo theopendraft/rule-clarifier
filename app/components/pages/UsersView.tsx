@@ -80,6 +80,9 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [clickedWords, setClickedWords] = useState<Set<string>>(new Set());
+  const [isChatbotExpanded, setIsChatbotExpanded] = useState(false);
+
+
 
   // Fetch data from database
   useEffect(() => {
@@ -385,7 +388,7 @@ const Home = () => {
 
   const handleMenuClick = (id: string) => {
     if (id === 'grsr') {
-      window.location.href = '/chapter';
+      window.location.href = '/grsr';
     } else if (id === 'manuals') {
       window.location.href = '/manuals';
     } else if (id === 'circulars') {
@@ -395,7 +398,7 @@ const Home = () => {
     } else if (id === 'jpo') {
       window.location.href = '/jpo';
     } else if (id === 'admin') {
-      window.location.href = '/admin';
+      window.location.href = '/login';
     } else if (id === 'changelog') {
       window.location.href = '/changelog';
     }
@@ -501,10 +504,75 @@ const Home = () => {
         </div>
       </header>
 
+      {/* Chapter Navigation */}
+      {!isChatbotExpanded && (
+      <div className="sticky top-[72px] bg-white border-b border-slate-200 shadow-md z-40">
+        <div className="relative">
+          {canScrollLeft && (
+            <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-r from-white via-white to-transparent pl-2 pr-8">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scrollChapterNav('left')}
+                className="h-8 w-8 rounded-full bg-white shadow-lg border-slate-300 hover:bg-slate-50"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          <div 
+            ref={scrollContainerRef}
+            onScroll={checkScroll}
+            className="flex gap-3 px-4 py-4 overflow-x-auto scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {chapters.map((chapter) => (
+              <button
+                key={chapter.id}
+                ref={(el) => (chapterButtonRefs.current[chapter.number] = el)}
+                onClick={() => {
+                  setSelectedChapter(chapter.number);
+                  setExpandedChapters([chapter.number]);
+                }}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg whitespace-nowrap transition-all flex-shrink-0 min-w-[140px] ${
+                  selectedChapter === chapter.number 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'bg-transparent text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
+                  selectedChapter === chapter.number 
+                    ? 'bg-blue-500' 
+                    : 'bg-blue-600'
+                }`}>
+                  <span className="text-white text-sm font-semibold">{chapter.number}</span>
+                </div>
+                <span className="text-sm text-left">
+                  Chapter {chapter.number}
+                </span>
+              </button>
+            ))}
+          </div>
+          {canScrollRight && (
+            <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-l from-white via-white to-transparent pr-2 pl-8">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scrollChapterNav('right')}
+                className="h-8 w-8 rounded-full bg-white shadow-lg border-slate-300 hover:bg-slate-50"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+      )}
+
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="hidden md:block w-80 bg-white border-r border-slate-200 overflow-y-auto">
+        {/* Hidden Sidebar - keeping for rule navigation */}
+        <div className="hidden w-80 bg-white border-r border-slate-200 overflow-y-auto">
           <div className="p-4">
             <h2 className="text-lg font-semibold text-blue-900 mb-4">Chapters</h2>
             <div className="space-y-1">
@@ -914,7 +982,7 @@ const Home = () => {
       />
       
       {/* Chatbot */}
-      <Chatbot />
+      <Chatbot onExpandChange={setIsChatbotExpanded} />
     </div>
   );
 };

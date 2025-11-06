@@ -61,12 +61,15 @@ const AdminRuleBook = () => {
     try {
       const response = await fetch('/api/change-logs');
       if (!response.ok) {
-        throw new Error('Failed to fetch change logs');
+        console.error('Failed to fetch change logs');
+        setChangeLogs([]);
+        return;
       }
       const logs = await response.json();
-      setChangeLogs(logs);
+      setChangeLogs(logs || []);
     } catch (error) {
       console.error("Error loading change logs:", error);
+      setChangeLogs([]);
     }
   };
 
@@ -335,7 +338,7 @@ const AdminRuleBook = () => {
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">
-                        By: {log.user.name || log.user.email}
+                        By: {log.user?.name || log.user?.email || 'Unknown'}
                       </p>
                       {log.reason && (
                         <p className="text-sm">{log.reason}</p>

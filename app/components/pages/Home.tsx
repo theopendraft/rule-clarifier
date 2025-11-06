@@ -10,7 +10,7 @@ import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { LinkDialog } from "@/components/ui/link-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chatbot } from "@/components/ui/chatbot";
-import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, FileText, Upload } from "lucide-react";
+import { BookOpen, ChevronRight, ChevronDown, Edit3, Download, Save, X, Link, Unlink, FileText, Upload } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { UploadButton } from "@uploadthing/react";
@@ -77,6 +77,11 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
   const [linkType, setLinkType] = useState<"manual" | "circular" | null>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Function to remove all HTML links from content
+  const removeLinks = (htmlContent: string) => {
+    return htmlContent.replace(/<a[^>]*>(.*?)<\/a>/gi, '$1');
+  };
 
   // Fetch data from database
   useEffect(() => {
@@ -584,9 +589,9 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                                 onClick={() => {
                                   setEditingRule(rule.number);
                                   setEditedTitle(rule.title);
-                                  setEditedContent(rule.content);
+                                  setEditedContent(removeLinks(rule.content));
                                   setHasUnsavedChanges(false);
-                                  toast.info(`Editing rule ${rule.number}: ${rule.title}`);
+                                  toast.info(`Editing rule ${rule.number}: ${rule.title} (links removed)`);
                                 }}
                                 className="text-blue-600 hover:text-blue-800 flex-shrink-0"
                               >
@@ -609,7 +614,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                             >
                               <div 
                                 className="prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: rule.content }}
+                                dangerouslySetInnerHTML={{ __html: removeLinks(rule.content) }}
                               />
                             </div>
                           </div>
@@ -631,6 +636,8 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
             <DialogTitle>Save Changes</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Only show supporting document for manuals, not for GR */}
+            {false && (
             <div>
               <label className="block text-sm font-medium mb-2">Supporting Document</label>
               <Tabs value={docType} onValueChange={(value) => setDocType(value as "upload" | "text")} className="w-full">
@@ -699,6 +706,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                 </TabsContent>
               </Tabs>
             </div>
+            )}
             <div>
               <label className="block text-sm font-medium mb-2">Reason for Change</label>
               <Textarea
@@ -714,11 +722,11 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
               </Button>
               <Button 
                 onClick={async () => {
-                  if (supportingDoc && changeReason) {
+                  if (changeReason) {
                     await handleSaveRule();
                     setShowSaveDialog(false);
                   } else {
-                    toast.error("Please provide both supporting document and reason");
+                    toast.error("Please provide reason for change");
                   }
                 }}
                 className="bg-green-600 hover:bg-green-700"

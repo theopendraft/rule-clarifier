@@ -117,7 +117,7 @@ export default function App() {
               return (
                 <Card
                   key={item.title}
-                  className="group active:scale-[0.98] transition-all duration-200 cursor-pointer border-white/10 bg-slate-900/80 backdrop-blur-xl hover:bg-slate-900/90 shadow-lg hover:shadow-xl"
+                  className="group active:scale-[0.98] transition-all duration-200 cursor-pointer border-white/20 bg-white/95 backdrop-blur-xl hover:bg-white shadow-lg hover:shadow-xl"
                   onClick={() => handleNavigation(item.href)}
                 >
                   <div className="p-2.5 flex items-center gap-2.5">
@@ -125,10 +125,10 @@ export default function App() {
                       <Icon className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white mb-0 text-xs font-semibold">
+                      <h3 className="text-slate-900 mb-0 text-xs font-semibold">
                         {item.title}
                       </h3>
-                      <p className="text-white/80 text-[11px] leading-relaxed">
+                      <p className="text-slate-600 text-[11px] leading-relaxed">
                         {item.description}
                       </p>
                     </div>
@@ -206,7 +206,7 @@ export default function App() {
               return (
                 <Card
                   key={item.title}
-                  className="group hover:shadow-2xl transition-all duration-300 hover:-translate-x-1 cursor-pointer border-white/10 bg-slate-900/80 backdrop-blur-xl hover:bg-slate-900/90"
+                  className="group hover:shadow-2xl transition-all duration-300 hover:-translate-x-1 cursor-pointer border-white/20 bg-white/95 backdrop-blur-xl hover:bg-white"
                   onClick={() => handleNavigation(item.href)}
                 >
                   <div className="p-3 flex items-center gap-3">
@@ -214,10 +214,10 @@ export default function App() {
                       <Icon className="w-4 h-4 text-white" strokeWidth={2} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white mb-0 group-hover:text-blue-300 transition-colors text-sm font-semibold">
+                      <h3 className="text-slate-900 mb-0 group-hover:text-blue-700 transition-colors text-sm font-semibold">
                         {item.title}
                       </h3>
-                      <p className="text-white/80 text-[11px] leading-relaxed">
+                      <p className="text-slate-600 text-[11px] leading-relaxed">
                         {item.description}
                       </p>
                     </div>

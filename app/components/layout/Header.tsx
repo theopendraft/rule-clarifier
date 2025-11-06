@@ -17,11 +17,11 @@ export function Header() {
   const handleLogout = () => {
     logout();
     toast.success("Logged out successfully");
-    router.push("/");
+    router.push("/users");
   };
 
   const menuItems = [
-    { label: 'GR&SR', href: '/chapter' },
+    { label: 'GR&SR', href: '/grsr' },
     { label: 'Manuals', href: '/manuals' },
     { label: 'Circulars', href: '/circulars' },
     { label: 'Scenarios', href: '/scenarios' },
@@ -42,7 +42,7 @@ export function Header() {
   return (
     <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700" suppressHydrationWarning>
       <div className="flex items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-3 cursor-pointer">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/users')}>
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <Train className="w-6 h-6 text-blue-900" />
           </div>
@@ -50,7 +50,7 @@ export function Header() {
             <h1 className="text-xl font-semibold tracking-wide">Rail Rules</h1>
             <p className="text-xs text-blue-200">Indian Railways</p>
           </div>
-        </Link>
+        </div>
 
         <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
           {menuItems.map((item) => (

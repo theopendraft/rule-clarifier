@@ -12,7 +12,11 @@ interface Message {
   timestamp: Date;
 }
 
-export function Chatbot() {
+interface ChatbotProps {
+  onExpandChange?: (expanded: boolean) => void;
+}
+
+export function Chatbot({ onExpandChange }: ChatbotProps = {}) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -84,7 +88,7 @@ export function Chatbot() {
 
   if (isExpanded) {
     return (
-      <div className="fixed inset-0 bg-white z-40 flex flex-col">
+      <div className="fixed inset-0 bg-white z-30 flex flex-col" style={{ top: '120px' }}>
         <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
@@ -98,7 +102,10 @@ export function Chatbot() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsExpanded(false)}
+            onClick={() => {
+              setIsExpanded(false);
+              onExpandChange?.(false);
+            }}
             className="text-white hover:bg-blue-700"
           >
             <Minimize2 className="h-5 w-5" />
@@ -162,7 +169,7 @@ export function Chatbot() {
   }
 
   return (
-    <div className="sticky bottom-0 border-t border-slate-200 bg-white shadow-lg z-40">
+    <div className="sticky bottom-0 border-t border-slate-200 bg-white shadow-lg z-30" style={{ marginBottom: '0px', maxHeight: 'calc(100vh - 120px)' }}>
       <div className="max-w-5xl mx-auto px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -190,7 +197,10 @@ export function Chatbot() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setIsExpanded(true)}
+            onClick={() => {
+              setIsExpanded(true);
+              onExpandChange?.(true);
+            }}
             className="border-slate-300"
           >
             <Maximize2 className="h-4 w-4" />
