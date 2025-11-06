@@ -2,6 +2,7 @@ import { Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
+import Link from 'next/link';
 
 interface RailRulesHeaderProps {
   onAdminAccess: () => void;
@@ -29,7 +30,7 @@ export function RailRulesHeader({ onAdminAccess }: RailRulesHeaderProps) {
   return (
     <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700">
       <div className="flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 cursor-pointer">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
               <path d="M12 2L2 7v10c0 5.5 3.8 10.7 10 12 6.2-1.3 10-6.5 10-12V7l-10-5z" fill="#1e40af" stroke="#1e40af" strokeWidth="2"/>
@@ -39,7 +40,7 @@ export function RailRulesHeader({ onAdminAccess }: RailRulesHeaderProps) {
             <h1 className="text-xl font-semibold tracking-wide">Rail Rules</h1>
             <p className="text-xs text-blue-200">Indian Railways</p>
           </div>
-        </div>
+        </Link>
         
         <Sheet>
           <SheetTrigger asChild>

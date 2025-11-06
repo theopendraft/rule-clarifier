@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export function Header() {
   const router = useRouter();
-  const { userRole, logout } = useAuth();
+  const { userRole, userDepartment, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -42,7 +42,7 @@ export function Header() {
   return (
     <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700" suppressHydrationWarning>
       <div className="flex items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 cursor-pointer">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <Train className="w-6 h-6 text-blue-900" />
           </div>
@@ -69,10 +69,18 @@ export function Header() {
             <Search className="h-5 w-5" />
           </Button>
           {userRole === 'admin' && (
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden lg:flex text-white hover:bg-blue-700">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <>
+              <div className="hidden lg:block text-xs text-blue-200 mr-2">
+                {userDepartment === 'engineering' && 'Engineering Dept'}
+                {userDepartment === 'safety' && 'Safety Dept'}
+                {userDepartment === 'snt' && 'S&T Dept'}
+                {userDepartment === 'admin' && 'Admin'}
+              </div>
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden lg:flex text-white hover:bg-blue-700">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </>
           )}
 
           <Sheet>
@@ -99,6 +107,15 @@ export function Header() {
                       {item.label}
                     </button>
                   ))}
+                  {userRole === 'admin' && (
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </button>
+                  )}
                 </nav>
                 <Separator className="my-6" />
                 <div className="px-4 py-3 bg-blue-50 rounded-lg">

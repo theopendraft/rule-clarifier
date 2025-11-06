@@ -5,6 +5,7 @@ import { Header } from "../../../components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ChevronRight, Download } from "lucide-react";
 import { toast } from "sonner";
+import { HighlightedContent } from "./components/HighlightedContent";
 
 interface Rule {
   id: string;
@@ -267,9 +268,9 @@ const ChapterDetailPage = () => {
                           <h4 className="text-lg font-semibold text-slate-800">{rule.title}:-</h4>
                         </div>
                         <div className="text-slate-700 leading-relaxed">
-                          <div 
-                            className="prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{ __html: rule.content }}
+                          <HighlightedContent 
+                            content={rule.content}
+                            ruleId={rule.id}
                           />
                         </div>
                       </div>

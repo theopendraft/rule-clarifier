@@ -34,7 +34,7 @@ export default function LoginPage() {
     
     if (validCredential) {
       try {
-        const success = loginAsAdmin()
+        const success = loginAsAdmin(email)
         if (success) {
           router.push('/')
         } else {
