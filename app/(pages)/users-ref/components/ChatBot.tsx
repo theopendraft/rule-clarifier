@@ -2,12 +2,23 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
+import { getOrCreateUserId } from '../../../../lib/user-id';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  contexts?: Array<{ text: string; source: string; score: number }>;
+}
+
+interface HistoryMessage {
+  id: string;
+  userId: string;
+  query: string;
+  response: string;
+  contexts: Array<{ text: string; source: string; score: number }>;
+  timestamp: string;
 }
 
 export function ChatBot() {
@@ -21,7 +32,23 @@ export function ChatBot() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [userId, setUserId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const initUserId = async () => {
+      const id = await getOrCreateUserId();
+      setUserId(id);
+    };
+    initUserId();
+  }, []);
+
+  useEffect(() => {
+    if (isExpanded && userId) {
+      fetchHistory();
+    }
+  }, [isExpanded, userId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -29,48 +56,127 @@ export function ChatBot() {
     }
   }, [messages]);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const fetchHistory = async () => {
+    if (!userId) return;
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_RAG_API_URL}/api/chat/history/${userId}?page=1&pageSize=50`);
+      const data = await response.json();
+
+      if (data.success && data.data.messages.length > 0) {
+        const historyMessages: Message[] = data.data.messages.flatMap((msg: HistoryMessage) => [
+          {
+            id: `${msg.id}-query`,
+            text: msg.query,
+            sender: 'user' as const,
+            timestamp: new Date(msg.timestamp),
+          },
+          {
+            id: `${msg.id}-response`,
+            text: msg.response,
+            sender: 'bot' as const,
+            timestamp: new Date(msg.timestamp),
+            contexts: msg.contexts,
+          },
+        ]);
+
+        setMessages(prev => [...prev, ...historyMessages]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch chat history:', error);
+    }
+  };
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || !userId) return;
+
+    const query = inputValue;
+    setInputValue('');
+    setIsExpanded(true); // Expand on send
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputValue,
+      text: query,
       sender: 'user',
       timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+    setIsLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: generateBotResponse(inputValue),
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_RAG_API_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, query }),
+      });
+
+      if (!response.ok) throw new Error('Chat request failed');
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      let botMessageText = '';
+      const botMessageId = (Date.now() + 1).toString();
+
+      const botMessage: Message = {
+        id: botMessageId,
+        text: '',
         sender: 'bot',
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, botResponse]);
-    }, 1000);
-  };
 
-  const generateBotResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes('chapter') || lowerQuery.includes('ch')) {
-      return 'You can navigate through all 17 chapters using the chapter navigation bar above. Each chapter contains specific rules and regulations. Which chapter would you like to know more about?';
+      setMessages(prev => [...prev, botMessage]);
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.chunk) {
+                botMessageText += data.chunk;
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === botMessageId ? { ...msg, text: botMessageText } : msg
+                  )
+                );
+              }
+              if (data.done) {
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === botMessageId ? { ...msg, contexts: data.contexts } : msg
+                  )
+                );
+                break;
+              }
+            } catch (e) {
+              // Ignore parse errors
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        text: 'Sorry, I encountered an error. Please try again.',
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
-    if (lowerQuery.includes('safety') || lowerQuery.includes('emergency')) {
-      return 'Safety information can be found in Chapter 6 (Safety Standards) and Chapter 7 (Emergency Procedures). These chapters contain comprehensive guidelines for railway safety and emergency response.';
-    }
-    if (lowerQuery.includes('signal')) {
-      return 'Signaling system regulations are covered in Chapter 4 (Signaling Systems). This includes signal types, interlocking systems, and failure procedures.';
-    }
-    if (lowerQuery.includes('track')) {
-      return 'Track maintenance rules are detailed in Chapter 3 (Track Maintenance), covering inspection standards, maintenance procedures, and documentation requirements.';
-    }
-    
-    return 'I can help you find information about railway rules and regulations. Try asking about specific chapters, safety procedures, signaling, track maintenance, or any other railway-related topic.';
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -148,10 +254,12 @@ export function ChatBot() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your question..."
-              className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              disabled={isLoading}
+              className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
             />
             <Button
               onClick={handleSend}
+              disabled={!inputValue.trim() || isLoading}
               className="bg-blue-600 hover:bg-blue-700 px-6"
             >
               <Send className="h-5 w-5" />
@@ -179,11 +287,12 @@ export function ChatBot() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me about railway rules, chapters, or regulations..."
-              className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+              disabled={isLoading}
+              className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm disabled:opacity-50"
             />
             <Button
               onClick={handleSend}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || isLoading}
               className="bg-blue-600 hover:bg-blue-700 px-4"
             >
               <Send className="h-4 w-4" />
