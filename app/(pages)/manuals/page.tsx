@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { BookOpen, Search, Filter, FileText, MoreVertical, Table } from 'lucide-react'
+import { BookOpen, Search, Filter, FileText, MoreVertical, Table, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -36,9 +36,11 @@ export default function ManualsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterActive, setFilterActive] = useState(true)
   const [activeTab, setActiveTab] = useState('Engineering')
+  const [highlights, setHighlights] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchManuals()
+    fetchHighlights()
   }, [])
 
   const fetchManuals = async () => {
@@ -52,6 +54,38 @@ export default function ManualsPage() {
       console.error('Error fetching manuals:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchHighlights = async () => {
+    try {
+      const response = await fetch('/api/change-logs?entityType=MANUAL&unreadOnly=true')
+      if (response.ok) {
+        const data = await response.json()
+        const ids = new Set(data.map((c: any) => c.entityId))
+        setHighlights(ids)
+      }
+    } catch (error) {
+      console.error('Error fetching highlights:', error)
+    }
+  }
+
+  const handleManualClick = async (manualId: string) => {
+    if (highlights.has(manualId)) {
+      try {
+        await fetch('/api/notifications/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entityId: manualId, entityType: 'MANUAL' })
+        })
+        setHighlights(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(manualId)
+          return newSet
+        })
+      } catch (error) {
+        console.error('Error marking as read:', error)
+      }
     }
   }
 
@@ -110,33 +144,33 @@ export default function ManualsPage() {
     <div className="min-h-screen bg-slate-50" suppressHydrationWarning>
       <Header />
       
-      <div className="w-full px-4 py-8">
+      <div className="w-full px-3 py-4 sm:px-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <BookOpen className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-slate-900">Manuals</h1>
+        <div className="mb-4 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4">
+            <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <h1 className="text-xl sm:text-3xl font-bold text-slate-900">Manuals</h1>
           </div>
-          <p className="text-slate-600 text-lg">
+          <p className="text-slate-600 text-sm sm:text-lg">
             Technical manuals and operational guides
           </p>
         </div>
 
         {/* Search and Filter */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
             <Input
-              placeholder="Search manuals by title, description, or code..."
+              placeholder="Search manuals..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-10 sm:h-auto text-sm"
             />
           </div>
           <Button
             variant={filterActive ? "default" : "outline"}
             onClick={() => setFilterActive(!filterActive)}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 h-10 sm:h-auto text-sm"
           >
             <Filter className="h-4 w-4" />
             {filterActive ? 'Active Only' : 'All Manuals'}
@@ -145,13 +179,33 @@ export default function ManualsPage() {
 
         {/* Department Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 mb-6">
-            {DEPARTMENTS.map((dept) => (
-              <TabsTrigger key={dept} value={dept} className="text-xs sm:text-sm">
-                {dept}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="relative mb-4 sm:mb-6 bg-white rounded-lg border border-slate-200 p-1.5 sm:p-2">
+            <button
+              onClick={() => document.getElementById('tabs-scroll')?.scrollBy({ left: -150, behavior: 'smooth' })}
+              className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-10 bg-blue-600 text-white shadow-lg rounded-md p-1.5 sm:p-2 hover:bg-blue-700 transition-colors active:scale-95"
+            >
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+            <div id="tabs-scroll" className="overflow-x-auto overflow-y-hidden scrollbar-hide px-9 sm:px-12" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <TabsList className="inline-flex w-auto bg-transparent border-0 gap-1.5 sm:gap-2 flex-nowrap">
+                {DEPARTMENTS.map((dept) => (
+                  <TabsTrigger 
+                    key={dept} 
+                    value={dept} 
+                    className="whitespace-nowrap flex-shrink-0 px-4 py-2 sm:px-6 sm:py-2 text-xs sm:text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-slate-100 data-[state=inactive]:text-slate-700 rounded-md transition-all active:scale-95"
+                  >
+                    {dept}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+            <button
+              onClick={() => document.getElementById('tabs-scroll')?.scrollBy({ left: 150, behavior: 'smooth' })}
+              className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-10 bg-blue-600 text-white shadow-lg rounded-md p-1.5 sm:p-2 hover:bg-blue-700 transition-colors active:scale-95"
+            >
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+          </div>
 
           {DEPARTMENTS.map((dept) => {
             const departmentManuals = getManualsByDepartment(dept)
@@ -159,37 +213,38 @@ export default function ManualsPage() {
               <TabsContent key={dept} value={dept}>
                 {departmentManuals.length === 0 ? (
                   <Card>
-                    <CardContent className="p-8 text-center">
-                      <BookOpen className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                      <p className="text-slate-600">No {dept} manuals available</p>
+                    <CardContent className="p-6 sm:p-8 text-center">
+                      <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400 mx-auto mb-2" />
+                      <p className="text-slate-600 text-sm sm:text-base">No {dept} manuals available</p>
                     </CardContent>
                   </Card>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                     {departmentManuals.map((manual) => {
                       const department = getDepartmentFromCode(manual.code)
+                      const isNew = highlights.has(manual.id)
                       return (
-                        <Link key={manual.id} href={`/manuals/${manual.id}`}>
-                          <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group border border-slate-200 hover:border-blue-300">
-                            <CardContent className="p-4">
-                              <div className="flex items-start justify-between mb-3">
-                                <div className="flex-1">
-                                  <div className="mb-3">
-                                    <div className="w-12 h-16 bg-blue-100 rounded border border-blue-200 flex items-center justify-center">
-                                      <FileText className="h-6 w-6 text-blue-600" />
-                                    </div>
+                        <Link key={manual.id} href={`/manuals/${manual.id}`} onClick={() => handleManualClick(manual.id)}>
+                          <Card className={`hover:shadow-lg transition-all duration-200 cursor-pointer group border hover:border-blue-300 active:scale-95 ${
+                            isNew ? 'bg-yellow-50 border-yellow-400' : 'border-slate-200'
+                          }`}>
+                            <CardContent className="p-3 sm:p-4">
+                              <div className="flex flex-col">
+                                <div className="mb-2 sm:mb-3">
+                                  <div className="w-10 h-12 sm:w-12 sm:h-16 bg-blue-100 rounded border border-blue-200 flex items-center justify-center mx-auto">
+                                    <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                                   </div>
-                                  <h3 className="font-medium text-sm text-slate-900 group-hover:text-blue-600 transition-colors mb-1 h-8 overflow-hidden">
-                                    <span className="block truncate">{manual.title}</span>
-                                  </h3>
-                                  <p className="text-xs text-slate-500 mb-2">{manual.code}</p>
                                 </div>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <Badge variant={manual.isActive ? "default" : "secondary"} className="text-xs">
-                                  {manual.isActive ? 'Active' : 'Inactive'}
-                                </Badge>
-                                {manual.version && <span className="text-xs text-slate-500">v{manual.version}</span>}
+                                <h3 className="font-medium text-xs sm:text-sm text-slate-900 group-hover:text-blue-600 transition-colors mb-1 text-center line-clamp-2 min-h-[2.5rem] sm:min-h-[2rem]">
+                                  {manual.title}
+                                </h3>
+                                <p className="text-[10px] sm:text-xs text-slate-500 mb-2 text-center truncate">{manual.code}</p>
+                                <div className="flex items-center justify-between gap-1">
+                                  <Badge variant={manual.isActive ? "default" : "secondary"} className="text-[10px] sm:text-xs px-1.5 sm:px-2">
+                                    {manual.isActive ? 'Active' : 'Inactive'}
+                                  </Badge>
+                                  {manual.version && <span className="text-[10px] sm:text-xs text-slate-500">v{manual.version}</span>}
+                                </div>
                               </div>
                             </CardContent>
                           </Card>

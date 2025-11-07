@@ -71,13 +71,47 @@ const RulesManagement = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [textImport, setTextImport] = useState("");
   const [fileName, setFileName] = useState("");
+  const [highlights, setHighlights] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab) {
       setActiveTab(tab);
     }
+    fetchHighlights();
   }, [searchParams]);
+
+  const fetchHighlights = async () => {
+    try {
+      const response = await fetch('/api/change-logs?entityType=RULE&unreadOnly=true');
+      if (response.ok) {
+        const data = await response.json();
+        const ids = new Set(data.map((c: any) => c.entityId));
+        setHighlights(ids);
+      }
+    } catch (error) {
+      console.error('Error fetching highlights:', error);
+    }
+  };
+
+  const handleRuleClick = async (ruleId: string) => {
+    if (highlights.has(ruleId)) {
+      try {
+        await fetch('/api/notifications/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entityId: ruleId, entityType: 'RULE' })
+        });
+        setHighlights(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(ruleId);
+          return newSet;
+        });
+      } catch (error) {
+        console.error('Error marking as read:', error);
+      }
+    }
+  };
 
   const handleSaveRule = () => {
     toast.success("Rule updated successfully!");
@@ -250,30 +284,34 @@ const RulesManagement = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="max-h-[600px] overflow-y-auto">
-                    {filteredRules.map((rule) => (
-                      <div
-                        key={rule.id}
-                        className={`p-4 border-b border-border cursor-pointer hover:bg-muted/50 transition-colors ${
-                          selectedRule.id === rule.id ? "bg-primary/10 border-l-4 border-l-primary" : ""
-                        }`}
-                        onClick={() => {
-                          setSelectedRule(rule);
-                          setEditContent(rule.content);
-                          setIsEditing(false);
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge variant="outline">Rule {rule.id}</Badge>
-                          <Badge className="bg-success/10 text-success">
-                            {rule.status}
-                          </Badge>
+                    {filteredRules.map((rule) => {
+                      const isNew = highlights.has(rule.id);
+                      return (
+                        <div
+                          key={rule.id}
+                          className={`p-4 border-b border-border cursor-pointer hover:bg-muted/50 transition-colors ${
+                            selectedRule.id === rule.id ? "bg-primary/10 border-l-4 border-l-primary" : ""
+                          } ${isNew ? "bg-yellow-50 border-l-4 border-l-yellow-400" : ""}`}
+                          onClick={() => {
+                            handleRuleClick(rule.id);
+                            setSelectedRule(rule);
+                            setEditContent(rule.content);
+                            setIsEditing(false);
+                          }}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge variant="outline">Rule {rule.id}</Badge>
+                            <Badge className="bg-success/10 text-success">
+                              {rule.status}
+                            </Badge>
+                          </div>
+                          <h4 className="font-semibold text-sm mb-1">{rule.title}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Chapter {rule.chapter} • {rule.lastModified}
+                          </p>
                         </div>
-                        <h4 className="font-semibold text-sm mb-1">{rule.title}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Chapter {rule.chapter} • {rule.lastModified}
-                        </p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

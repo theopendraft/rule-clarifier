@@ -1,52 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-interface Change {
-  id: string;
-  action: string;
-  changes: any;
-  createdAt: string;
+interface ChangeHighlight {
+  entityId: string;
+  entityType: string;
+  isNew: boolean;
 }
 
-export function useChangeHighlight(entityId: string, entityType: string, userId?: string) {
-  const [viewedChanges, setViewedChanges] = useState<Set<string>>(new Set());
-  const [changes, setChanges] = useState<Change[]>([]);
-  const [loading, setLoading] = useState(true);
+export function useChangeHighlight(entityType: string) {
+  const [highlights, setHighlights] = useState<Map<string, boolean>>(new Map());
 
   useEffect(() => {
-    const stored = localStorage.getItem(`viewed_changes_${userId || 'guest'}`);
-    if (stored) {
-      try {
-        setViewedChanges(new Set(JSON.parse(stored)));
-      } catch (e) {
-        console.error("Error parsing viewed changes:", e);
-      }
-    }
-    fetchChanges();
-  }, [entityId, entityType, userId]);
+    fetchUnreadChanges();
+  }, [entityType]);
 
-  const fetchChanges = async () => {
+  const fetchUnreadChanges = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(`/api/change-logs?entityId=${entityId}&entityType=${entityType}`);
+      const response = await fetch(`/api/change-logs?entityType=${entityType}&unreadOnly=true`);
       if (response.ok) {
         const data = await response.json();
-        setChanges(data);
+        const newHighlights = new Map<string, boolean>();
+        data.forEach((change: any) => {
+          newHighlights.set(change.entityId, true);
+        });
+        setHighlights(newHighlights);
       }
     } catch (error) {
-      console.error("Error fetching changes:", error);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching unread changes:', error);
     }
   };
 
-  const markAsViewed = (changeId: string) => {
-    const newViewed = new Set(viewedChanges);
-    newViewed.add(changeId);
-    setViewedChanges(newViewed);
-    localStorage.setItem(`viewed_changes_${userId || 'guest'}`, JSON.stringify(Array.from(newViewed)));
+  const markAsRead = async (entityId: string) => {
+    try {
+      await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entityId, entityType })
+      });
+      
+      setHighlights(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(entityId);
+        return newMap;
+      });
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
   };
 
-  const isChangeViewed = (changeId: string) => viewedChanges.has(changeId);
+  const isHighlighted = (entityId: string) => highlights.has(entityId);
 
-  return { changes, loading, markAsViewed, isChangeViewed };
+  return { isHighlighted, markAsRead, refreshHighlights: fetchUnreadChanges };
 }

@@ -1,8 +1,7 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -10,16 +9,9 @@ import { Separator } from '@/components/ui/separator';
 import { Menu, Search, LogOut, BookOpen, FileText } from 'lucide-react';
 
 export default function JPOPage() {
-  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, loading, router]);
 
   const menuItems = [
     { label: 'GR&SR', id: 'grsr' },
@@ -45,19 +37,6 @@ export default function JPOPage() {
     localStorage.removeItem('isAuthenticated');
     router.push('/login');
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600 font-medium">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) return null;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">

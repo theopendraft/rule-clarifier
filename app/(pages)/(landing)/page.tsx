@@ -19,7 +19,7 @@ export default function HomePage() {
       title: "GR&SR",
       description: "General Rules & Subsidiary Rules",
       icon: BookOpen,
-      href: "/grsr"
+      href: "/rules"
     },
     {
       title: "Manuals",

@@ -1,8 +1,7 @@
 'use client'
 
-import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -84,7 +83,6 @@ const entityIcons = {
 }
 
 export default function ChangeLogPage() {
-  const { isAuthenticated, loading } = useAuth()
   const router = useRouter()
   const [changeLogs, setChangeLogs] = useState<ChangeLog[]>([])
   const [filteredLogs, setFilteredLogs] = useState<ChangeLog[]>([])
@@ -96,16 +94,8 @@ export default function ChangeLogPage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [isAuthenticated, loading, router])
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchChangeLogs()
-    }
-  }, [isAuthenticated])
+    fetchChangeLogs()
+  }, [])
 
   useEffect(() => {
     filterChangeLogs()
@@ -550,21 +540,6 @@ export default function ChangeLogPage() {
         </div>
       )
     }).filter(Boolean) // Remove null entries (unchanged sections)
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated) {
-    return null
   }
 
   return (

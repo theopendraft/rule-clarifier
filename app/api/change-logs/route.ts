@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const entityId = searchParams.get("entityId");
     const entityType = searchParams.get("entityType");
+    const unreadOnly = searchParams.get("unreadOnly") === "true";
 
     const whereClause: any = {};
     
@@ -17,6 +18,24 @@ export async function GET(request: NextRequest) {
     
     if (entityType) {
       whereClause.entityType = entityType;
+    }
+
+    if (unreadOnly) {
+      const unreadNotifications = await prisma.notification.findMany({
+        where: {
+          entityType: entityType as any,
+          isRead: false
+        },
+        select: { entityId: true }
+      }).catch(() => []);
+      
+      const unreadEntityIds = unreadNotifications.map(n => n.entityId).filter(Boolean) as string[];
+      
+      if (unreadEntityIds.length > 0) {
+        whereClause.entityId = { in: unreadEntityIds };
+      } else {
+        return NextResponse.json([]);
+      }
     }
 
     const changes = await prisma.changeLog.findMany({

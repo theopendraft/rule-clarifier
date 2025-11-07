@@ -21,6 +21,14 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching circulars:', error)
     
+    // Check if it's a database quota exceeded error
+    if (error instanceof Error && error.message.includes('data transfer quota')) {
+      return NextResponse.json(
+        { error: 'Database quota exceeded. Please upgrade your plan or try again later.' },
+        { status: 503 }
+      )
+    }
+    
     // Check if it's a table doesn't exist error
     if (error instanceof Error && error.message.includes('relation "circulars" does not exist')) {
       console.error('Circulars table does not exist - migration may not have been applied')
