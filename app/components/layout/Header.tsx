@@ -15,9 +15,14 @@ export function Header() {
   const { userRole, userDepartment, logout } = useAuth();
 
   const handleLogout = () => {
+    const currentRole = userRole;
     logout();
     toast.success("Logged out successfully");
-    router.push("/users");
+    if (currentRole === 'admin') {
+      router.push("/users");
+    } else {
+      router.push("/users");
+    }
   };
 
   const menuItems = [

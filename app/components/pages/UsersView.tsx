@@ -383,7 +383,7 @@ const Home = () => {
     { label: 'Scenarios', id: 'scenarios' },
     { label: 'JPO', id: 'jpo' },
     { label: 'Admin?', id: 'admin' },
-    { label: 'Change log', id: 'changelog' },
+    { label: 'Change Log', id: 'changelog' },
   ];
 
   const handleMenuClick = (id: string) => {
@@ -434,11 +434,9 @@ const Home = () => {
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.href = '/users'}>
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-                <path d="M12 2L2 7v10c0 5.5 3.8 10.7 10 12 6.2-1.3 10-6.5 10-12V7l-10-5z" fill="#1e40af" stroke="#1e40af" strokeWidth="2"/>
-              </svg>
+              <BookOpen className="w-6 h-6 text-blue-900" />
             </div>
             <div>
               <h1 className="text-xl font-semibold tracking-wide">Rail Rules</h1>

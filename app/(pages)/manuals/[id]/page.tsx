@@ -30,6 +30,7 @@ export default function ManualDetailPage() {
   const [manual, setManual] = useState<Manual | null>(null)
   const [loading, setLoading] = useState(true)
   const [divSections, setDivSections] = useState<string[]>([])
+  const [hasRecentChanges, setHasRecentChanges] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const canEditManual = (manual: Manual) => {
@@ -52,6 +53,13 @@ export default function ManualDetailPage() {
       if (response.ok) {
         const data = await response.json()
         setManual(data)
+        
+        // Check for recent changes
+        const changeLogResponse = await fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}&unreadOnly=true`)
+        if (changeLogResponse.ok) {
+          const changeLogs = await changeLogResponse.json()
+          setHasRecentChanges(changeLogs.length > 0)
+        }
         
         // Extract div IDs after setting manual data
         setTimeout(() => {
@@ -228,9 +236,14 @@ export default function ManualDetailPage() {
 
           {/* Description */}
           {manual.description && (
-            <Card className="mb-8">
+            <Card className={`mb-8 ${hasRecentChanges ? 'bg-yellow-50 border-yellow-300' : ''}`}>
               <CardHeader>
-                <CardTitle className="text-lg">Content</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Content</CardTitle>
+                  {hasRecentChanges && (
+                    <Badge className="bg-yellow-500 text-white">Recently Updated</Badge>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div 
@@ -369,15 +382,13 @@ export default function ManualDetailPage() {
 
           {/* Actions */}
           <div className="flex gap-4">
-            {canEditManual(manual) && (
-              <Button 
-                onClick={() => router.push(`/manuals/${manual.id}/edit`)}
-                className="flex items-center gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                Edit Manual
-              </Button>
-            )}
+            <Button 
+              onClick={() => router.push(`/manuals/${manual.id}/edit`)}
+              className="flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              Edit Manual
+            </Button>
             <Button 
               onClick={() => window.print()} 
               variant="outline"

@@ -589,9 +589,9 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                                 onClick={() => {
                                   setEditingRule(rule.number);
                                   setEditedTitle(rule.title);
-                                  setEditedContent(removeLinks(rule.content));
+                                  setEditedContent(rule.content);
                                   setHasUnsavedChanges(false);
-                                  toast.info(`Editing rule ${rule.number}: ${rule.title} (links removed)`);
+                                  toast.info(`Editing rule ${rule.number}: ${rule.title}`);
                                 }}
                                 className="text-blue-600 hover:text-blue-800 flex-shrink-0"
                               >
@@ -614,7 +614,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
                             >
                               <div 
                                 className="prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: removeLinks(rule.content) }}
+                                dangerouslySetInnerHTML={{ __html: rule.content }}
                               />
                             </div>
                           </div>
