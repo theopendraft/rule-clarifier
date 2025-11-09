@@ -243,6 +243,7 @@ export default function ManualsPage() {
                                   <Badge variant={manual.isActive ? "default" : "secondary"} className="text-[10px] sm:text-xs px-1.5 sm:px-2">
                                     {manual.isActive ? 'Active' : 'Inactive'}
                                   </Badge>
+                                  {isNew && <Badge className="bg-yellow-500 text-white text-[10px] sm:text-xs px-1.5 sm:px-2">New</Badge>}
                                   {manual.version && <span className="text-[10px] sm:text-xs text-slate-500">v{manual.version}</span>}
                                 </div>
                               </div>

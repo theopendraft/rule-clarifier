@@ -3,16 +3,35 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Train, Menu, Search, LogOut } from "lucide-react";
+import { Train, Menu, Search, LogOut, Bell } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function Header() {
   const router = useRouter();
   const { userRole, userDepartment, logout } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    fetchUnreadCount()
+    const interval = setInterval(fetchUnreadCount, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch('/api/change-logs?entityType=MANUAL&unreadOnly=true')
+      if (response.ok) {
+        const data = await response.json()
+        setUnreadCount(data.length)
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+    }
+  }
 
   const handleLogout = () => {
     const currentRole = userRole;
@@ -72,6 +91,19 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="text-white hover:bg-blue-700">
             <Search className="h-5 w-5" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white hover:bg-blue-700 relative"
+            onClick={() => router.push('/manuals')}
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </Button>
           {userRole === 'admin' && (
             <>

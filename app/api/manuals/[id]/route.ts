@@ -17,7 +17,7 @@ export async function PUT(
     })
 
     // Create change log
-    await prisma.changeLog.create({
+    const changeLog = await prisma.changeLog.create({
       data: {
         entityType: 'MANUAL',
         entityId: id,
@@ -28,6 +28,27 @@ export async function PUT(
         userId: 'cmflolqqc00006vyvs484vwgq'
       }
     })
+
+    // Create notifications for all users
+    const users = await prisma.user.findMany({
+      where: { id: { not: 'cmflolqqc00006vyvs484vwgq' } }
+    })
+
+    await Promise.all(
+      users.map(user =>
+        prisma.notification.create({
+          data: {
+            userId: user.id,
+            title: `Manual Updated: ${updatedManual.title}`,
+            message: changeReason || 'Manual content has been updated',
+            type: 'CHANGE',
+            entityType: 'MANUAL',
+            entityId: id,
+            changelogId: changeLog.id
+          }
+        })
+      )
+    )
 
     return NextResponse.json({ success: true, manual: updatedManual })
   } catch (error: any) {

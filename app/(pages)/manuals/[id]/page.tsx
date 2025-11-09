@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, BookOpen, Calendar, Tag, Clock, User, FileText, Download, ExternalLink, Edit } from 'lucide-react'
+import { ArrowLeft, BookOpen, Calendar, Tag, Clock, User, FileText, Download, ExternalLink, Edit, X } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
@@ -32,6 +32,8 @@ export default function ManualDetailPage() {
   const [divSections, setDivSections] = useState<string[]>([])
   const [hasRecentChanges, setHasRecentChanges] = useState(false)
   const [changeLogId, setChangeLogId] = useState<string | null>(null)
+  const [showChangePopup, setShowChangePopup] = useState(false)
+  const [changeDetails, setChangeDetails] = useState<any>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const canEditManual = (manual: Manual) => {
@@ -62,6 +64,8 @@ export default function ManualDetailPage() {
           if (changeLogs.length > 0) {
             setHasRecentChanges(true)
             setChangeLogId(changeLogs[0].id)
+            setChangeDetails(changeLogs[0])
+            setShowChangePopup(true)
           }
         }
         
@@ -430,6 +434,81 @@ export default function ManualDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Change Notification Popup */}
+      {showChangePopup && changeDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button
+              onClick={() => setShowChangePopup(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-yellow-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Manual Updated</h3>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Changes Made:</p>
+                <p className="text-sm text-gray-600 mt-1">{changeDetails.reason || 'Manual content has been updated'}</p>
+              </div>
+
+              {changeDetails.user && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Updated By:</p>
+                  <p className="text-sm text-gray-600 mt-1">{changeDetails.user.name || changeDetails.user.email}</p>
+                </div>
+              )}
+
+              <div>
+                <p className="text-sm font-medium text-gray-700">Updated At:</p>
+                <p className="text-sm text-gray-600 mt-1">{format(new Date(changeDetails.createdAt), 'MMM dd, yyyy HH:mm')}</p>
+              </div>
+
+              {changeDetails.supportingDoc && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Supporting Document:</p>
+                  <a 
+                    href={changeDetails.supportingDoc} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline mt-1 block"
+                  >
+                    View Document
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              <Button
+                onClick={() => {
+                  setShowChangePopup(false)
+                  if (hasRecentChanges && changeLogId) {
+                    fetch('/api/notifications/mark-read', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
+                    })
+                    setHasRecentChanges(false)
+                  }
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                Got it
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
