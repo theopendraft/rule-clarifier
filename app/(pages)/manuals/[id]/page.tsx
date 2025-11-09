@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, BookOpen, Calendar, Tag, Clock, User, FileText, Download, ExternalLink } from 'lucide-react'
+import { ArrowLeft, BookOpen, Calendar, Tag, Clock, User, FileText, Download, ExternalLink, Edit } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { useAuth } from '@/contexts/AuthContext'
 import { format } from 'date-fns'
@@ -31,6 +31,7 @@ export default function ManualDetailPage() {
   const [loading, setLoading] = useState(true)
   const [divSections, setDivSections] = useState<string[]>([])
   const [hasRecentChanges, setHasRecentChanges] = useState(false)
+  const [changeLogId, setChangeLogId] = useState<string | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const canEditManual = (manual: Manual) => {
@@ -58,7 +59,10 @@ export default function ManualDetailPage() {
         const changeLogResponse = await fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}&unreadOnly=true`)
         if (changeLogResponse.ok) {
           const changeLogs = await changeLogResponse.json()
-          setHasRecentChanges(changeLogs.length > 0)
+          if (changeLogs.length > 0) {
+            setHasRecentChanges(true)
+            setChangeLogId(changeLogs[0].id)
+          }
         }
         
         // Extract div IDs after setting manual data
@@ -207,6 +211,15 @@ export default function ManualDetailPage() {
                   )}
                 </div>
               </div>
+              {canEditManual(manual) && (
+                <Button
+                  onClick={() => router.push(`/manuals/${manual.id}/edit`)}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Edit className="h-4 w-4" />
+                  Edit Manual
+                </Button>
+              )}
             </div>
           </div>
 
@@ -236,12 +249,28 @@ export default function ManualDetailPage() {
 
           {/* Description */}
           {manual.description && (
-            <Card className={`mb-8 ${hasRecentChanges ? 'bg-yellow-50 border-yellow-300' : ''}`}>
+            <Card 
+              className={`mb-8 cursor-pointer transition-all ${hasRecentChanges ? 'bg-yellow-50 border-yellow-300' : ''}`}
+              onClick={async () => {
+                if (hasRecentChanges && changeLogId) {
+                  try {
+                    await fetch('/api/notifications/mark-read', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
+                    })
+                    setHasRecentChanges(false)
+                  } catch (error) {
+                    console.error('Error marking as read:', error)
+                  }
+                }
+              }}
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Content</CardTitle>
                   {hasRecentChanges && (
-                    <Badge className="bg-yellow-500 text-white">Recently Updated</Badge>
+                    <Badge className="bg-yellow-500 text-white">Recently Updated - Click to dismiss</Badge>
                   )}
                 </div>
               </CardHeader>
@@ -382,13 +411,6 @@ export default function ManualDetailPage() {
 
           {/* Actions */}
           <div className="flex gap-4">
-            <Button 
-              onClick={() => router.push(`/manuals/${manual.id}/edit`)}
-              className="flex items-center gap-2"
-            >
-              <FileText className="h-4 w-4" />
-              Edit Manual
-            </Button>
             <Button 
               onClick={() => window.print()} 
               variant="outline"

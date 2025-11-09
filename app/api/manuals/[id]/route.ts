@@ -8,7 +8,7 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const { description, supportingDoc, changeReason, docType } = body
+    const { description, supportingDoc, changeReason } = body
 
     // Update manual
     const updatedManual = await prisma.manual.update({
@@ -21,19 +21,19 @@ export async function PUT(
       data: {
         entityType: 'MANUAL',
         entityId: id,
-        changeType: 'UPDATE',
-        description: changeReason,
-        supportingDoc,
-        docType: docType.toUpperCase(),
+        action: 'UPDATE',
+        changes: { description: 'Manual content updated' },
+        reason: changeReason || 'Manual updated',
+        supportingDoc: supportingDoc || null,
         userId: 'cmflolqqc00006vyvs484vwgq'
       }
     })
 
-    return NextResponse.json(updatedManual)
-  } catch (error) {
+    return NextResponse.json({ success: true, manual: updatedManual })
+  } catch (error: any) {
     console.error('Error updating manual:', error)
     return NextResponse.json(
-      { error: 'Failed to update manual' },
+      { error: 'Failed to update manual', details: error?.message },
       { status: 500 }
     )
   }

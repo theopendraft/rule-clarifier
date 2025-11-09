@@ -7,11 +7,13 @@ import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, Save, X, Upload, FileText } from 'lucide-react'
+import { ArrowLeft, Save, X, Upload, FileText, Eye } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { toast } from 'sonner'
 import { UploadButton } from '@uploadthing/react'
 import type { OurFileRouter } from '@/lib/uploadthing'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Manual {
   id: string
@@ -25,6 +27,7 @@ interface Manual {
 export default function EditManualPage() {
   const params = useParams()
   const router = useRouter()
+  const { userDepartment } = useAuth()
   const [manual, setManual] = useState<Manual | null>(null)
   const [loading, setLoading] = useState(true)
   const [editedDescription, setEditedDescription] = useState('')
@@ -34,6 +37,15 @@ export default function EditManualPage() {
   const [changeReason, setChangeReason] = useState('')
   const [docType, setDocType] = useState<'upload' | 'text'>('upload')
   const [uploadedFiles, setUploadedFiles] = useState<{ name: string; size: number; url: string }[]>([])
+  const [showPreview, setShowPreview] = useState(false)
+
+  const canEditManual = (manual: Manual) => {
+    if (userDepartment === 'admin') return true
+    if (userDepartment === 'engineering' && !manual.code.toLowerCase().startsWith('snt-') && !manual.code.toLowerCase().startsWith('safety-')) return true
+    if (userDepartment === 'safety' && manual.code.toLowerCase().startsWith('safety-')) return true
+    if (userDepartment === 'snt' && manual.code.toLowerCase().startsWith('snt-')) return true
+    return false
+  }
 
   useEffect(() => {
     if (params.id) {
@@ -48,6 +60,12 @@ export default function EditManualPage() {
         const data = await response.json()
         setManual(data)
         setEditedDescription(data.description || '')
+        
+        // Check permissions
+        if (!canEditManual(data)) {
+          toast.error('You do not have permission to edit this manual')
+          router.push(`/manuals/${data.id}`)
+        }
       }
     } catch (error) {
       console.error('Error fetching manual:', error)
@@ -80,7 +98,11 @@ export default function EditManualPage() {
         })
       })
 
-      if (!response.ok) throw new Error('Failed to update manual')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', errorData)
+        throw new Error(errorData.details || errorData.error || 'Failed to update manual')
+      }
 
       toast.success('Manual updated successfully')
       setHasUnsavedChanges(false)
@@ -88,7 +110,7 @@ export default function EditManualPage() {
       router.push(`/manuals/${manual.id}`)
     } catch (error) {
       console.error('Error updating manual:', error)
-      toast.error('Failed to update manual')
+      toast.error(error instanceof Error ? error.message : 'Failed to update manual')
     }
   }
 
@@ -111,6 +133,24 @@ export default function EditManualPage() {
         <Header />
         <div className="container mx-auto px-4 py-8">
           <p>Manual not found</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!canEditManual(manual)) {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
+            <p className="text-slate-600 mb-6">You do not have permission to edit this manual.</p>
+            <Button onClick={() => router.push(`/manuals/${manual.id}`)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Manual
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -144,21 +184,40 @@ export default function EditManualPage() {
           </div>
 
           <div className="bg-white rounded-lg p-6 shadow-md">
-            <h1 className="text-2xl font-bold text-blue-900 mb-4">Edit Manual: {manual.title}</h1>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl font-bold text-blue-900">Edit Manual: {manual.title}</h1>
+              <Button
+                variant="outline"
+                onClick={() => setShowPreview(!showPreview)}
+                className="flex items-center gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                {showPreview ? 'Edit Mode' : 'Preview'}
+              </Button>
+            </div>
             
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Content</label>
-                <Textarea
-                  value={editedDescription}
-                  onChange={(e) => {
-                    setEditedDescription(e.target.value)
-                    setHasUnsavedChanges(true)
-                  }}
-                  className="min-h-[400px] font-mono text-sm"
-                  placeholder="Enter manual content (HTML supported)"
-                />
-              </div>
+              {showPreview ? (
+                <div className="border rounded-lg p-4 min-h-[400px]">
+                  <h3 className="text-lg font-semibold mb-4">Preview</h3>
+                  <div 
+                    className="prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: editedDescription }}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium mb-2">Content</label>
+                  <RichTextEditor
+                    content={editedDescription}
+                    onChange={(content) => {
+                      setEditedDescription(content)
+                      setHasUnsavedChanges(true)
+                    }}
+                    placeholder="Enter manual content..."
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -181,12 +240,17 @@ export default function EditManualPage() {
                 
                 <TabsContent value="upload" className="mt-4">
                   {uploadedFiles.length === 0 ? (
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <div className="border-2 border-dashed rounded-lg p-8 text-center bg-gray-50">
+                      <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-sm text-gray-600 mb-4">Pdf (16MB)</p>
                       <UploadButton<OurFileRouter, 'pdfUploader'>
                         endpoint="pdfUploader"
                         onClientUploadComplete={handleFileUpload}
                         onUploadError={(error) => toast.error(`Upload failed: ${error.message}`)}
+                        appearance={{
+                          button: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium",
+                          allowedContent: "hidden"
+                        }}
                       />
                     </div>
                   ) : (
