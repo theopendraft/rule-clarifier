@@ -14,6 +14,10 @@ export function Header() {
   const router = useRouter();
   const { userRole, userDepartment, logout } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0)
+  const [showSearch, setShowSearch] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     fetchUnreadCount()
@@ -27,9 +31,18 @@ export function Header() {
       if (response.ok) {
         const data = await response.json()
         setUnreadCount(data.length)
+        setNotifications(data)
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
+    }
+  }
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/manuals?search=${encodeURIComponent(searchQuery)}`)
+      setShowSearch(false)
+      setSearchQuery('')
     }
   }
 
@@ -89,14 +102,19 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="text-white hover:bg-blue-700">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white hover:bg-blue-700"
+            onClick={() => setShowSearch(!showSearch)}
+          >
             <Search className="h-5 w-5" />
           </Button>
           <Button 
             variant="ghost" 
             size="icon" 
             className="text-white hover:bg-blue-700 relative"
-            onClick={() => router.push('/manuals')}
+            onClick={() => setShowNotifications(!showNotifications)}
           >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
@@ -164,6 +182,60 @@ export function Header() {
           </Sheet>
         </div>
       </div>
+
+      {/* Search Dropdown */}
+      {showSearch && (
+        <div className="absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-40">
+          <div className="max-w-2xl mx-auto flex gap-2">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              placeholder="Search manuals, circulars..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoFocus
+            />
+            <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
+              Search
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications Dropdown */}
+      {showNotifications && (
+        <div className="absolute top-full right-0 bg-white shadow-lg border border-gray-200 rounded-lg mt-2 w-80 max-h-96 overflow-y-auto z-40 mr-4">
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-900">Notifications</h3>
+            <p className="text-xs text-gray-500">{unreadCount} unread</p>
+          </div>
+          <div className="divide-y divide-gray-200">
+            {notifications.length === 0 ? (
+              <div className="p-4 text-center text-gray-500 text-sm">
+                No new notifications
+              </div>
+            ) : (
+              notifications.map((notif) => (
+                <div
+                  key={notif.id}
+                  className="p-4 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => {
+                    router.push(`/manuals/${notif.entityId}`)
+                    setShowNotifications(false)
+                  }}
+                >
+                  <p className="text-sm font-medium text-gray-900">Manual Updated</p>
+                  <p className="text-xs text-gray-600 mt-1">{notif.reason || 'Content updated'}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(notif.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
