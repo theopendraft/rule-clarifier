@@ -7,10 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { LinkDialog } from "@/components/ui/link-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Chatbot } from "@/components/ui/chatbot";
-import { BookOpen, ChevronRight, ChevronLeft, Menu, FileText, Upload, X, Download, Search } from "lucide-react";
+import { BookOpen, ChevronRight, ChevronLeft, FileText, Upload, X, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
+import { Header } from "@/components/layout/Header";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { UploadButton } from "@uploadthing/react";
@@ -432,75 +431,7 @@ const Home = () => {
       `}</style>
       
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.href = '/users'}>
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-blue-900" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold tracking-wide">Rail Rules</h1>
-              <p className="text-xs text-blue-200">Indian Railways</p>
-            </div>
-          </div>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleMenuClick(item.id)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-blue-700"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden text-white hover:bg-blue-700">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="w-[280px] sm:w-[350px] bg-white">
-                <SheetHeader>
-                  <SheetTitle className="text-lg font-semibold text-blue-900">Menu</SheetTitle>
-                  <SheetDescription className="text-sm text-slate-600">
-                    Navigate through different sections and features
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="mt-4">
-                  <nav className="space-y-1">
-                    {menuItems.map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => handleMenuClick(item.id)}
-                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 text-slate-700 hover:text-blue-900 transition-colors font-medium"
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </nav>
-                  <Separator className="my-6" />
-                  <div className="px-4 py-3 bg-blue-50 rounded-lg">
-                    <p className="text-xs text-slate-600">Version 2.0.1</p>
-                    <p className="text-xs text-slate-500 mt-1">Last updated: Nov 2025</p>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Chapter Navigation */}
       {!isChatbotExpanded && (

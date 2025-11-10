@@ -35,6 +35,8 @@ export default function ManualDetailPage() {
   const [showChangePopup, setShowChangePopup] = useState(false)
   const [changeDetails, setChangeDetails] = useState<any>(null)
   const [changeLogs, setChangeLogs] = useState<any[]>([])
+  const [changedElements, setChangedElements] = useState<string[]>([])
+  const [highlightsVisible, setHighlightsVisible] = useState(true)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const canEditManual = (manual: Manual) => {
@@ -46,6 +48,7 @@ export default function ManualDetailPage() {
   }
 
   const isAdminView = userDepartment === 'admin' || userDepartment === 'engineering' || userDepartment === 'safety' || userDepartment === 'snt'
+  const isUserView = !isAdminView
 
   useEffect(() => {
     if (params.id) {
@@ -77,6 +80,16 @@ export default function ManualDetailPage() {
                 setChangeLogId(unreadLogs[0].id)
                 setChangeDetails(unreadLogs[0])
                 setShowChangePopup(true)
+                
+                // Extract changed element IDs from change logs
+                const elements: string[] = []
+                unreadLogs.forEach((log: any) => {
+                  if (log.changes?.changedElements) {
+                    elements.push(...log.changes.changedElements)
+                  }
+                })
+                setChangedElements(elements)
+                setHighlightsVisible(true)
               }
             }
           }
@@ -128,16 +141,18 @@ export default function ManualDetailPage() {
   }, [manual])
 
   useEffect(() => {
-    // Add CSS for target highlighting
+    // Add CSS for changed element highlighting
     const style = document.createElement('style')
     style.textContent = `
-      [id]:target {
-        background-color: #dbeafe !important;
-        border-left: 4px solid #1e40af !important;
-        padding: 12px !important;
-        border-radius: 6px !important;
-        margin: 8px 0 !important;
-        transition: all 0.3s ease !important;
+      .changed-highlight {
+        background-color: #fef3c7 !important;
+        border-left: 4px solid #f59e0b !important;
+        padding: 8px 12px !important;
+        border-radius: 4px !important;
+        margin: 4px 0 !important;
+        display: inline-block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
       }
     `
     document.head.appendChild(style)
@@ -147,6 +162,24 @@ export default function ManualDetailPage() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    // Highlight changed elements ONLY for regular users (not admins)
+    if (isUserView && changedElements.length > 0 && highlightsVisible && contentRef.current) {
+      setTimeout(() => {
+        changedElements.forEach(elementId => {
+          const element = contentRef.current?.querySelector(`[data-change-id="${elementId}"]`)
+          if (element) {
+            element.classList.add('changed-highlight')
+          }
+        })
+      }, 100)
+    } else if (!highlightsVisible && contentRef.current) {
+      // Remove highlights when user clicks OK
+      const highlighted = contentRef.current.querySelectorAll('.changed-highlight')
+      highlighted.forEach(el => el.classList.remove('changed-highlight'))
+    }
+  }, [changedElements, manual, isUserView, highlightsVisible])
 
   if (loading) {
     return (
@@ -266,34 +299,30 @@ export default function ManualDetailPage() {
 
           {/* Description */}
           {manual.description && (
-            <Card 
-              className={`mb-8 transition-all ${!isAdminView && hasRecentChanges ? 'bg-yellow-50 border-yellow-300 border-2' : ''}`}
-            >
+            <Card className="mb-8 transition-all">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Content</CardTitle>
-                  {!isAdminView && hasRecentChanges && (
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer" onClick={() => setShowChangePopup(true)}>Recently Updated - Click for details</Badge>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={async () => {
-                          try {
-                            await fetch('/api/notifications/mark-read', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
-                            })
-                            setHasRecentChanges(false)
-                          } catch (error) {
-                            console.error('Error marking as read:', error)
-                          }
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  {isUserView && hasRecentChanges && highlightsVisible && (
+                    <Button
+                      size="sm"
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                      onClick={async () => {
+                        try {
+                          await fetch('/api/notifications/mark-read', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
+                          })
+                          setHasRecentChanges(false)
+                          setHighlightsVisible(false)
+                        } catch (error) {
+                          console.error('Error marking as read:', error)
+                        }
+                      }}
+                    >
+                      OK - Clear Highlights
+                    </Button>
                   )}
                 </div>
               </CardHeader>
@@ -308,7 +337,6 @@ export default function ManualDetailPage() {
                       .replace(/&quot;/g, '"')
                       .replace(/&#39;/g, "'")
                       .replace(/&amp;/g, '&')
-                      .replace(/<div id="(\d+)"/g, '<div id="$1" class="scroll-mt-20"')
                   }}
                 />
               </CardContent>
