@@ -11,18 +11,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') as NotificationType
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Test database connection first
-    try {
-      await prisma.$connect()
-    } catch (dbError) {
-      console.error('Database connection failed:', dbError)
-      return NextResponse.json([], { status: 200 }) // Return empty array instead of error
+      return NextResponse.json([], { status: 200 })
     }
 
     const notifications = await prisma.notification.findMany({
@@ -47,7 +36,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(notifications || [])
   } catch (error) {
     console.error('Error fetching notifications:', error)
-    // Return empty array instead of error to prevent frontend crashes
     return NextResponse.json([], { status: 200 })
   }
 }

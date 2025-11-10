@@ -84,7 +84,9 @@ export default function ManualDetailPage() {
                 // Extract changed element IDs from change logs
                 const elements: string[] = []
                 unreadLogs.forEach((log: any) => {
-                  if (log.changes?.changedElements) {
+                  if (log.changes?.changedSections) {
+                    elements.push(...log.changes.changedSections)
+                  } else if (log.changes?.changedElements) {
                     elements.push(...log.changes.changedElements)
                   }
                 })

@@ -117,6 +117,7 @@ export function Header() {
               key={item.label}
               onClick={() => handleMenuClick(item)}
               className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+              suppressHydrationWarning
             >
               {item.label}
             </button>
@@ -129,6 +130,7 @@ export function Header() {
             size="icon" 
             className="text-white hover:bg-blue-700"
             onClick={() => setShowSearch(!showSearch)}
+            suppressHydrationWarning
           >
             <Search className="h-5 w-5" />
           </Button>
@@ -137,6 +139,7 @@ export function Header() {
             size="icon" 
             className="text-white hover:bg-blue-700 relative"
             onClick={() => setShowNotifications(!showNotifications)}
+            suppressHydrationWarning
           >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
@@ -153,7 +156,7 @@ export function Header() {
                 {userDepartment === 'snt' && 'S&T Dept'}
                 {userDepartment === 'admin' && 'Admin'}
               </div>
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden lg:flex text-white hover:bg-blue-700">
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden lg:flex text-white hover:bg-blue-700" suppressHydrationWarning>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
@@ -162,7 +165,7 @@ export function Header() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden text-white hover:bg-blue-700">
+              <Button variant="ghost" size="icon" className="lg:hidden text-white hover:bg-blue-700" suppressHydrationWarning>
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
@@ -180,6 +183,7 @@ export function Header() {
                       key={item.label}
                       onClick={() => handleMenuClick(item)}
                       className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 text-slate-700 hover:text-blue-900 transition-colors"
+                      suppressHydrationWarning
                     >
                       {item.label}
                     </button>
@@ -188,6 +192,7 @@ export function Header() {
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors flex items-center gap-2"
+                      suppressHydrationWarning
                     >
                       <LogOut className="h-4 w-4" />
                       Logout
@@ -217,8 +222,9 @@ export function Header() {
               placeholder="Search manuals, circulars..."
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoFocus
+              suppressHydrationWarning
             />
-            <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700" suppressHydrationWarning>
               Search
             </Button>
           </div>

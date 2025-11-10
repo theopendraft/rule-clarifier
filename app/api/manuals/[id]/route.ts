@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createChangelogEntry } from '@/lib/changelog-utils'
 
 export async function PUT(
   request: Request,
@@ -10,11 +11,34 @@ export async function PUT(
     const body = await request.json()
     const { description, supportingDoc, changeReason } = body
 
+    // Get old manual data
+    const oldManual = await prisma.manual.findUnique({
+      where: { id }
+    })
+
+    if (!oldManual) {
+      return NextResponse.json({ error: 'Manual not found' }, { status: 404 })
+    }
+
     // Update manual
     const updatedManual = await prisma.manual.update({
       where: { id },
       data: { description }
     })
+
+    // Create optimized changelog entry
+    const changelogEntry = createChangelogEntry(
+      'MANUAL',
+      id,
+      'UPDATE',
+      oldManual,
+      { description },
+      {
+        title: oldManual.title,
+        code: oldManual.code,
+        link: `/manuals/${id}`
+      }
+    )
 
     // Create change log
     const changeLog = await prisma.changeLog.create({
@@ -22,7 +46,7 @@ export async function PUT(
         entityType: 'MANUAL',
         entityId: id,
         action: 'UPDATE',
-        changes: { description: 'Manual content updated' },
+        changes: changelogEntry as any,
         reason: changeReason || 'Manual updated',
         supportingDoc: supportingDoc || null,
         userId: 'cmflolqqc00006vyvs484vwgq'

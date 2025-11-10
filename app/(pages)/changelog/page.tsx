@@ -573,11 +573,12 @@ export default function ChangeLogPage() {
                   className="pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  suppressHydrationWarning
                 />
               </div>
               
               <Select value={entityTypeFilter} onValueChange={setEntityTypeFilter}>
-                <SelectTrigger>
+                <SelectTrigger suppressHydrationWarning>
                   <SelectValue placeholder="Entity Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -589,7 +590,7 @@ export default function ChangeLogPage() {
               </Select>
 
               <Select value={actionFilter} onValueChange={setActionFilter}>
-                <SelectTrigger>
+                <SelectTrigger suppressHydrationWarning>
                   <SelectValue placeholder="Action" />
                 </SelectTrigger>
                 <SelectContent>
@@ -601,7 +602,7 @@ export default function ChangeLogPage() {
               </Select>
 
               <Select value={contentFilter} onValueChange={setContentFilter}>
-                <SelectTrigger>
+                <SelectTrigger suppressHydrationWarning>
                   <SelectValue placeholder="Content Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -611,7 +612,7 @@ export default function ChangeLogPage() {
                 </SelectContent>
               </Select>
 
-              <Button onClick={fetchChangeLogs} variant="outline" className="w-full">
+              <Button onClick={fetchChangeLogs} variant="outline" className="w-full" suppressHydrationWarning>
                 Refresh
               </Button>
             </div>
@@ -711,6 +712,7 @@ export default function ChangeLogPage() {
                                     size="sm"
                                     onClick={() => window.open(log.supportingDoc, '_blank')}
                                     className="flex items-center gap-1 text-xs"
+                                    suppressHydrationWarning
                                   >
                                     <Link className="h-3 w-3" />
                                     View Supporting Document
@@ -754,24 +756,36 @@ export default function ChangeLogPage() {
                           )}
                           
                           {Object.keys(log.changes).length > 0 && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleExpanded(log.id)}
-                              className="p-0 h-auto text-slate-600 hover:text-slate-800"
-                            >
-                              {isExpanded ? (
-                                <>
-                                  <ChevronUp className="h-4 w-4 mr-1" />
-                                  Hide Details
-                                </>
-                              ) : (
-                                <>
-                                  <ChevronDown className="h-4 w-4 mr-1" />
-                                  Show Details
-                                </>
-                              )}
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleExpanded(log.id)}
+                                className="p-0 h-auto text-slate-600 hover:text-slate-800"
+                                suppressHydrationWarning
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    <ChevronUp className="h-4 w-4 mr-1" />
+                                    Hide Details
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown className="h-4 w-4 mr-1" />
+                                    Show Details
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => router.push(`/changelog/${log.id}`)}
+                                className="text-xs"
+                                suppressHydrationWarning
+                              >
+                                View Full Details
+                              </Button>
+                            </div>
                           )}
                           
                           {isExpanded && Object.keys(log.changes).length > 0 && (

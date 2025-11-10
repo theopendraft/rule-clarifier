@@ -41,6 +41,7 @@ export const useNotifications = () => {
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
   const { isAuthenticated, userRole, userId } = useAuth();
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -51,7 +52,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       
       const response = await fetch(`/api/notifications?userId=${userId}&limit=50`, {
         signal: controller.signal,
@@ -67,19 +68,18 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         try {
           const data = JSON.parse(text);
           setNotifications(Array.isArray(data) ? data : []);
+          setFetchError(false);
         } catch (jsonError) {
-          console.error('Invalid JSON response from notifications API:', text);
           setNotifications([]);
+          setFetchError(true);
         }
       } else {
-        // Silently handle 404 - notifications API may not be available
         setNotifications([]);
+        setFetchError(true);
       }
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        console.warn('Notification fetch request timed out');
-      } else {
-        console.error('Error fetching notifications:', error);
+    } catch (error: any) {
+      if (error?.name !== 'AbortError') {
+        setFetchError(true);
       }
       setNotifications([]);
     } finally {
@@ -188,19 +188,18 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isAuthenticated, userId]);
 
-  // Auto-refresh notifications every 30 seconds (only if initial fetch was successful)
+  // Auto-refresh notifications every 30 seconds (only if no errors)
   useEffect(() => {
-    if (typeof window === 'undefined' || !isAuthenticated || !userId) return;
+    if (typeof window === 'undefined' || !isAuthenticated || !userId || fetchError) return;
 
     const interval = setInterval(() => {
-      // Only auto-refresh if we're not currently loading and have successfully loaded before
-      if (!loading) {
+      if (!loading && !fetchError) {
         fetchNotifications();
       }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, userId, loading]);
+  }, [isAuthenticated, userId, loading, fetchError]);
 
   return (
     <NotificationContext.Provider
