@@ -23,15 +23,37 @@ export function Header() {
     fetchUnreadCount()
     const interval = setInterval(fetchUnreadCount, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [userRole])
 
   const fetchUnreadCount = async () => {
+    // Only fetch notifications for regular users, not admins
+    if (userRole === 'admin') {
+      setUnreadCount(0)
+      setNotifications([])
+      return
+    }
+    
     try {
       const response = await fetch('/api/change-logs?entityType=MANUAL&unreadOnly=true')
       if (response.ok) {
         const data = await response.json()
         setUnreadCount(data.length)
-        setNotifications(data)
+        // Fetch manual details for each notification
+        const notificationsWithDetails = await Promise.all(
+          data.map(async (notif: any) => {
+            try {
+              const manualRes = await fetch(`/api/manuals/get?id=${notif.entityId}`)
+              if (manualRes.ok) {
+                const manual = await manualRes.json()
+                return { ...notif, manualTitle: manual.title, manualCode: manual.code }
+              }
+            } catch (err) {
+              console.error('Error fetching manual:', err)
+            }
+            return notif
+          })
+        )
+        setNotifications(notificationsWithDetails)
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
@@ -219,16 +241,31 @@ export function Header() {
               notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className="p-4 hover:bg-gray-50 cursor-pointer"
+                  className="p-4 hover:bg-gray-50 cursor-pointer border-l-4 border-yellow-400"
                   onClick={() => {
                     router.push(`/manuals/${notif.entityId}`)
                     setShowNotifications(false)
                   }}
                 >
-                  <p className="text-sm font-medium text-gray-900">Manual Updated</p>
-                  <p className="text-xs text-gray-600 mt-1">{notif.reason || 'Content updated'}</p>
+                  <div className="flex items-start justify-between mb-1">
+                    <p className="text-sm font-semibold text-gray-900">{notif.manualTitle || 'Manual Updated'}</p>
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">{notif.action}</span>
+                  </div>
+                  {notif.manualCode && (
+                    <p className="text-xs text-gray-500 mb-1">{notif.manualCode}</p>
+                  )}
+                  <p className="text-xs text-gray-700 mt-1 font-medium">Changes: {notif.reason || 'Content updated'}</p>
+                  {notif.user && (
+                    <p className="text-xs text-gray-600 mt-1">By: {notif.user.name || notif.user.email}</p>
+                  )}
                   <p className="text-xs text-gray-400 mt-1">
-                    {new Date(notif.createdAt).toLocaleDateString()}
+                    {new Date(notif.createdAt).toLocaleString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                   </p>
                 </div>
               ))

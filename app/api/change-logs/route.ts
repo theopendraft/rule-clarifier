@@ -43,6 +43,15 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
       take: 50,
     }).catch(() => []);
 

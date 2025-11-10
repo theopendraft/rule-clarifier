@@ -34,6 +34,7 @@ export default function ManualDetailPage() {
   const [changeLogId, setChangeLogId] = useState<string | null>(null)
   const [showChangePopup, setShowChangePopup] = useState(false)
   const [changeDetails, setChangeDetails] = useState<any>(null)
+  const [changeLogs, setChangeLogs] = useState<any[]>([])
   const contentRef = useRef<HTMLDivElement>(null)
 
   const canEditManual = (manual: Manual) => {
@@ -43,6 +44,8 @@ export default function ManualDetailPage() {
     if (userDepartment === 'snt' && manual.code.toLowerCase().startsWith('snt-')) return true
     return false
   }
+
+  const isAdminView = userDepartment === 'admin' || userDepartment === 'engineering' || userDepartment === 'safety' || userDepartment === 'snt'
 
   useEffect(() => {
     if (params.id) {
@@ -57,15 +60,25 @@ export default function ManualDetailPage() {
         const data = await response.json()
         setManual(data)
         
-        // Check for recent changes
-        const changeLogResponse = await fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}&unreadOnly=true`)
+        // Check for recent changes (only for non-admin users)
+        const changeLogResponse = await fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}`)
         if (changeLogResponse.ok) {
-          const changeLogs = await changeLogResponse.json()
-          if (changeLogs.length > 0) {
-            setHasRecentChanges(true)
-            setChangeLogId(changeLogs[0].id)
-            setChangeDetails(changeLogs[0])
-            setShowChangePopup(true)
+          const allChangeLogs = await changeLogResponse.json()
+          setChangeLogs(allChangeLogs)
+          
+          // Only show unread notifications to regular users, not admins
+          const isAdmin = userDepartment === 'admin' || userDepartment === 'engineering' || userDepartment === 'safety' || userDepartment === 'snt'
+          if (!isAdmin) {
+            const unreadResponse = await fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}&unreadOnly=true`)
+            if (unreadResponse.ok) {
+              const unreadLogs = await unreadResponse.json()
+              if (unreadLogs.length > 0) {
+                setHasRecentChanges(true)
+                setChangeLogId(unreadLogs[0].id)
+                setChangeDetails(unreadLogs[0])
+                setShowChangePopup(true)
+              }
+            }
           }
         }
         
@@ -254,27 +267,33 @@ export default function ManualDetailPage() {
           {/* Description */}
           {manual.description && (
             <Card 
-              className={`mb-8 cursor-pointer transition-all ${hasRecentChanges ? 'bg-yellow-50 border-yellow-300' : ''}`}
-              onClick={async () => {
-                if (hasRecentChanges && changeLogId) {
-                  try {
-                    await fetch('/api/notifications/mark-read', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
-                    })
-                    setHasRecentChanges(false)
-                  } catch (error) {
-                    console.error('Error marking as read:', error)
-                  }
-                }
-              }}
+              className={`mb-8 transition-all ${!isAdminView && hasRecentChanges ? 'bg-yellow-50 border-yellow-300 border-2' : ''}`}
             >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Content</CardTitle>
-                  {hasRecentChanges && (
-                    <Badge className="bg-yellow-500 text-white">Recently Updated - Click to dismiss</Badge>
+                  {!isAdminView && hasRecentChanges && (
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer" onClick={() => setShowChangePopup(true)}>Recently Updated - Click for details</Badge>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={async () => {
+                          try {
+                            await fetch('/api/notifications/mark-read', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
+                            })
+                            setHasRecentChanges(false)
+                          } catch (error) {
+                            console.error('Error marking as read:', error)
+                          }
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardHeader>
@@ -435,75 +454,128 @@ export default function ManualDetailPage() {
         </div>
       </div>
 
-      {/* Change Notification Popup */}
-      {showChangePopup && changeDetails && (
+      {/* Change History Popup */}
+      {showChangePopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 relative">
             <button
               onClick={() => setShowChangePopup(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
             >
               <X className="h-5 w-5" />
             </button>
             
-            <div className="mb-4">
+            <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-yellow-600" />
+                  <Clock className="h-5 w-5 text-yellow-600" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Manual Updated</h3>
+                <h3 className="text-xl font-bold text-gray-900">Change History</h3>
               </div>
+              <p className="text-sm text-gray-600">View all changes made to this manual</p>
             </div>
 
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Changes Made:</p>
-                <p className="text-sm text-gray-600 mt-1">{changeDetails.reason || 'Manual content has been updated'}</p>
+            {changeLogs.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No change history available</p>
               </div>
-
-              {changeDetails.user && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Updated By:</p>
-                  <p className="text-sm text-gray-600 mt-1">{changeDetails.user.name || changeDetails.user.email}</p>
-                </div>
-              )}
-
-              <div>
-                <p className="text-sm font-medium text-gray-700">Updated At:</p>
-                <p className="text-sm text-gray-600 mt-1">{format(new Date(changeDetails.createdAt), 'MMM dd, yyyy HH:mm')}</p>
-              </div>
-
-              {changeDetails.supportingDoc && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Supporting Document:</p>
-                  <a 
-                    href={changeDetails.supportingDoc} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline mt-1 block"
+            ) : (
+              <div className="space-y-4">
+                {changeLogs.map((log, index) => (
+                  <div 
+                    key={log.id} 
+                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
                   >
-                    View Document
-                  </a>
-                </div>
-              )}
-            </div>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={log.action === 'UPDATE' ? 'default' : log.action === 'CREATE' ? 'secondary' : 'destructive'}
+                          className="text-xs"
+                        >
+                          {log.action}
+                        </Badge>
+                        {index === 0 && hasRecentChanges && (
+                          <Badge className="bg-yellow-500 text-white text-xs">New</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Calendar className="h-3 w-3" />
+                        {format(new Date(log.createdAt), 'MMM dd, yyyy HH:mm')}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {log.reason && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Changes Made:</p>
+                          <p className="text-sm text-gray-600 mt-1">{log.reason}</p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <User className="h-4 w-4" />
+                        <span className="font-medium">Updated by:</span>
+                        <span>{log.user?.name || log.user?.email || log.userId}</span>
+                      </div>
+
+                      {log.supportingDoc && (
+                        <div>
+                          <a 
+                            href={log.supportingDoc} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <FileText className="h-4 w-4" />
+                            View Supporting Document
+                          </a>
+                        </div>
+                      )}
+
+                      {log.changes && typeof log.changes === 'object' && Object.keys(log.changes).length > 0 && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
+                          <p className="font-medium text-gray-700 mb-1">Modified Fields:</p>
+                          <div className="space-y-1">
+                            {Object.entries(log.changes).map(([key, value]: [string, any]) => (
+                              <div key={key} className="text-gray-600">
+                                <span className="font-medium">{key}:</span> {JSON.stringify(value).substring(0, 100)}{JSON.stringify(value).length > 100 ? '...' : ''}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="mt-6 flex gap-2">
+              {hasRecentChanges && (
+                <Button
+                  onClick={async () => {
+                    try {
+                      await fetch('/api/notifications/mark-read', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
+                      })
+                      setHasRecentChanges(false)
+                    } catch (error) {
+                      console.error('Error marking as read:', error)
+                    }
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Mark as Read
+                </Button>
+              )}
               <Button
-                onClick={() => {
-                  setShowChangePopup(false)
-                  if (hasRecentChanges && changeLogId) {
-                    fetch('/api/notifications/mark-read', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ entityId: manual.id, entityType: 'MANUAL' })
-                    })
-                    setHasRecentChanges(false)
-                  }
-                }}
+                onClick={() => setShowChangePopup(false)}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
               >
-                Got it
+                Close
               </Button>
             </div>
           </div>
