@@ -382,7 +382,7 @@ const Home = () => {
     { label: 'Scenarios', id: 'scenarios' },
     { label: 'JPO', id: 'jpo' },
     { label: 'Admin?', id: 'admin' },
-    { label: 'Change Log', id: 'changelog' },
+    { label: 'Last Correction', id: 'changelog' },
   ];
 
   const handleMenuClick = (id: string) => {

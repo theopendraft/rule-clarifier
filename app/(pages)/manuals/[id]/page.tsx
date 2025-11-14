@@ -69,30 +69,22 @@ export default function ManualDetailPage() {
           const allChangeLogs = await changeLogResponse.json()
           setChangeLogs(allChangeLogs)
           
-          // Only show unread notifications to regular users, not admins
           const isAdmin = userDepartment === 'admin' || userDepartment === 'engineering' || userDepartment === 'safety' || userDepartment === 'snt'
           if (!isAdmin) {
-            const unreadResponse = await fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}&unreadOnly=true`)
-            if (unreadResponse.ok) {
-              const unreadLogs = await unreadResponse.json()
-              if (unreadLogs.length > 0) {
-                setHasRecentChanges(true)
-                setChangeLogId(unreadLogs[0].id)
-                setChangeDetails(unreadLogs[0])
-                setShowChangePopup(true)
-                
-                // Extract changed element IDs from change logs
-                const elements: string[] = []
-                unreadLogs.forEach((log: any) => {
-                  if (log.changes?.changedSections) {
-                    elements.push(...log.changes.changedSections)
-                  } else if (log.changes?.changedElements) {
-                    elements.push(...log.changes.changedElements)
-                  }
-                })
-                setChangedElements(elements)
-                setHighlightsVisible(true)
-              }
+            if (allChangeLogs.length > 0) {
+              setHasRecentChanges(true)
+              setChangeLogId(allChangeLogs[0].id)
+              setChangeDetails(allChangeLogs[0])
+              setShowChangePopup(true)
+              
+              const elements: string[] = []
+              allChangeLogs.forEach((log: any) => {
+                if (log.changes?.divChanges) {
+                  elements.push(...log.changes.divChanges.map((dc: any) => dc.id))
+                }
+              })
+              setChangedElements(elements)
+              setHighlightsVisible(true)
             }
           }
         }

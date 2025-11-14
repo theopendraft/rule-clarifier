@@ -87,7 +87,7 @@ export function Header() {
     { label: 'JPO', href: '/jpo' },
     ...(userRole === 'admin' ? [{ label: 'Upload Files', href: '/upload' }] : []),
     { label: 'Admin?', href: '/login' },
-    { label: 'Change Log', href: '/changelog' },
+    { label: 'Last Correction', href: '/changelog' },
   ];
 
   const handleMenuClick = (item: typeof menuItems[0]) => {
@@ -101,7 +101,7 @@ export function Header() {
   return (
     <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700" suppressHydrationWarning>
       <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/users')}>
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <Train className="w-6 h-6 text-blue-900" />
           </div>

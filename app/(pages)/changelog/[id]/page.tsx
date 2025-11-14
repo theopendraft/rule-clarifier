@@ -23,7 +23,7 @@ export default function ChangelogDetailPage() {
 
   const fetchChangelog = async (id: string) => {
     try {
-      const response = await fetch(`/api/change-logs/${id}`)
+      const response = await fetch(`/api/change-logs-2/${id}`)
       if (response.ok) {
         const data = await response.json()
         setChangelog(data)
@@ -43,7 +43,7 @@ export default function ChangelogDetailPage() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-slate-600">Loading changelog...</p>
+              <p className="text-slate-600">Loading last correction...</p>
             </div>
           </div>
         </div>
@@ -57,10 +57,10 @@ export default function ChangelogDetailPage() {
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">Changelog Not Found</h1>
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">Last Correction Not Found</h1>
             <Button onClick={() => router.push('/changelog')} className="mt-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Changelog
+              Back to Last Correction
             </Button>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function ChangelogDetailPage() {
             className="mb-6 flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Changelog
+            Back to Last Correction
           </Button>
 
           <Card className="mb-6">
@@ -145,7 +145,31 @@ export default function ChangelogDetailPage() {
               <CardTitle>Changes Made</CardTitle>
             </CardHeader>
             <CardContent>
-              {changelog.changes?.changes && changelog.changes.changes.length > 0 ? (
+              {changelog.divChanges && changelog.divChanges.length > 0 ? (
+                <div className="space-y-4">
+                  {changelog.divChanges.map((change: any) => (
+                    <div key={change.id} className="border rounded-lg overflow-hidden">
+                      <div className="bg-slate-100 px-4 py-2 border-b">
+                        <p className="font-medium text-slate-900">Div ID: {change.divId}</p>
+                      </div>
+                      <div className="p-4 space-y-3">
+                        {change.fromText && (
+                          <div className="bg-red-50 p-3 rounded border border-red-200">
+                            <p className="text-xs text-red-600 font-medium mb-2">Previous</p>
+                            <p className="text-sm text-slate-700">{change.fromText}</p>
+                          </div>
+                        )}
+                        {change.toText && (
+                          <div className="bg-green-50 p-3 rounded border border-green-200">
+                            <p className="text-xs text-green-600 font-medium mb-2">Updated</p>
+                            <p className="text-sm text-slate-700">{change.toText}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : changelog.changes?.changes && changelog.changes.changes.length > 0 ? (
                 <div className="space-y-4">
                   {changelog.changes.changes.map((change: any, index: number) => (
                     <div key={index} className="border rounded-lg overflow-hidden">

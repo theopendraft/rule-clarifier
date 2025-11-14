@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { createChangelogEntry } from '@/lib/changelog-utils'
 
 export async function PUT(
   request: Request,
@@ -9,9 +8,8 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const { description, supportingDoc, changeReason } = body
+    const { description, supportingDoc, changeReason, changedDivs } = body
 
-    // Get old manual data
     const oldManual = await prisma.manual.findUnique({
       where: { id }
     })
@@ -20,40 +18,40 @@ export async function PUT(
       return NextResponse.json({ error: 'Manual not found' }, { status: 404 })
     }
 
-    // Update manual
     const updatedManual = await prisma.manual.update({
       where: { id },
       data: { description }
     })
 
-    // Create optimized changelog entry
-    const changelogEntry = createChangelogEntry(
-      'MANUAL',
-      id,
-      'UPDATE',
-      oldManual,
-      { description },
-      {
-        title: oldManual.title,
-        code: oldManual.code,
-        link: `/manuals/${id}`
-      }
-    )
+    const extractDivText = (html: string, divId: string) => {
+      const regex = new RegExp(`<div[^>]*id="${divId}"[^>]*>(.*?)</div>`, 's')
+      const match = html?.match(regex)
+      if (!match) return ''
+      return match[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 200)
+    }
 
-    // Create change log
+    const divChanges = (changedDivs || []).map((divId: string) => ({
+      id: divId,
+      from: extractDivText(oldManual.description || '', divId),
+      to: extractDivText(description, divId)
+    }))
+
     const changeLog = await prisma.changeLog.create({
       data: {
         entityType: 'MANUAL',
         entityId: id,
         action: 'UPDATE',
-        changes: changelogEntry as any,
+        changes: {
+          type: 'MANUAL',
+          type_id: id,
+          divChanges
+        },
         reason: changeReason || 'Manual updated',
         supportingDoc: supportingDoc || null,
         userId: 'cmflolqqc00006vyvs484vwgq'
       }
     })
 
-    // Create notifications for all users
     const users = await prisma.user.findMany({
       where: { id: { not: 'cmflolqqc00006vyvs484vwgq' } }
     })
@@ -67,8 +65,7 @@ export async function PUT(
             message: changeReason || 'Manual content has been updated',
             type: 'CHANGE',
             entityType: 'MANUAL',
-            entityId: id,
-            changelogId: changeLog.id
+            entityId: id
           }
         })
       )

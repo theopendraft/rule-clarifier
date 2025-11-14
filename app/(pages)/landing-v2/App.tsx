@@ -46,7 +46,7 @@ export default function App() {
       href: "/jpo"
     },
     {
-      title: "Change Log",
+      title: "Last Correction",
       description: "System Updates & Changes",
       icon: Clock,
       href: "/changelog"

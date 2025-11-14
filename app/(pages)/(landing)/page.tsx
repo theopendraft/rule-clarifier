@@ -1,275 +1,170 @@
 "use client";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { 
-  FileText, 
-  BookOpen, 
-  FileSpreadsheet, 
-  GitBranch, 
-  Briefcase, 
-  Clock, 
-  Shield 
+  Search, BookOpen, GitCompare, GitBranch, Briefcase, FileText,
+  Shield, Sparkles, Send, Bot, ChevronUp, ChevronDown
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
+  const [inputValue, setInputValue] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
   
-  const navigationItems = [
-    {
-      title: "GR&SR",
-      description: "General Rules & Subsidiary Rules",
-      icon: BookOpen,
-      href: "/grsr"
-    },
-    {
-      title: "Manuals",
-      description: "Operating & Safety Manuals",
-      icon: FileText,
-      href: "/manuals"
-    },
-    {
-      title: "Circulars",
-      description: "Latest Circulars & Notices",
-      icon: FileSpreadsheet,
-      href: "/circulars"
-    },
-    {
-      title: "Scenarios",
-      description: "Training Scenarios & Cases",
-      icon: GitBranch,
-      href: "/scenarios"
-    },
-    {
-      title: "JPO",
-      description: "Joint Procedure Orders",
-      icon: Briefcase,
-      href: "/jpo"
-    },
-    {
-      title: "Change Log",
-      description: "System Updates & Changes",
-      icon: Clock,
-      href: "/changelog"
-    },
-    {
-      title: "Admin",
-      description: "Administrative Access",
-      icon: Shield,
-      href: "/login"
-    }
+  const featureCards = [
+    { title: "GR&SR", icon: Search, href: "/grsr", gradient: "from-blue-500 to-blue-600", description: "General & Subsidiary Rules" },
+    { title: "Manuals", icon: FileText, href: "/manuals", gradient: "from-green-500 to-green-600", description: "Railway Manuals" },
+    { title: "Circulars", icon: GitCompare, href: "/circulars", gradient: "from-purple-500 to-purple-600", description: "Official Circulars" },
+    { title: "Scenarios", icon: GitBranch, href: "/scenarios", gradient: "from-orange-500 to-orange-600", description: "Case Studies" },
+    { title: "JPO", icon: Briefcase, href: "/jpo", gradient: "from-red-500 to-red-600", description: "Joint Procedure Order" },
+    { title: "Change logs", icon: BookOpen, href: "/changelog", gradient: "from-indigo-500 to-indigo-600", description: "Recent Updates" },
   ];
 
-  const handleNavigation = (href: string) => {
-    router.push(href);
-  };
-
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1728110400867-a5c93f6893b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjByYWlsd2F5JTIwdHJhaW58ZW58MXx8fHwxNzYyMzMyODE4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)'
-        }}
-      >
-        {/* Mobile Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-blue-900/75 to-slate-900/90 lg:hidden"></div>
-        
-        {/* Desktop Gradient Overlay */}
-        <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-transparent"></div>
+    <div className="h-screen overflow-hidden bg-slate-900 relative">
+      <div className="absolute inset-0">
+        <img 
+          src="https://images.unsplash.com/photo-1591084728795-1149f32d9866?q=80&w=2070&auto=format&fit=crop"
+          alt="Indian Railway background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-blue-900/90 to-slate-900/95"></div>
       </div>
-
-      {/* Mobile Layout */}
-      <div className="lg:hidden relative z-10 min-h-screen flex flex-col">
-        {/* Mobile App Header */}
-        <div className="px-6 pt-8 pb-6">
-          <div className="flex items-center justify-center mb-6">
-            <div className="relative cursor-pointer" onClick={() => router.push('/')}>
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-500/50 border-2 border-white/20">
-                <svg 
-                  className="w-9 h-9 text-white" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2.5} 
-                    d="M13 10V3L4 14h7v7l9-11h-7z" 
-                  />
-                </svg>
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-slate-900"></div>
-            </div>
-          </div>
-          <div className="text-center">
-            <h1 className="text-white mb-1 tracking-tight cursor-pointer" onClick={() => router.push('/')}>Rail Rules</h1>
-            <p className="text-blue-200/90 text-sm">Select a module to continue</p>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Grid */}
-        <div className="flex-1 px-4 pb-6">
-          <div className="max-w-md mx-auto space-y-2.5">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Card
-                  key={item.title}
-                  className="group active:scale-[0.98] transition-all duration-200 cursor-pointer border-white/20 bg-white/95 backdrop-blur-xl hover:bg-white shadow-lg hover:shadow-xl"
-                  onClick={() => handleNavigation(item.href)}
-                >
-                  <div className="p-2.5 flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/30">
-                      <Icon className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-slate-900 mb-0 text-xs font-semibold">
-                        {item.title}
-                      </h3>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">
-                        {item.description}
-                      </p>
-                    </div>
-                    <svg
-                      className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Mobile Bottom Footer */}
-        <div className="px-6 py-5 mt-auto">
-          <div className="max-w-md mx-auto">
-            <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 px-4 py-3">
-              <p className="text-white/70 text-xs text-center">
-                © 2025 Rail Rules. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Layout */}
-      <div className="hidden lg:flex relative z-10 min-h-screen">
-        {/* Left Side - Content Panel */}
-        <div className="w-1/2 xl:w-2/5 flex flex-col justify-center px-12 xl:px-20 py-12">
-          {/* Desktop Header */}
-          <div className="mb-12">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-xl flex items-center justify-center shadow-2xl shadow-orange-500/30 cursor-pointer" onClick={() => router.push('/')}>
-                <svg 
-                  className="w-8 h-8 text-white" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2.5} 
-                    d="M13 10V3L4 14h7v7l9-11h-7z" 
-                  />
-                </svg>
-              </div>
+      
+      <div className="relative z-10 h-screen flex flex-col overflow-hidden">
+        <header className="px-4 lg:px-8 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+                <img src="/logo.png" alt="Logo" className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl" />
               <div>
-                <h1 className="text-white mb-0 cursor-pointer" onClick={() => router.push('/')}>Rail Rules</h1>
-                <p className="text-blue-200/80 text-sm">Railway Documentation Portal</p>
+                <h1 className="text-white text-base lg:text-lg font-semibold">Southern Railway</h1>
+                <div className="text-white text-xs lg:text-sm">Compendium of railways rules</div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-white">Welcome Back</h2>
-              <p className="text-blue-100/90 max-w-lg">
-                Access comprehensive railway documentation, rules, and administrative resources. Select a module below to get started.
-              </p>
-            </div>
+            </div> 
+            <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 backdrop-blur-sm">
+              <Sparkles className="w-3 h-3 mr-1" />
+              AI-Powered
+            </Badge>
           </div>
+        </header>
 
-          {/* Desktop Navigation Grid */}
-          <div className="grid grid-cols-1 gap-3 max-w-2xl">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Card
-                  key={item.title}
-                  className="group hover:shadow-2xl transition-all duration-300 hover:-translate-x-1 cursor-pointer border-white/20 bg-white/95 backdrop-blur-xl hover:bg-white"
-                  onClick={() => handleNavigation(item.href)}
-                >
-                  <div className="p-3 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/40">
-                      <Icon className="w-4 h-4 text-white" strokeWidth={2} />
+        <main className="h-full flex items-center justify-center px-4 lg:px-8 overflow-y-auto">
+          <div className="max-w-7xl w-full h-full">
+            <div className="grid lg:grid-cols-5 gap-6 lg:gap-8 items-stretch h-full lg:items-center lg:h-full">
+              <div className={`lg:col-span-2 text-center lg:text-left ${isExpanded ? 'hidden' : ''}`}>
+                <div className="grid grid-cols-2 gap-4">
+                  {featureCards.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Card
+                        key={item.title}
+                        className="bg-white/10 backdrop-blur-xl border border-white/20 cursor-pointer hover:bg-white/15 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 overflow-hidden group"
+                        onClick={() => router.push(item.href)}
+                      >
+                        <CardContent className="p-4 lg:p-5">
+                          <div className="flex items-start gap-4">
+                            <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl flex-shrink-0`}>
+                              <Icon className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-white text-sm lg:text-base font-semibold mb-1">
+                                {item.title}
+                              </h4>
+                              <p className="text-blue-200/80 text-xs lg:text-sm">
+                                {item.description}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="lg:col-span-3 flex flex-col h-full lg:h-auto">
+                <Card className={`bg-white/10 backdrop-blur-2xl border-2 border-blue-500/50 shadow-2xl shadow-blue-500/20 overflow-hidden flex-1 flex flex-col lg:flex-none ${isExpanded ? 'fixed inset-0 z-50 rounded-none' : ''}`}>
+                  <CardContent className="p-0 flex flex-col h-full lg:h-auto">
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-5 lg:px-6 py-4 lg:py-5 border-b border-white/10">
+                      <div className="flex items-center gap-3">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="lg:hidden text-white hover:bg-white/20 h-8 w-8"
+                          onClick={() => setIsExpanded(!isExpanded)}
+                        >
+                          {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+                        </Button>
+                        <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 shadow-xl">
+                          <Bot className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white text-base lg:text-lg">AI Chat Assistant</h3>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                            <p className="text-blue-100 text-xs lg:text-sm">Online & Ready to Help</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-white/20 text-white border-0 hidden sm:flex">
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          Smart AI
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-slate-900 mb-0 group-hover:text-blue-700 transition-colors text-sm font-semibold">
-                        {item.title}
-                      </h3>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">
-                        {item.description}
+
+                    <div className="bg-gradient-to-b from-white/5 to-white/10 backdrop-blur-sm flex items-center justify-center px-5 lg:px-6 flex-1 lg:flex-none lg:h-[380px]">
+                      <div className="text-center space-y-4">
+                        <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center mx-auto shadow-lg">
+                          <Bot className="w-8 h-8 lg:w-10 lg:h-10 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="text-white text-lg lg:text-xl mb-2">Hello! I'm your Railway Assistant</h4>
+                          <p className="text-slate-300 text-sm">Ask me anything about railway rules, regulations, or procedures.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-sm px-5 lg:px-6 py-4 lg:py-5 border-t border-white/10">
+                      <div className="flex gap-3">
+                        <Input
+                          placeholder="Ask me anything about railway rules and regulations..."
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          className="flex-1 bg-white text-slate-900 placeholder:text-slate-500 border-0 rounded-xl h-12 lg:h-14 shadow-lg"
+                        />
+                        <Button
+                          size="icon"
+                          className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 h-12 w-12 lg:h-14 lg:w-14 shadow-xl shadow-blue-500/30"
+                        >
+                          <Send className="w-5 h-5" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-blue-200 flex items-center gap-1 mt-3">
+                        <Sparkles className="w-3 h-3" />
+                        Powered by advanced AI - Get instant, accurate answers
                       </p>
                     </div>
-                    <svg
-                      className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-2 transition-all flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </div>
+                  </CardContent>
                 </Card>
-              );
-            })}
-          </div>
-
-          {/* Desktop Footer */}
-          <div className="mt-12 pt-8 border-t border-white/10">
-            <div className="flex items-center justify-between text-sm">
-              <p className="text-white/60">© 2025 Rail Rules. All rights reserved.</p>
-              <div className="flex items-center gap-6">
-                <a href="#" className="text-white/60 hover:text-white transition-colors">Help</a>
-                <a href="#" className="text-white/60 hover:text-white transition-colors">Support</a>
-                <a href="#" className="text-white/60 hover:text-white transition-colors">Contact</a>
               </div>
             </div>
           </div>
-        </div>
+        </main>
 
-        {/* Right Side - Visual Space for background image */}
-        <div className="flex-1 relative">
-          {/* Optional: Add decorative elements or let the background shine */}
-          <div className="absolute bottom-12 right-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-6 py-4 max-w-sm">
-            <h3 className="text-white mb-2">System Status</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-white/80">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>All systems operational</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-white/80">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span>Last updated: Today, 09:30 AM</span>
-              </div>
-            </div>
+        <footer className="px-4 lg:px-8 py-4 border-t border-white/10">
+          <div className="max-w-7xl mx-auto flex items-center justify-center">
+            <button
+              onClick={() => router.push('/login')}
+              className="text-blue-300 hover:text-blue-200 text-sm transition-colors"
+            >
+              Are you Admin?
+            </button>
           </div>
-        </div>
+        </footer>
       </div>
     </div>
   );

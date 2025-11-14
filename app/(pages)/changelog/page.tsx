@@ -549,7 +549,7 @@ export default function ChangeLogPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
             <History className="h-8 w-8 text-primary" />
-            Change Log
+            Last Correction
           </h1>
           <p className="text-muted-foreground">
             Track all modifications and changes made to the railway rule system
@@ -624,18 +624,18 @@ export default function ChangeLogPage() {
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading change logs...</p>
+              <p className="mt-2 text-muted-foreground">Loading last corrections...</p>
             </div>
           </div>
         ) : filteredLogs.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No change logs found</h3>
+              <h3 className="text-lg font-medium mb-2">No last corrections found</h3>
               <p className="text-muted-foreground">
                 {changeLogs.length === 0 
                   ? "No changes have been recorded yet."
-                  : "No change logs match your current filters."
+                  : "No last corrections match your current filters."
                 }
               </p>
             </CardContent>
