@@ -36,9 +36,7 @@ export function IndexChatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
   const [showGreeting, setShowGreeting] = useState(true);
-  const [hoveredSource, setHoveredSource] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const initUserId = async () => {
@@ -58,169 +56,149 @@ export function IndexChatbot() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isLoading]);
+  }, [messages]);
 
   const fetchHistory = async () => {
     if (!userId) return;
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_RAG_API_URL}/api/chat/history/${userId}?page=1&pageSize=50`);
-      if (!response.ok) throw new Error('Failed to fetch history');
-      
       const data = await response.json();
-      if (data.history && data.history.length > 0) {
-        const historyMessages: Message[] = data.history.flatMap((item: HistoryMessage) => [
+
+      if (data.success && data.data.messages.length > 0) {
+        const historyMessages: Message[] = data.data.messages.flatMap((msg: HistoryMessage) => [
           {
-            id: `${item.id}-user`,
-            text: item.query,
+            id: `${msg.id}-query`,
+            text: msg.query,
             sender: 'user' as const,
-            timestamp: new Date(item.timestamp),
+            timestamp: new Date(msg.timestamp),
           },
           {
-            id: `${item.id}-bot`,
-            text: item.response,
+            id: `${msg.id}-response`,
+            text: msg.response,
             sender: 'bot' as const,
-            timestamp: new Date(item.timestamp),
-            contexts: item.contexts,
+            timestamp: new Date(msg.timestamp),
+            contexts: msg.contexts,
           },
         ]);
+
         setMessages(historyMessages);
-        setShowGreeting(false);
+        setShowGreeting(false); // Don't show greeting if history exists
       }
       setHasLoadedHistory(true);
     } catch (error) {
-      console.error('Error fetching history:', error);
+      console.error('Failed to fetch chat history:', error);
       setHasLoadedHistory(true);
     }
   };
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading || !userId) return;
+    if (!input.trim() || !userId) return;
+
+    const query = input;
+    setInput('');
+    
+    // If not expanded, expand first and load history if needed
+    if (!isExpanded) {
+      setIsExpanded(true);
+      if (!hasLoadedHistory) {
+        await fetchHistory();
+      }
+    }
+
+    // Hide greeting when user sends first message
+    setShowGreeting(false);
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: input,
+      text: query,
       sender: 'user',
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
-    setShowGreeting(false);
-
-    if (!isExpanded) {
-      setIsExpanded(true);
-    }
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_RAG_API_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: input, userId }),
+        body: JSON.stringify({ userId, query }),
       });
 
-      if (!response.ok) throw new Error('Failed to send message');
+      if (!response.ok) throw new Error('Chat request failed');
 
       const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = '';
-      let contexts: Array<{ text: string; source: string; score: number }> = [];
+      if (!reader) throw new Error('No response body');
 
+      let botMessageText = '';
       const botMessageId = (Date.now() + 1).toString();
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: botMessageId,
-          text: '',
-          sender: 'bot',
-          timestamp: new Date(),
-        },
-      ]);
 
-      while (reader) {
+      const botMessage: Message = {
+        id: botMessageId,
+        text: '',
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
-              const jsonData = JSON.parse(line.slice(6));
-              if (jsonData.chunk) {
-                accumulatedText += jsonData.chunk;
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === botMessageId
-                      ? { ...msg, text: accumulatedText }
-                      : msg
+              const data = JSON.parse(line.slice(6));
+              if (data.chunk) {
+                botMessageText += data.chunk;
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === botMessageId ? { ...msg, text: botMessageText } : msg
                   )
                 );
               }
-              if (jsonData.done && jsonData.contexts) {
-                contexts = jsonData.contexts;
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === botMessageId
-                      ? { ...msg, contexts }
-                      : msg
+              if (data.done) {
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === botMessageId ? { ...msg, contexts: data.contexts } : msg
                   )
                 );
+                break;
               }
             } catch (e) {
-              console.error('Error parsing SSE data:', e);
+              // Ignore parse errors
             }
           }
         }
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          text: 'Sorry, I encountered an error. Please try again.',
-          sender: 'bot',
-          timestamp: new Date(),
-        },
-      ]);
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        text: 'Sorry, I encountered an error. Please try again.',
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
-  };
-
-  const handleSourceHover = (sourceId: string) => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    setHoveredSource(sourceId);
-  };
-
-  const handleSourceLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setHoveredSource(null);
-    }, 1000);
-  };
-
-  const handlePopupEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-  };
-
-  const handlePopupLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setHoveredSource(null);
-    }, 1000);
   };
 
   if (isExpanded) {
@@ -286,39 +264,24 @@ export function IndexChatbot() {
                         <div className="mt-3 pt-3 border-t border-slate-200">
                           <p className="text-xs font-semibold text-slate-500 mb-2">Sources:</p>
                           <div className="space-y-1">
-                            {message.contexts.map((context, idx) => {
-                              const sourceId = `${message.id}-${idx}`;
-                              return (
-                                <div key={idx} className="relative">
-                                  <div 
-                                    className="text-xs bg-blue-50 rounded px-2 py-1 border border-blue-100 cursor-pointer hover:bg-blue-100 transition-colors"
-                                    onMouseEnter={() => handleSourceHover(sourceId)}
-                                    onMouseLeave={handleSourceLeave}
-                                  >
-                                    <span className="font-medium text-blue-700">{context.source}</span>
-                                    <span className="text-slate-500 ml-2">• Score: {(context.score * 100).toFixed(0)}%</span>
-                                  </div>
-                                  {/* Hover Popup */}
-                                  {hoveredSource === sourceId && (
-                                    <div 
-                                      className="absolute left-0 top-full mt-1 w-80 max-w-[90vw] bg-white border-2 border-blue-200 rounded-lg shadow-2xl p-3 z-50 animate-in fade-in-0 slide-in-from-top-2 duration-200"
-                                      onMouseEnter={handlePopupEnter}
-                                      onMouseLeave={handlePopupLeave}
-                                    >
-                                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-200">
-                                        <FileText className="w-4 h-4 text-blue-600" />
-                                        <p className="text-xs font-semibold text-slate-700 truncate">{context.source}</p>
-                                      </div>
-                                      <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-slate-100">
-                                        <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
-                                          {context.text}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )}
+                            {message.contexts.map((context, idx) => (
+                              <div key={idx} className="group relative">
+                                <div className="text-xs bg-blue-50 rounded px-2 py-1 border border-blue-100 cursor-pointer hover:bg-blue-100 transition-colors">
+                                  <FileText className="w-3 h-3 inline-block mr-1 text-blue-600" />
+                                  <span className="font-medium text-blue-700">{context.source}</span>
+                                  <span className="text-slate-500 ml-2">• Score: {(context.score * 100).toFixed(0)}%</span>
                                 </div>
-                              );
-                            })}
+                                <div className="absolute left-0 top-full mt-1 w-80 bg-white border border-slate-300 rounded-lg shadow-xl p-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none">
+                                  <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-200">
+                                    <FileText className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                                    <p className="text-xs font-semibold text-slate-700 truncate">{context.source}</p>
+                                  </div>
+                                  <div className="max-h-48 overflow-y-auto text-xs text-slate-600 leading-relaxed custom-scrollbar">
+                                    {context.text}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
@@ -358,12 +321,12 @@ export function IndexChatbot() {
           <div className="max-w-4xl mx-auto">
             <div className="flex gap-3">
               <Input
-                placeholder="Ask me anything about railway rules and regulations..."
+                placeholder="Type your question..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
-                className="flex-1 bg-slate-50 text-slate-900 placeholder:text-slate-500 border-slate-300 rounded-xl h-12 lg:h-14 shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="flex-1 bg-white text-slate-900 placeholder:text-slate-500 border-slate-300 rounded-xl h-12 lg:h-14 shadow-sm focus:ring-2 focus:ring-blue-500"
               />
               <Button
                 onClick={handleSend}
