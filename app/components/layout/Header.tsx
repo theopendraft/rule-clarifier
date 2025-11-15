@@ -69,14 +69,9 @@ export function Header() {
   }
 
   const handleLogout = () => {
-    const currentRole = userRole;
     logout();
     toast.success("Logged out successfully");
-    if (currentRole === 'admin') {
-      router.push("/users");
-    } else {
-      router.push("/users");
-    }
+    router.push("/");
   };
 
   const menuItems = [
@@ -87,7 +82,7 @@ export function Header() {
     { label: 'JPO', href: '/jpo' },
     ...(userRole === 'admin' ? [{ label: 'Upload Files', href: '/upload' }] : []),
     { label: 'Admin?', href: '/login' },
-    { label: 'Last Correction', href: '/changelog' },
+    { label: 'Recent correction', href: '/changelog' },
   ];
 
   const handleMenuClick = (item: typeof menuItems[0]) => {

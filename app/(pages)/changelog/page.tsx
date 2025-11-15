@@ -26,7 +26,9 @@ import {
   Archive,
   RotateCcw,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -92,14 +94,48 @@ export default function ChangeLogPage() {
   const [actionFilter, setActionFilter] = useState<string>('all')
   const [contentFilter, setContentFilter] = useState<string>('all')
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('engineering')
+  const [manualsByDepartment, setManualsByDepartment] = useState<Record<string, any[]>>({})
+
+  const departments = [
+    { label: 'Engineering', value: 'engineering' },
+    { label: 'SNT', value: 'snt' },
+    { label: 'Safety', value: 'safety' },
+    { label: 'Mechanical', value: 'mechanical' },
+    { label: 'Electrical', value: 'electrical' },
+    { label: 'Commercial', value: 'commercial' },
+    { label: 'Security', value: 'security' },
+    { label: 'Medical', value: 'medical' },
+    { label: 'TRD', value: 'trd' },
+    { label: 'Operations', value: 'operations' }
+  ]
 
   useEffect(() => {
     fetchChangeLogs()
+    fetchManualsByDepartment()
   }, [])
 
   useEffect(() => {
     filterChangeLogs()
-  }, [changeLogs, searchQuery, entityTypeFilter, actionFilter, contentFilter])
+  }, [changeLogs, searchQuery, entityTypeFilter, actionFilter, contentFilter, selectedDepartment, manualsByDepartment])
+
+  const fetchManualsByDepartment = async () => {
+    try {
+      const response = await fetch('/api/manuals')
+      if (response.ok) {
+        const manuals = await response.json()
+        const grouped: Record<string, any[]> = {}
+        manuals.forEach((manual: any) => {
+          const dept = manual.department || 'engineering'
+          if (!grouped[dept]) grouped[dept] = []
+          grouped[dept].push(manual)
+        })
+        setManualsByDepartment(grouped)
+      }
+    } catch (error) {
+      console.error('Error fetching manuals:', error)
+    }
+  }
 
   const fetchChangeLogs = async () => {
     try {
@@ -120,6 +156,15 @@ export default function ChangeLogPage() {
 
   const filterChangeLogs = () => {
     let filtered = changeLogs
+
+    // Filter by department
+    if (selectedDepartment && manualsByDepartment[selectedDepartment]) {
+      const departmentManuals = manualsByDepartment[selectedDepartment]
+      const manualIds = departmentManuals.map(m => m.id)
+      filtered = filtered.filter(log => 
+        log.entityType === 'MANUAL' && manualIds.includes(log.entityId)
+      )
+    }
 
     // Filter by search query
     if (searchQuery) {
@@ -549,11 +594,66 @@ export default function ChangeLogPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
             <History className="h-8 w-8 text-primary" />
-            Last Correction
+            Recent correction
           </h1>
           <p className="text-muted-foreground">
             Track all modifications and changes made to the railway rule system
           </p>
+        </div>
+
+        {/* Department Tabs */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-50 hover:bg-blue-100 border-blue-200"
+              onClick={() => {
+                const currentIndex = departments.findIndex(d => d.value === selectedDepartment)
+                if (currentIndex > 0) {
+                  setSelectedDepartment(departments[currentIndex - 1].value)
+                }
+              }}
+              disabled={departments.findIndex(d => d.value === selectedDepartment) === 0}
+              suppressHydrationWarning
+            >
+              <ChevronLeft className="h-5 w-5 text-blue-600" />
+            </Button>
+            <div className="flex-1 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2">
+                {departments.map((dept) => (
+                  <Button
+                    key={dept.value}
+                    variant={selectedDepartment === dept.value ? 'default' : 'outline'}
+                    className={`flex-shrink-0 rounded-lg px-6 ${
+                      selectedDepartment === dept.value
+                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
+                    }`}
+                    onClick={() => setSelectedDepartment(dept.value)}
+                    suppressHydrationWarning
+                  >
+                    {dept.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-50 hover:bg-blue-100 border-blue-200"
+              onClick={() => {
+                const currentIndex = departments.findIndex(d => d.value === selectedDepartment)
+                if (currentIndex < departments.length - 1) {
+                  setSelectedDepartment(departments[currentIndex + 1].value)
+                }
+              }}
+              disabled={departments.findIndex(d => d.value === selectedDepartment) === departments.length - 1}
+              suppressHydrationWarning
+            >
+              <ChevronRight className="h-5 w-5 text-blue-600" />
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -624,18 +724,18 @@ export default function ChangeLogPage() {
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading last corrections...</p>
+              <p className="mt-2 text-muted-foreground">Loading recent corrections...</p>
             </div>
           </div>
         ) : filteredLogs.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No last corrections found</h3>
+              <h3 className="text-lg font-medium mb-2">No recent corrections found</h3>
               <p className="text-muted-foreground">
                 {changeLogs.length === 0 
                   ? "No changes have been recorded yet."
-                  : "No last corrections match your current filters."
+                  : "No recent corrections match your current filters."
                 }
               </p>
             </CardContent>
