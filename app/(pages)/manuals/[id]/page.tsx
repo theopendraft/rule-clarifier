@@ -58,13 +58,15 @@ export default function ManualDetailPage() {
 
   const fetchManual = async (id: string) => {
     try {
-      const response = await fetch(`/api/manuals/get?id=${id}`)
-      if (response.ok) {
-        const data = await response.json()
+      const [manualResponse, changeLogResponse] = await Promise.all([
+        fetch(`/api/manuals/get?id=${id}`),
+        fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}`)
+      ])
+      
+      if (manualResponse.ok) {
+        const data = await manualResponse.json()
         setManual(data)
         
-        // Check for recent changes (only for non-admin users)
-        const changeLogResponse = await fetch(`/api/change-logs?entityType=MANUAL&entityId=${id}`)
         if (changeLogResponse.ok) {
           const allChangeLogs = await changeLogResponse.json()
           setChangeLogs(allChangeLogs)
@@ -89,10 +91,7 @@ export default function ManualDetailPage() {
           }
         }
         
-        // Extract div IDs after setting manual data
-        setTimeout(() => {
-          extractDivSections(data.description)
-        }, 100)
+        extractDivSections(data.description)
       } else if (response.status === 404) {
         // Handle 404 - manual not found
         setManual(null)
@@ -133,6 +132,26 @@ export default function ManualDetailPage() {
       }
     }
   }, [manual])
+
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      [id]:target {
+        background-color: #dbeafe !important;
+        border-left: 4px solid #3b82f6 !important;
+        padding: 12px !important;
+        border-radius: 6px !important;
+        margin: 8px 0 !important;
+        transition: all 0.3s ease !important;
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     // Add CSS for changed element highlighting
@@ -331,6 +350,7 @@ export default function ManualDetailPage() {
                       .replace(/&quot;/g, '"')
                       .replace(/&#39;/g, "'")
                       .replace(/&amp;/g, '&')
+                      .replace(/<div id="(\d+)"/g, '<div id="$1" class="scroll-mt-20"')
                   }}
                 />
               </CardContent>

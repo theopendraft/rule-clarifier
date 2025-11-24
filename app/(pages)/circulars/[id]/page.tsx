@@ -43,11 +43,7 @@ export default function CircularDetailPage() {
       if (response.ok) {
         const data = await response.json()
         setCircular(data)
-        
-        // Extract div IDs after setting circular data
-        setTimeout(() => {
-          extractDivSections(data.description)
-        }, 100)
+        extractDivSections(data.description)
       } else if (response.status === 404) {
         // Handle 404 - circular not found
         setCircular(null)

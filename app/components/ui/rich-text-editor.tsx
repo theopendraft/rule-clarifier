@@ -306,10 +306,90 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
       `}</style>
       {/* Toolbar */}
       {(!readOnly || link) && (
-      <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1">
-        {/* Text Formatting */}
-
-        {/* Links */}
+      <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1 sticky top-[208px] z-10">
+        {!readOnly && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              className={editor.isActive('bold') ? 'bg-gray-200' : ''}
+            >
+              <Bold className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              className={editor.isActive('italic') ? 'bg-gray-200' : ''}
+            >
+              <Italic className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+              className={editor.isActive('bulletList') ? 'bg-gray-200' : ''}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              className={editor.isActive('orderedList') ? 'bg-gray-200' : ''}
+            >
+              <ListOrdered className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              className={editor.isActive('blockquote') ? 'bg-gray-200' : ''}
+            >
+              <Quote className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+              className={editor.isActive('codeBlock') ? 'bg-gray-200' : ''}
+            >
+              <Code className="h-4 w-4" />
+            </Button>
+            <div className="relative" ref={colorPickerRef}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowColorPicker(!showColorPicker)}
+              >
+                <Palette className="h-4 w-4" />
+              </Button>
+              {showColorPicker && (
+                <div className="absolute top-full mt-1 bg-white border rounded-lg shadow-lg p-3 z-50">
+                  <div className="grid grid-cols-6 gap-2 mb-2">
+                    {predefinedColors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setTextColor(color)}
+                        className="w-6 h-6 rounded border hover:scale-110 transition-transform"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={removeTextColor}
+                    className="w-full text-xs"
+                  >
+                    Remove Color
+                  </Button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
         {(link || !readOnly) && (
           <div className="flex gap-1">
             {editor.isActive('link') ? (

@@ -97,12 +97,10 @@ export function Header() {
     <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700" suppressHydrationWarning>
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <Train className="w-6 h-6 text-blue-900" />
-          </div>
+          <img src="/logo.png" alt="Indian Railways" className="w-10 h-10 rounded-full" />
           <div>
-            <h1 className="text-xl font-semibold tracking-wide">Rail Rules</h1>
-            <p className="text-xs text-blue-200">Indian Railways</p>
+            <h1 className="text-xl font-semibold tracking-wide">Southern Railway</h1>
+            <p className="text-xs text-blue-200">Compendium of railways rule</p>
           </div>
         </div>
 

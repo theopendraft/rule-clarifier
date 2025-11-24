@@ -63,7 +63,7 @@ export function Chatbot({ onExpandChange }: ChatbotProps = {}) {
     if (!userId) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_RAG_API_URL}/api/chat/history/${userId}?page=1&pageSize=50`);
+      const response = await fetch(`/api/chat/history/${userId}?page=1&pageSize=50`);
       const data = await response.json();
 
       if (data.success && data.data.messages.length > 0) {
@@ -135,7 +135,7 @@ export function Chatbot({ onExpandChange }: ChatbotProps = {}) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_RAG_API_URL}/api/chat`, {
+      const response = await fetch(`/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, query }),

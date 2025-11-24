@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Providers from './providers'
 import InitialLoader from './components/InitialLoader'
+import { ChatbotWrapper } from './components/ChatbotWrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <Providers>
           <InitialLoader>{children}</InitialLoader>
+          <ChatbotWrapper />
         </Providers>
       </body>
     </html>

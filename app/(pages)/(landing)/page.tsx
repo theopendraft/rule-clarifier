@@ -16,14 +16,14 @@ export default function HomePage() {
     { title: "Circulars", icon: GitCompare, href: "/circulars", gradient: "from-purple-500 to-purple-600", description: "Official Circulars" },
     { title: "Scenarios", icon: GitBranch, href: "/scenarios", gradient: "from-orange-500 to-orange-600", description: "Case Studies" },
     { title: "JPO", icon: Briefcase, href: "/jpo", gradient: "from-red-500 to-red-600", description: "Joint Procedure Order" },
-    { title: "Recent correction", icon: BookOpen, href: "/changelog", gradient: "from-indigo-500 to-indigo-600", description: "Recent Updates" },
+    { title: "Change logs", icon: BookOpen, href: "/changelog", gradient: "from-indigo-500 to-indigo-600", description: "Recent Updates" },
   ];
 
   return (
     <div className="h-screen overflow-hidden bg-slate-900 relative">
       <div className="absolute inset-0">
         <img 
-          src="/landing page.jpg"
+          src="landing page.jpg"
           alt="Indian Railway background"
           className="w-full h-full object-cover"
         />
@@ -88,8 +88,18 @@ export default function HomePage() {
           </div>
         </main>
 
-
+        <footer className="px-4 lg:px-8 py-4 border-t border-white/10">
+          <div className="max-w-7xl mx-auto flex items-center justify-center">
+            <button
+              onClick={() => router.push('/login')}
+              className="text-blue-300 hover:text-blue-200 text-sm transition-colors"
+            >
+              Are you Admin?
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
   );
 }
+
