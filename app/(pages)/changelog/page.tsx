@@ -588,7 +588,7 @@ export default function ChangeLogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16">
       <Header />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">

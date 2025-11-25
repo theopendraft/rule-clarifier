@@ -380,7 +380,7 @@ const Home = ({ initialChapter }: HomeProps = {}) => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16">
       <style jsx global>{`
         .select-text::selection {
           background-color: #3b82f6;

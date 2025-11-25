@@ -435,7 +435,7 @@ const Home = () => {
 
       {/* Chapter Navigation */}
       {!isChatbotExpanded && (
-      <div className="sticky top-[72px] bg-white border-b border-slate-200 shadow-md z-40">
+      <div className="sticky top-[64px] bg-white border-b border-slate-200 shadow-md z-40">
         <div className="relative">
           {canScrollLeft && (
             <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-r from-white via-white to-transparent pl-2 pr-8">
@@ -569,8 +569,8 @@ const Home = () => {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto bg-slate-50">
-        <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8 pb-24">
+        <div className="flex-1 overflow-y-auto bg-slate-50 pt-20">
+        <div className="max-w-5xl mx-auto px-4 py-6 pb-24 sm:px-6 lg:px-8">
           {currentChapter && (
             <div className="mb-12">
               {/* Chapter Header */}

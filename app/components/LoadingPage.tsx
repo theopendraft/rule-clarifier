@@ -9,12 +9,12 @@ export default function LoadingPage({ onComplete }: { onComplete?: () => void })
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(() => onComplete?.(), 300);
+          setTimeout(() => onComplete?.(), 100);
           return 100;
         }
-        return prev + 2;
+        return prev + 10;
       });
-    }, 30);
+    }, 50);
 
     return () => clearInterval(interval);
   }, [onComplete]);

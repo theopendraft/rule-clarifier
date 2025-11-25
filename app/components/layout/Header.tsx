@@ -62,7 +62,24 @@ export function Header() {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      router.push(`/manuals?search=${encodeURIComponent(searchQuery)}`)
+      const query = searchQuery.trim().toLowerCase()
+      const pageMap: { [key: string]: string } = {
+        'admin': '/login',
+        'grsr': '/grsr',
+        'gr&sr': '/grsr',
+        'manuals': '/manuals',
+        'circulars': '/circulars',
+        'jpo': '/jpo',
+        'upload': '/upload',
+        'changelog': '/changelog',
+        'corrections': '/changelog'
+      }
+      
+      if (pageMap[query]) {
+        router.push(pageMap[query])
+      } else {
+        router.push(`/manuals?search=${encodeURIComponent(searchQuery)}`)
+      }
       setShowSearch(false)
       setSearchQuery('')
     }
@@ -78,11 +95,11 @@ export function Header() {
     { label: 'GR&SR', href: '/grsr' },
     { label: 'Manuals', href: '/manuals' },
     { label: 'Circulars', href: '/circulars' },
-    { label: 'Scenarios', href: '/scenarios' },
+    // { label: 'Scenarios', href: '/scenarios' }, // Hidden until permission granted
     { label: 'JPO', href: '/jpo' },
     ...(userRole === 'admin' ? [{ label: 'Upload Files', href: '/upload' }] : []),
     { label: 'Admin?', href: '/login' },
-    { label: 'Recent correction', href: '/changelog' },
+    { label: 'Recent corrections', href: '/changelog' },
   ];
 
   const handleMenuClick = (item: typeof menuItems[0]) => {
@@ -94,13 +111,13 @@ export function Header() {
   };
   
   return (
-    <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-50 border-b border-blue-700" suppressHydrationWarning>
+    <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-blue-700" suppressHydrationWarning>
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
           <img src="/logo.png" alt="Indian Railways" className="w-10 h-10 rounded-full" />
           <div>
             <h1 className="text-xl font-semibold tracking-wide">Southern Railway</h1>
-            <p className="text-xs text-blue-200">Compendium of railways rule</p>
+            <p className="text-xs text-blue-200">Compendium of railway rules</p>
           </div>
         </div>
 

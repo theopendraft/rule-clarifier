@@ -14,7 +14,7 @@ export default function HomePage() {
     { title: "GR&SR", icon: Search, href: "/grsr", gradient: "from-blue-500 to-blue-600", description: "General & Subsidiary Rules" },
     { title: "Manuals", icon: FileText, href: "/manuals", gradient: "from-green-500 to-green-600", description: "Railway Manuals" },
     { title: "Circulars", icon: GitCompare, href: "/circulars", gradient: "from-purple-500 to-purple-600", description: "Official Circulars" },
-    { title: "Scenarios", icon: GitBranch, href: "/scenarios", gradient: "from-orange-500 to-orange-600", description: "Case Studies" },
+    // { title: "Scenarios", icon: GitBranch, href: "/scenarios", gradient: "from-orange-500 to-orange-600", description: "Case Studies" },
     { title: "JPO", icon: Briefcase, href: "/jpo", gradient: "from-red-500 to-red-600", description: "Joint Procedure Order" },
     { title: "Change logs", icon: BookOpen, href: "/changelog", gradient: "from-indigo-500 to-indigo-600", description: "Recent Updates" },
   ];

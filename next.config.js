@@ -20,6 +20,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   serverExternalPackages: ['@prisma/client', 'pdf-parse'],
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@uploadthing/react'],
+  },
   webpack: (config) => {
     config.watchOptions = {
       poll: 1000,

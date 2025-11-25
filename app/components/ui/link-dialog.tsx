@@ -124,9 +124,9 @@ export function LinkDialog({ isOpen, onClose, onAddLink, selectedText }: LinkDia
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
         {!showPreview ? (
-          <>
+          <div className="p-6 overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4">Add Link</h3>
             <div className="space-y-4">
               <div>
@@ -236,15 +236,23 @@ export function LinkDialog({ isOpen, onClose, onAddLink, selectedText }: LinkDia
                 </Button>
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Document Preview</h3>
-              <Button variant="outline" size="sm" onClick={backToSelection}>
-                ← Back to Selection
-              </Button>
+            <div className="p-6 pb-4 border-b">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Document Preview</h3>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={backToSelection}>
+                    ← Back to Selection
+                  </Button>
+                  <Button size="sm" onClick={handleLinkDocument} className="bg-blue-600 hover:bg-blue-700">
+                    {selectedDivId ? 'Link Section' : 'Link Document'}
+                  </Button>
+                </div>
+              </div>
             </div>
+            <div className="p-6 pt-4 overflow-y-auto flex-1">
             
             {loadingPreview ? (
               <div className="flex items-center justify-center h-32">
@@ -292,22 +300,19 @@ export function LinkDialog({ isOpen, onClose, onAddLink, selectedText }: LinkDia
                     />
                   </div>
                 )}
-                
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div>
-                    <p className="text-sm font-medium text-blue-900">Link to this document?</p>
-                    <p className="text-xs text-blue-700 mt-1">
-                      {previewDocument.code} - {previewDocument.title}
-                      {selectedDivId && <span className="ml-2 bg-blue-200 px-2 py-1 rounded">Section: {selectedDivId}</span>}
-                    </p>
-                  </div>
-                  <Button onClick={handleLinkDocument} className="bg-blue-600 hover:bg-blue-700">
-                    {selectedDivId ? 'Link Section' : 'Link Document'}
-                  </Button>
-                </div>
               </div>
             ) : (
               <p className="text-center text-gray-500">Failed to load document details</p>
+            )}
+            </div>
+            {previewDocument && (
+              <div className="p-4 bg-blue-50 border-t border-blue-200">
+                <p className="text-sm font-medium text-blue-900">Link to this document?</p>
+                <p className="text-xs text-blue-700 mt-1">
+                  {previewDocument.code} - {previewDocument.title}
+                  {selectedDivId && <span className="ml-2 bg-blue-200 px-2 py-1 rounded">Section: {selectedDivId}</span>}
+                </p>
+              </div>
             )}
           </>
         )}

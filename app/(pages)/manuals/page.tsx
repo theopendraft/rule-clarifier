@@ -141,7 +141,7 @@ export default function ManualsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50" suppressHydrationWarning>
+    <div className="min-h-screen bg-slate-50 pt-16" suppressHydrationWarning>
       <Header />
       
       <div className="w-full px-3 py-4 sm:px-4 sm:py-8">

@@ -310,7 +310,7 @@ export function Chatbot({ onExpandChange }: ChatbotProps = {}) {
   }
 
   return (
-    <div className="sticky bottom-0 border-t border-slate-200 bg-white shadow-lg z-30 transition-all duration-300 hover:shadow-xl" style={{ marginBottom: '0px', maxHeight: 'calc(100vh - 120px)' }}>
+    <div className="fixed bottom-0 left-0 right-0 border-t border-slate-200 bg-white shadow-lg z-30 transition-all duration-300 hover:shadow-xl">
       <div className="max-w-5xl mx-auto px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-200 hover:bg-blue-200">

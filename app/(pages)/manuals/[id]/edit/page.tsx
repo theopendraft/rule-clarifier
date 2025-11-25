@@ -157,12 +157,43 @@ export default function EditManualPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pt-16">
       <Header />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="fixed top-16 left-0 right-0 bg-white z-20 py-3 px-4 shadow-md border-b">
+        <div className="container mx-auto max-w-6xl flex items-center justify-between gap-4">
+          <Button 
+            variant="ghost" 
+            onClick={() => router.push(`/manuals/${manual.id}`)}
+            className="flex items-center gap-2 flex-shrink-0"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <div className="flex items-center gap-2 flex-1 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowPreview(!showPreview)}
+              className="flex items-center gap-2 flex-shrink-0"
+            >
+              <Eye className="h-4 w-4" />
+              {showPreview ? 'Edit' : 'Preview'}
+            </Button>
+            <Button
+              onClick={() => setShowSaveDialog(true)}
+              disabled={!hasUnsavedChanges}
+              className="flex items-center gap-2 flex-shrink-0"
+            >
+              <Save className="h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-4 pt-24 pb-8">
         <div className="max-w-4xl mx-auto">
-          <div className="sticky top-[72px] bg-slate-50 z-20 py-4 -mx-4 px-4 mb-6 flex items-center justify-between shadow-sm">
+          <div className="hidden">
             <Button 
               variant="ghost" 
               onClick={() => router.push(`/manuals/${manual.id}`)}
@@ -184,16 +215,8 @@ export default function EditManualPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md">
-            <div className="flex items-center justify-between p-6 border-b sticky top-[136px] bg-white z-10 shadow-sm">
+            <div className="p-6 border-b">
               <h1 className="text-2xl font-bold text-blue-900">Edit Manual: {manual.title}</h1>
-              <Button
-                variant="outline"
-                onClick={() => setShowPreview(!showPreview)}
-                className="flex items-center gap-2"
-              >
-                <Eye className="h-4 w-4" />
-                {showPreview ? 'Edit Mode' : 'Preview'}
-              </Button>
             </div>
             
             <div className="p-6">
