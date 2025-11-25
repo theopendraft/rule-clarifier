@@ -256,7 +256,7 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
   }
 
   return (
-    <div className={className}>
+    <div className={className} style={{ marginTop: '100px' }}>
       <style jsx global>{`
         .pdf-content img {
           max-width: 100%;
@@ -306,7 +306,7 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
       `}</style>
       {/* Toolbar */}
       {(!readOnly || link) && (
-      <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1 sticky top-[208px] z-10">
+      <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1 sticky top-[208px] z-10 ">
         {!readOnly && (
           <>
             <Button
@@ -531,7 +531,7 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
               </>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-4 mt-20">
                   <h3 className="text-lg font-semibold">Document Preview</h3>
                   <Button variant="outline" size="sm" onClick={backToSelection}>
                     ← Back to Selection
@@ -543,7 +543,7 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   </div>
                 ) : previewDocument ? (
-                  <div className="space-y-6">
+                  <div className="space-y-6 relative">
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                       {'version' in previewDocument && previewDocument.version && (
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Version: {previewDocument.version}</span>
@@ -585,7 +585,7 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
                       </div>
                     )}
                     
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 fixed top-0 translate-y-[50%] max-w-4xl w-full left-1/2 -translate-x-1/2">
                       <div>
                         <p className="text-sm font-medium text-blue-900">Link to this document?</p>
                         <p className="text-xs text-blue-700 mt-1">
