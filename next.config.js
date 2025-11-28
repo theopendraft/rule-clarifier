@@ -9,6 +9,7 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   images: {
     domains: ['utfs.io'],
+    formats: ['image/avif', 'image/webp'],
   },
   env: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -23,7 +24,19 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@uploadthing/react'],
   },
-  webpack: (config) => {
+  // Performance optimizations
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
     config.watchOptions = {
       poll: 1000,
       aggregateTimeout: 300,

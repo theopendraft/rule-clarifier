@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -66,7 +66,7 @@ model ContentBlock {
   manualId  String?
   circularId String?
   type      ContentType
-  content   String        @db.Text
+  content   String
   metadata  Json?         // For storing additional formatting data (table structure, image info, etc.)
   order     Int           @default(0)
   createdAt DateTime      @default(now())
@@ -77,6 +77,9 @@ model ContentBlock {
   manual    Manual?   @relation(fields: [manualId], references: [id], onDelete: Cascade)
   circular  Circular? @relation(fields: [circularId], references: [id], onDelete: Cascade)
 
+  @@index([ruleId])
+  @@index([manualId])
+  @@index([circularId])
   @@map("content_blocks")
 }
 
@@ -175,6 +178,10 @@ model ChangeLog {
   user          User           @relation(fields: [userId], references: [id])
   notifications Notification[]
 
+  @@index([entityId])
+  @@index([entityType])
+  @@index([createdAt])
+  @@index([entityType, entityId])
   @@map("change_logs")
 }
 
@@ -208,6 +215,10 @@ model Notification {
   changelog   ChangeLog?       @relation(fields: [changelogId], references: [id], onDelete: Cascade)
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([isRead])
+  @@index([entityType])
+  @@index([userId, isRead])
   @@map("notifications")
 }
 

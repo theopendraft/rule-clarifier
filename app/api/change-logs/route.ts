@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+export const dynamic = 'force-dynamic'
+export const revalidate = 30 // Cache for 30 seconds
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,7 +35,11 @@ export async function GET(request: NextRequest) {
       if (unreadEntityIds.length > 0) {
         whereClause.entityId = { in: unreadEntityIds };
       } else {
-        return NextResponse.json([]);
+        return NextResponse.json([], {
+          headers: {
+            'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60'
+          }
+        });
       }
     }
 
@@ -43,7 +48,16 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      include: {
+      select: {
+        id: true,
+        entityId: true,
+        entityType: true,
+        action: true,
+        changes: true,
+        reason: true,
+        supportingDoc: true,
+        createdAt: true,
+        userId: true,
         user: {
           select: {
             id: true,
@@ -52,10 +66,14 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      take: 50,
-    }).catch(() => []);
+      take: 100,
+    });
 
-    return NextResponse.json(changes || []);
+    return NextResponse.json(changes || [], {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60'
+      }
+    });
   } catch (error) {
     console.error("Error fetching change logs:", error);
     return NextResponse.json([]);

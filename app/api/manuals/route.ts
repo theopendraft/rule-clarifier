@@ -3,15 +3,35 @@ import { prisma } from '../../lib/prisma'
 import { storePDFContent } from '../../../lib/pdf-content-service'
 import { utapi } from '../../../lib/uploadthing'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Revalidate every 60 seconds
+
 export async function GET() {
   try {
     const manuals = await prisma.manual.findMany({
+      select: {
+        id: true,
+        code: true,
+        title: true,
+        description: true,
+        version: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: [
         { createdAt: 'desc' }
-      ]
+      ],
+      where: {
+        isActive: true
+      }
     })
 
-    return NextResponse.json(manuals)
+    return NextResponse.json(manuals, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+      }
+    })
   } catch (error) {
     console.error('Error fetching manuals:', error)
     

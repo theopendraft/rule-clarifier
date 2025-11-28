@@ -92,7 +92,7 @@ export default function ManualDetailPage() {
         }
         
         extractDivSections(data.description)
-      } else if (response.status === 404) {
+      } else if (manualResponse.status === 404) {
         // Handle 404 - manual not found
         setManual(null)
       }

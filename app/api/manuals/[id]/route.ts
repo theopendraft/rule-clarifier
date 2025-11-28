@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 60
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -111,7 +114,11 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(manual)
+    return NextResponse.json(manual, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+      }
+    })
   } catch (error) {
     console.error('Error fetching manual:', error)
     return NextResponse.json(

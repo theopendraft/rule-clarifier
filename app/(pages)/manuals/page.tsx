@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -39,13 +39,18 @@ export default function ManualsPage() {
   const [highlights, setHighlights] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    fetchManuals()
-    fetchHighlights()
+    // Fetch both in parallel for faster loading
+    Promise.all([
+      fetchManuals(),
+      fetchHighlights()
+    ])
   }, [])
 
   const fetchManuals = async () => {
     try {
-      const response = await fetch('/api/manuals')
+      const response = await fetch('/api/manuals', {
+        next: { revalidate: 60 } // Cache for 60 seconds
+      })
       if (response.ok) {
         const data = await response.json()
         setManuals(data)
@@ -59,7 +64,9 @@ export default function ManualsPage() {
 
   const fetchHighlights = async () => {
     try {
-      const response = await fetch('/api/change-logs?entityType=MANUAL&unreadOnly=true')
+      const response = await fetch('/api/change-logs?entityType=MANUAL&unreadOnly=true', {
+        next: { revalidate: 30 } // Cache for 30 seconds
+      })
       if (response.ok) {
         const data = await response.json()
         const ids = new Set(data.map((c: any) => c.entityId))
@@ -108,21 +115,23 @@ export default function ManualsPage() {
     }
   }
 
-  const filteredManuals = manuals.filter(manual => {
-    const matchesSearch = manual.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         manual.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         manual.code.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesFilter = filterActive ? manual.isActive : true
-    
-    return matchesSearch && matchesFilter
-  })
+  const filteredManuals = useMemo(() => {
+    return manuals.filter(manual => {
+      const matchesSearch = manual.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           manual.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           manual.code.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesFilter = filterActive ? manual.isActive : true
+      
+      return matchesSearch && matchesFilter
+    })
+  }, [manuals, searchTerm, filterActive])
 
-  const getManualsByDepartment = (department: string) => {
+  const getManualsByDepartment = useCallback((department: string) => {
     return filteredManuals.filter(manual => 
       manual.code.toLowerCase().startsWith(department.toLowerCase() + '-')
     )
-  }
+  }, [filteredManuals])
 
   if (loading) {
     return (
