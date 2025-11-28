@@ -304,9 +304,11 @@ export function RichTextEditor({ content, onChange, placeholder, className, read
           line-height: 1.6;
         }
       `}</style>
-      {/* Toolbar */}
+      {/* Toolbar: fixed to top so it remains visible while scrolling the document */}
       {(!readOnly || link) && (
-      <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1 sticky top-[208px] z-10 ">
+      <div className="fixed top-20 left-0 right-0 z-50 pointer-events-none">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="border border-b-0 rounded-t-md p-2 bg-gray-50 flex flex-wrap gap-1 pointer-events-auto shadow-sm">
         {!readOnly && (
           <>
             <Button

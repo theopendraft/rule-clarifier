@@ -83,7 +83,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    padding-bottom: 120px;
+    padding-bottom: 0px;
   }
   
   /* Prevent horizontal scroll on mobile */
