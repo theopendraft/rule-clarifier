@@ -113,6 +113,45 @@ export function LinkDialog({ isOpen, onClose, onAddLink, selectedText }: LinkDia
     onClose();
   };
 
+  // Compute processed preview HTML to avoid inline complex template expressions in JSX
+  const processedPreviewHtml = (() => {
+    if (!previewDocument || !previewDocument.description) return '';
+    try {
+      let desc = previewDocument.description;
+      desc = desc.split('&lt;').join('<');
+      desc = desc.split('&gt;').join('>');
+      desc = desc.split('&quot;').join('"');
+      desc = desc.split('&#39;').join("'");
+      desc = desc.split('&amp;').join('&');
+
+      let out = '';
+      let idx = 0;
+      const token = '<div id="';
+      while (true) {
+        const pos = desc.indexOf(token, idx);
+        if (pos === -1) {
+          out += desc.slice(idx);
+          break;
+        }
+        out += desc.slice(idx, pos);
+        const start = pos + token.length;
+        const endQuote = desc.indexOf('"', start);
+        if (endQuote === -1) {
+          out += desc.slice(pos);
+          break;
+        }
+        const divId = desc.slice(start, endQuote);
+        out += '<div id="' + divId + '" class="cursor-pointer hover:bg-blue-50 transition-all ' +
+          (selectedDivId === divId ? 'bg-blue-100' : '') + '" onclick="handleDivClick(\'' + divId + '\')">';
+        idx = endQuote + 1;
+      }
+      return out;
+    } catch (e) {
+      console.error('Error processing preview HTML', e);
+      return previewDocument.description || '';
+    }
+  })();
+
   const addLink = () => {
     if (linkUrl) {
       onAddLink(linkUrl);
@@ -286,17 +325,7 @@ export function LinkDialog({ isOpen, onClose, onAddLink, selectedText }: LinkDia
                     <h5 className="font-medium mb-2">Content (Click on paragraphs to link specific sections)</h5>
                     <div 
                       className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
-                      dangerouslySetInnerHTML={{ 
-                        __html: previewDocument.description
-                          .replace(/&lt;/g, '<')
-                          .replace(/&gt;/g, '>')
-                          .replace(/&quot;/g, '"')
-                          .replace(/&#39;/g, "'")
-                          .replace(/&amp;/g, '&')
-                          .replace(/<div id="(\d+)"/g, (match, divId) => 
-                            `<div id="${divId}" class="cursor-pointer hover:bg-blue-50 transition-all ${selectedDivId === divId ? 'bg-blue-100' : ''}" onclick="handleDivClick('${divId}')"`
-                          )
-                      }} 
+                      dangerouslySetInnerHTML={{ __html: processedPreviewHtml }}
                     />
                   </div>
                 )}

@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import Home from '@/components/pages/Home'
+import RulesManagement from '@/components/pages/RulesManagement'
 import UsersView from '@/components/pages/UsersView'
 
 export default function HomePage() {
@@ -26,5 +26,5 @@ export default function HomePage() {
   }
 
   // Show admin view (editable GR) for admins, user view for everyone else
-  return userRole === 'admin' ? <Home /> : <UsersView />
+  return userRole === 'admin' ? <RulesManagement /> : <UsersView />
 }
