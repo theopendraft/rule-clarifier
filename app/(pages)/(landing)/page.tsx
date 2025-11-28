@@ -5,10 +5,12 @@ import {
   Search, BookOpen, GitCompare, GitBranch, Briefcase, FileText, Sparkles
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from '@/contexts/AuthContext'
 import { IndexChatbot } from "@/components/index-chatbot";
 
 export default function HomePage() {
   const router = useRouter();
+  const { isAuthenticated, userRole, loading } = useAuth();
   
   const featureCards = [
     { title: "GR&SR", icon: Search, href: "/grsr", gradient: "from-blue-500 to-blue-600", description: "General & Subsidiary Rules" },
@@ -89,13 +91,15 @@ export default function HomePage() {
         </main>
 
         <footer className="px-4 lg:px-8 py-4 border-t border-white/10">
-          <div className="max-w-7xl mx-auto flex items-center justify-center">
-            <button
-              onClick={() => router.push('/login')}
-              className="text-blue-300 hover:text-blue-200 text-sm transition-colors"
-            >
-              Are you Admin?
-            </button>
+            <div className="max-w-7xl mx-auto flex items-center justify-center">
+            {(!loading && !(isAuthenticated && userRole === 'admin')) && (
+              <button
+                onClick={() => router.push('/login')}
+                className="text-blue-300 hover:text-blue-200 text-sm transition-colors"
+              >
+                Are you Admin?
+              </button>
+            )}
           </div>
         </footer>
       </div>
