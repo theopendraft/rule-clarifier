@@ -10,7 +10,13 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Railway Rule Clarifier AI',
   description: 'Comprehensive railway operating procedures and safety guidelines',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+}
+
+// Move viewport metadata into the `generateViewport` export per Next.js guidance
+export function generateViewport() {
+  return {
+    viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+  }
 }
 
 export default function RootLayout({
